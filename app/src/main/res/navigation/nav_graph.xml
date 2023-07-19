@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    android:label="Home"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.param.newsbit.ui.fragments.HomeFragment"
+        android:label="@string/first_fragment_label"
+        tools:layout="@layout/fragment_home">
+
+        <action
+            android:id="@+id/actionHomeToNewsArticle"
+            app:destination="@id/newsArticleFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/newsArticleFragment"
+        android:name="com.param.newsbit.ui.fragments.NewsArticleFragment"
+        android:label="News Article"
+        tools:layout="@layout/fragment_news_article">
+
+        <argument
+            android:name="newsHeader"
+            app:argType="com.param.newsbit.model.entity.News" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/bookmarkFragment"
+        android:name="com.param.newsbit.ui.fragments.BookmarkFragment"
+        android:label="Bookmark"
+        tools:layout="@layout/fragment_bookmark" />
+
+</navigation>

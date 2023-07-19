@@ -1,0 +1,148 @@
+plugins {
+    id 'org.jetbrains.kotlin.android'
+    id 'com.android.application'
+    id 'kotlin-kapt'
+    id 'kotlin-android'
+    id 'kotlin-android-extensions'
+    id 'androidx.navigation.safeargs.kotlin'
+}
+
+android {
+
+    namespace 'com.param.newsbit'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.param.newsbit"
+        minSdk 31
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+
+    packagingOptions {
+        resources {
+//            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+            excludes += 'META-INF/DEPENDENCIES'
+        }
+    }
+
+    buildscript {
+        repositories {
+            google()
+        }
+        dependencies {
+            def nav_version = "2.6.0"
+            classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
+        }
+    }
+
+}
+
+dependencies {
+
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1'
+
+    implementation 'io.coil-kt:coil-compose:2.4.0'
+
+    implementation 'org.jsoup:jsoup:1.15.3'
+
+    // Kotlin components
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1"
+
+    // Coil
+    implementation "io.coil-kt:coil-compose:2.4.0"
+
+
+//    // Gson
+//    implementation 'com.google.code.gson:gson:2.9.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    // Navigation
+    def nav_version = "2.6.0"
+    implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
+    implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
+
+    // Lifecycle components
+    implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
+    implementation "androidx.lifecycle:lifecycle-common-java8:2.6.1"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1"
+
+    // Room
+//    def room_version = "2.5.2"
+    def room_version = "2.4.3"
+    implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+    androidTestImplementation "androidx.room:room-testing:$room_version"
+
+//    implementation "androidx.room:room-common:2.5.2"
+
+    // Dagger Hilt
+    def dagger_hilt_version = "2.44"
+    implementation "com.google.dagger:hilt-android:$dagger_hilt_version"
+    kapt "com.google.dagger:hilt-compiler:$dagger_hilt_version"
+
+    // Compose
+    implementation "androidx.compose.animation:animation:1.4.3"
+    implementation "androidx.compose.foundation:foundation:1.4.3"
+    implementation "androidx.compose.material:material:1.4.3"
+    implementation "androidx.compose.material3:material3:1.1.1"
+    implementation "androidx.compose.runtime:runtime:1.4.3"
+    implementation "androidx.compose.ui:ui:1.4.3"
+
+    // Activity
+    implementation 'androidx.activity:activity-ktx:1.7.2'
+    implementation 'androidx.activity:activity-compose:1.7.2'
+    implementation "androidx.activity:activity-compose:1.8.0-alpha06"
+
+    // UI
+    implementation "androidx.ui:ui-framework:0.1.0-dev03"
+    implementation "com.google.android.material:material:1.2.0-alpha03"
+
+    // OpenAI
+    implementation 'org.apache.httpcomponents:httpclient:4.5.13' // For HttpClient
+    implementation 'com.squareup.okhttp3:okhttp:4.11.0' // For OkHttp
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0' // For Retrofit
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0' // For Gson converter with Retrofit
+
+    // Android
+    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
+
+    // Work Manager
+    implementation "androidx.work:work-runtime-ktx:2.7.1"
+
+    // Testing
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
+
+}

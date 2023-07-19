@@ -1,0 +1,57 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Built application files
+*.apk
+*.ap_
+
+# Gradle build files
+.gradle/
+build/
+
+# Local configuration file (sdk path, etc)
+
+# Android Studio generated files
+.idea/
+*.iws
+*.ipr
+
+# Compiled JNI libraries
+*.so
+
+# Logs and databases
+*.log
+*.sqlite
+*.sqlite3
+*.db
+*.bak
+*.d
+
+# Android Studio Navigation Editor
+.navigation/
+
+# Hilt generated files
+/classes-hilt/
+/generated/
+
+# ProGuard files
+proguard*/
+
+# Kotlin specific
+*.kt__*
+
+# Android Studio profiler
+*.pstats
