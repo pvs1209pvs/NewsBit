@@ -1,4 +1,4 @@
-package com.param.newsbit.model.database
+package com.param.newsbit.database
 
 import androidx.room.TypeConverter
 import org.json.JSONObject

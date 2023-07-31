@@ -26,7 +26,7 @@
 
         <argument
             android:name="newsHeader"
-            app:argType="com.param.newsbit.model.entity.News" />
+            app:argType="com.param.newsbit.entity.News" />
 
     </fragment>
 

@@ -1,12 +1,10 @@
-package com.param.newsbit.model
+package com.param.newsbit.viewmodel
 
 import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.viewModelScope
-import com.param.newsbit.model.database.LocalDatabase
-import com.param.newsbit.model.repo.Repository
+import androidx.lifecycle.*
+import com.param.newsbit.database.LocalDatabase
+import com.param.newsbit.repo.Repository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -15,20 +13,24 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repo: Repository
 
+    val chipGenre = MutableLiveData("Top Stories")
+
     init {
         val newsDao = LocalDatabase.getDatabase(application).newsDao()
         repo = Repository(newsDao)
     }
 
-    fun smartSelect(genre: String, date: LocalDate) {
+    fun downloadFromInternet(genre: String, date: LocalDate = LocalDate.now()) {
         viewModelScope.launch(Dispatchers.IO) {
-            repo.fetchFromCloud(genre, date)
+            repo.downloadFromInternet(genre, date)
         }
     }
 
-    fun selectNews(genre: String, now: LocalDate) = repo.selectNewsByGenre(genre, now)
+    fun selectNews(date: LocalDate = LocalDate.now()) =
+        chipGenre.switchMap { repo.selectNewsByGenre(it, date) }
 
-    fun selectBookmark(url:String) = repo.selectBookmar(url)
+
+    fun selectBookmark(url: String) = repo.selectBookmar(url)
 
     fun fetchSummaryGTP(url: String) {
         viewModelScope.launch(Dispatchers.IO) {

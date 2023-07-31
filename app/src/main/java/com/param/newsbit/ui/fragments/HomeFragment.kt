@@ -11,15 +11,12 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipDrawable
-import com.google.android.material.datepicker.MaterialDatePicker
 import com.param.newsbit.databinding.FragmentHomeBinding
-import com.param.newsbit.model.ViewModel
-import com.param.newsbit.model.entity.News
+import com.param.newsbit.viewmodel.ViewModel
+import com.param.newsbit.entity.News
 import com.param.newsbit.model.parser.FeedURL
 import com.param.newsbit.ui.adapter.AdapterNewsHead
 import kotlinx.android.synthetic.main.fragment_home.view.*
-import java.time.LocalDate
-import java.util.Calendar
 
 class HomeFragment : Fragment() {
 
@@ -27,7 +24,6 @@ class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private val viewModel: ViewModel by viewModels()
 
-    private var genre = "Top"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -59,76 +55,38 @@ class HomeFragment : Fragment() {
             adapter = adapterNewsHead
         }
 
-//        // Date Picker
-//        val datePicker = createDatePicker()
-//        binding.imageButton.setOnClickListener {
-//            datePicker.show(requireActivity().supportFragmentManager, datePicker.toString())
-//        }
-//
-//        binding.textView.text = LocalDate.now().toString()
+        binding.chipGroup.setOnCheckedStateChangeListener { _, selectedChips ->
+            Log.d(javaClass.simpleName, "Selected chip = $selectedChips")
+            viewModel.chipGenre.value = selectedGenre(selectedChips)
+        }
 
+        viewModel.chipGenre.observe(viewLifecycleOwner){
+            Log.d(javaClass.simpleName,"Downloading from internet for $it")
+            viewModel.downloadFromInternet(it)
+        }
 
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-        val now = LocalDate.now()
-
-        // Chip group on click
-        binding.chipGroup.setOnCheckedStateChangeListener { _, _ ->
-
-            genre = selectedGenre()
-
-            viewModel.smartSelect(genre, now)
-            viewModel.selectNews(genre, now).observe(viewLifecycleOwner) { newsList ->
-                Log.d(javaClass.simpleName, "News from chips ${newsList.size}")
-                adapterNewsHead.setList(newsList)
-            }
-
+        viewModel.selectNews().observe(viewLifecycleOwner){
+            Log.d(javaClass.simpleName, "Display news = $it")
+            adapterNewsHead.setList(it)
         }
 
     }
-
-
-    override fun onResume() {
-        super.onResume()
-
-        val now = LocalDate.now()
-
-        // To start with Top Stories when you first open the app.
-        Log.d("Auto-load genre", genre)
-        viewModel.smartSelect(genre, now)
-
-        viewModel.selectNews(genre, now).observe(viewLifecycleOwner) { newsList ->
-            Log.d("Auto-load news", "$genre ${newsList.size}")
-            adapterNewsHead.setList(newsList)
-        }
-
-    }
-
-    private fun createDatePicker(): MaterialDatePicker<Long> {
-
-        val picker = MaterialDatePicker.Builder.datePicker()
-            .setSelection(Calendar.getInstance().timeInMillis)
-            .build()
-
-//        picker.addOnPositiveButtonClickListener {
-//            binding.textView.text = LocalDate.ofEpochDay(Duration.ofMillis(it).toDays()).toString()
-//        }
-
-        return picker
-
-    }
-
 
     private fun createGenreChipGroup(genres: Set<String>) {
 
-        val styleChipChoice = com.google.android.material.R.style.Widget_MaterialComponents_Chip_Choice
+        val styleChipChoice =
+            com.google.android.material.R.style.Widget_MaterialComponents_Chip_Choice
 
         genres.forEachIndexed { index, genre ->
             val chip = Chip(requireContext()).apply {
-                setChipDrawable(ChipDrawable.createFromAttributes(requireContext(), null, 0, styleChipChoice))
+                setChipDrawable(
+                    ChipDrawable.createFromAttributes(
+                        requireContext(),
+                        null,
+                        0,
+                        styleChipChoice
+                    )
+                )
                 text = genre
                 isCheckable = true
                 id = index
@@ -141,11 +99,8 @@ class HomeFragment : Fragment() {
 
     }
 
-    private fun selectedGenre(): String {
-        val checkedItem = binding.chipGroup.checkedChipIds.first()
-        val genre = FeedURL.genre.keys.toList()[checkedItem]
-        return genre
-    }
+    private fun selectedGenre(selectedChips: List<Int>) =
+        FeedURL.genre.keys.toList()[selectedChips.first()]
 
 
 }

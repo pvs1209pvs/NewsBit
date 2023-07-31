@@ -1,9 +1,9 @@
-package com.param.newsbit.model.database
+package com.param.newsbit.database
 
 import android.content.Context
 import androidx.room.*
-import com.param.newsbit.model.database.dao.NewsDao
-import com.param.newsbit.model.entity.News
+import com.param.newsbit.dao.NewsDao
+import com.param.newsbit.entity.News
 
 @Database(entities = [News::class], version = 1, exportSchema = false)
 @TypeConverters(Converter::class)

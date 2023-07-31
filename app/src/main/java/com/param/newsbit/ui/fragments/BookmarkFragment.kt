@@ -8,9 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView.LayoutManager
 import com.param.newsbit.databinding.FragmentBookmarkBinding
-import com.param.newsbit.model.ViewModel
+import com.param.newsbit.viewmodel.ViewModel
 import com.param.newsbit.ui.adapter.AdapterNewsBookmark
 
 class BookmarkFragment : Fragment() {

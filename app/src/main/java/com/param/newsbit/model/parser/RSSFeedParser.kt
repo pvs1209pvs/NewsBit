@@ -1,7 +1,7 @@
 package com.param.newsbit.model.parser
 
 import android.util.Log
-import com.param.newsbit.model.entity.News
+import com.param.newsbit.entity.News
 import org.jsoup.Jsoup
 import org.w3c.dom.Element
 import java.io.InputStream
@@ -15,21 +15,12 @@ object RSSFeedParser {
 
     fun getRSSFeed(genre: String): List<News> {
 
-        val feedUrl = FeedURL.genre[genre]!!
+        Log.d(javaClass.simpleName, "Parsing genre = $genre")
+        val url =  FeedURL.genre[genre]!!
 
-        Log.d(javaClass.simpleName + " getRSSFeed", "Genre URL $feedUrl")
+        Log.d(javaClass.simpleName, "Parsing url = $url")
+        val feed = URL(url).openConnection().getInputStream()!!
 
-        val list = feedParser(feedUrl, genre)
-
-        Log.d(javaClass.simpleName + " getRSSFeed", "Downloading ${list.size} items from RSS feed")
-
-        return list
-
-    }
-
-    private fun tstarFeedParser(feed: InputStream, genre: String): List<News> {
-
-        Log.d("tstar parse", "start")
 
         val newsFeedList = mutableListOf<News>()
 
@@ -45,7 +36,7 @@ object RSSFeedParser {
 
             val item = itemTags.item(i) as Element
 
-            val url = item.getElementsByTagName("link").item(0).textContent
+            val itemUrl = item.getElementsByTagName("link").item(0).textContent
             val title = item.getElementsByTagName("title").item(0).textContent
             val pubDate = item.getElementsByTagName("pubDate").item(0).textContent
 
@@ -55,7 +46,7 @@ object RSSFeedParser {
             newsFeedList += News(
                 title = title,
                 summary = null,
-                url = url,
+                url = itemUrl,
                 genre = genre,
                 imageUrl = imageUrl,
                 pubDate = dateParser(pubDate),
@@ -70,10 +61,6 @@ object RSSFeedParser {
 
     }
 
-    private fun feedParser(url: String, genre: String): List<News> {
-        val feed = downloadRSSFeed(url)
-        return tstarFeedParser(feed, genre)
-    }
 
     private fun downloadRSSFeed(url: String) = URL(url).openConnection().getInputStream()!!
 

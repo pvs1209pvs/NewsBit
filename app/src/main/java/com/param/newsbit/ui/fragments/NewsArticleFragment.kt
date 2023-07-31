@@ -16,7 +16,7 @@ import coil.size.Scale
 import coil.transform.RoundedCornersTransformation
 import com.param.newsbit.R
 import com.param.newsbit.databinding.FragmentNewsArticleBinding
-import com.param.newsbit.model.ViewModel
+import com.param.newsbit.viewmodel.ViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

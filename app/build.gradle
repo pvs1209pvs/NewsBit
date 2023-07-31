@@ -78,9 +78,6 @@ dependencies {
     implementation "io.coil-kt:coil-compose:2.4.0"
 
 
-//    // Gson
-//    implementation 'com.google.code.gson:gson:2.9.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
     // Navigation
     def nav_version = "2.6.0"
@@ -93,7 +90,6 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1"
 
     // Room
-//    def room_version = "2.5.2"
     def room_version = "2.4.3"
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
@@ -101,7 +97,6 @@ dependencies {
     kapt "androidx.room:room-compiler:$room_version"
     androidTestImplementation "androidx.room:room-testing:$room_version"
 
-//    implementation "androidx.room:room-common:2.5.2"
 
     // Dagger Hilt
     def dagger_hilt_version = "2.44"
@@ -121,9 +116,10 @@ dependencies {
     implementation 'androidx.activity:activity-compose:1.7.2'
     implementation "androidx.activity:activity-compose:1.8.0-alpha06"
 
-    // UI
+    // UI Android
     implementation "androidx.ui:ui-framework:0.1.0-dev03"
     implementation "com.google.android.material:material:1.2.0-alpha03"
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
     // OpenAI
     implementation 'org.apache.httpcomponents:httpclient:4.5.13' // For HttpClient
@@ -133,8 +129,8 @@ dependencies {
 
     // Android
     implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
 
     // Work Manager
     implementation "androidx.work:work-runtime-ktx:2.7.1"

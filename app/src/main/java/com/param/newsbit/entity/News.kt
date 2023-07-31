@@ -1,4 +1,4 @@
-package com.param.newsbit.model.entity
+package com.param.newsbit.entity
 
 import android.os.Parcelable
 import androidx.room.Entity

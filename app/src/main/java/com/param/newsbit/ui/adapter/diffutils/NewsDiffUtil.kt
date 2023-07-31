@@ -1,7 +1,7 @@
 package com.param.newsbit.ui.adapter.diffutils
 
 import androidx.recyclerview.widget.DiffUtil
-import com.param.newsbit.model.entity.News
+import com.param.newsbit.entity.News
 
 class NewsDiffUtil(
     private val oldList: List<News>,

@@ -1,6 +1,5 @@
 package com.param.newsbit.ui.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -8,9 +7,8 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.size.Scale
 import coil.transform.RoundedCornersTransformation
-import com.param.newsbit.R
 import com.param.newsbit.databinding.ItemNewsBookmarkBinding
-import com.param.newsbit.model.entity.News
+import com.param.newsbit.entity.News
 import com.param.newsbit.ui.adapter.diffutils.NewsDiffUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,8 +21,6 @@ class AdapterNewsBookmark : RecyclerView.Adapter<AdapterNewsBookmark.ViewHolderN
     private val list = mutableListOf<News>()
 
     fun setList(newList: List<News>) {
-
-        Log.d("AdapterNewsHead", "${newList.size} new items")
 
         val diffResult = DiffUtil.calculateDiff(NewsDiffUtil(list, newList))
 
@@ -50,13 +46,10 @@ class AdapterNewsBookmark : RecyclerView.Adapter<AdapterNewsBookmark.ViewHolderN
 
         CoroutineScope(Dispatchers.Default).launch {
 
-            Log.d("Coil (bookmark) downloading from", news.imageUrl.toString())
-
             holder.binding.newsBookmarkImage.load(news.imageUrl) {
                 scale(Scale.FILL)
                 transformations(RoundedCornersTransformation(8f))
-                crossfade(500)
-                error(R.drawable._04_error)
+                crossfade(100)
             }
 
         }

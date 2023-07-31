@@ -10,7 +10,7 @@ import coil.size.Scale
 import coil.transform.RoundedCornersTransformation
 import com.param.newsbit.R
 import com.param.newsbit.databinding.ItemNewsHeadBinding
-import com.param.newsbit.model.entity.News
+import com.param.newsbit.entity.News
 import com.param.newsbit.ui.adapter.diffutils.NewsDiffUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,8 +26,6 @@ class AdapterNewsHead(
     private val list = mutableListOf<News>()
 
     fun setList(newList: List<News>) {
-
-        Log.d("AdapterNewsHead", "${newList.size} new items")
 
         val diffResult = DiffUtil.calculateDiff(NewsDiffUtil(list, newList))
 
@@ -53,13 +51,10 @@ class AdapterNewsHead(
 
         CoroutineScope(Dispatchers.Default).launch {
 
-            Log.d("Coil downloading from", news.imageUrl.toString())
-
             holder.binding.imageView.load(news.imageUrl) {
                 scale(Scale.FILL)
                 transformations(RoundedCornersTransformation(8f))
-                crossfade(500)
-                error(R.drawable._04_error)
+                crossfade(100)
             }
 
         }

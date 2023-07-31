@@ -1,11 +1,11 @@
-package com.param.newsbit.model.database.dao
+package com.param.newsbit.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.param.newsbit.model.entity.News
+import com.param.newsbit.entity.News
 
 @Dao
 interface NewsDao {
