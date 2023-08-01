@@ -62,7 +62,6 @@ object RSSFeedParser {
     }
 
 
-    private fun downloadRSSFeed(url: String) = URL(url).openConnection().getInputStream()!!
 
     fun getTStarBody(url: String): String {
 
@@ -71,8 +70,10 @@ object RSSFeedParser {
         return Jsoup
             .connect(url)
             .get() // TODO org.jsoup.HttpStatusException: HTTP error fetching URL. Status=404,
-            .select("p.text-block-container")
+            .select("div#article-body")
+            .select("p")
             .joinToString("") { it.text() }
+
     }
 
     private fun dateParser(dateString: String): LocalDate {

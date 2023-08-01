@@ -29,18 +29,9 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
     fun selectNews(date: LocalDate = LocalDate.now()) =
         chipGenre.switchMap { repo.selectNewsByGenre(it, date) }
 
-
-    fun selectBookmark(url: String) = repo.selectBookmar(url)
-
-    fun fetchSummaryGTP(url: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repo.selectSummary(url)
-        }
-    }
-
     fun selectSummary(url: String): LiveData<String?> {
 
-        Log.d(javaClass.simpleName + "/selectSummary", url)
+        Log.d(javaClass.simpleName, "Selecting summary $url")
 
         viewModelScope.launch(Dispatchers.IO) {
             repo.fetchSummary(url)
@@ -50,7 +41,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
 
     }
 
-    fun toogleBookmark(url: String, value: Boolean) {
+    fun toggleBookmark(url: String, value: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             repo.toggleBookmark(url, value)
         }

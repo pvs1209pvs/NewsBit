@@ -1,6 +1,8 @@
 package com.param.newsbit.ui.fragments
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.*
@@ -14,6 +16,8 @@ import androidx.navigation.fragment.navArgs
 import coil.load
 import coil.size.Scale
 import coil.transform.RoundedCornersTransformation
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
 import com.param.newsbit.R
 import com.param.newsbit.databinding.FragmentNewsArticleBinding
 import com.param.newsbit.viewmodel.ViewModel
@@ -49,6 +53,10 @@ class NewsArticleFragment : Fragment() {
 
             if (it == null) {
                 binding.progressBar.visibility = View.VISIBLE
+                Handler(Looper.getMainLooper()).postDelayed({
+                    binding.progressBar.visibility = View.GONE
+                    summaryFailSnackbar()
+                }, 10000)
             } else {
                 binding.newsSummary.text = it
                 binding.progressBar.visibility = View.GONE
@@ -73,7 +81,7 @@ class NewsArticleFragment : Fragment() {
 
                         setIconMenuBookmark(menuItem, args.newsHeader.isBookmarked)
 
-                        viewModel.toogleBookmark(args.newsHeader.url, args.newsHeader.isBookmarked)
+                        viewModel.toggleBookmark(args.newsHeader.url, args.newsHeader.isBookmarked)
 
                         true
                     }
@@ -96,6 +104,20 @@ class NewsArticleFragment : Fragment() {
                 scale(Scale.FIT)
             }
         }
+
+    }
+
+    private fun summaryFailSnackbar() {
+
+        val snackbar = Snackbar.make(
+            binding.root,
+            "Unable to summarize, try again later",
+            Snackbar.LENGTH_SHORT
+        )
+
+        snackbar.anchorView =
+            requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        snackbar.show()
 
     }
 

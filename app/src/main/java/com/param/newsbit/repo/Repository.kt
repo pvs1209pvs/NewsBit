@@ -50,19 +50,21 @@ class Repository(private val newsDao: NewsDao) {
 
     suspend fun fetchSummary(url: String) {
 
-        withContext(Dispatchers.IO) {
+        val summary = newsDao.selectSummary(url)
 
-            val summary = newsDao.selectSummary(url)
+        if (summary == null) {
 
-            if (summary == null) {
-                Log.d("fetchSummaryGPT Cloud", "null")
-                val newsBody = RSSFeedParser.getTStarBody(url)
-                val newSummary = ChatGPTNewsSummarizer.summarize(newsBody)
-                Log.d("fetchSummaryGPT Cloud", newSummary.length.toString())
-                newsDao.updateSummary(url, newSummary)
-            } else {
-                Log.d("fetchSummaryGPT Local", summary.length.toString())
+            Log.d(javaClass.simpleName, "Getting summary from Chat GPT")
+
+            val newsBody = RSSFeedParser.getTStarBody(url)
+            val chatGptResponse = ChatGPTNewsSummarizer.summarize(newsBody)
+
+            if (chatGptResponse != null) {
+                newsDao.updateSummary(url, chatGptResponse)
             }
+
+        } else {
+            Log.d("fetchSummaryGPT Local", summary.length.toString())
         }
 
     }

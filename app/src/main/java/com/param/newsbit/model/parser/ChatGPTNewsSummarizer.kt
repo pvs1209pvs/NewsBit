@@ -24,7 +24,10 @@ object ChatGPTNewsSummarizer {
 
         val userMessage = JSONObject()
         userMessage.put("role", "user")
-        userMessage.put("content", "summarize the following text: $newsBody")
+        userMessage.put(
+            "content",
+            "summarize the following text, if you are unable to summarize for whatever reason or there is no text to summarize you will always reply with 'INVALID INPUT' in all uppercase without ending in a period: $newsBody"
+        )
         messagesArray.put(userMessage)
 
         jsonObject.put("messages", messagesArray)
@@ -33,9 +36,9 @@ object ChatGPTNewsSummarizer {
 
     }
 
-    fun summarize(message: String): String {
+    fun summarize(message: String): String? {
 
-        Log.d(javaClass.simpleName + "/summarize","Summarize with chat gpt")
+        Log.d(javaClass.simpleName + "/summarize", "Summarize with chat gpt")
 
         val apiKey = "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"
         val url = "https://api.openai.com/v1/chat/completions"
@@ -53,11 +56,18 @@ object ChatGPTNewsSummarizer {
             it.body?.string() ?: ""
         }
 
-        return JSONObject(result)
+        val gptResult = JSONObject(result)
             .getJSONArray("choices")
             .getJSONObject(0)
             .getJSONObject("message")
             .getString("content")
+
+        Log.d(javaClass.simpleName, "Chat GPT Result $gptResult")
+
+       return if(gptResult=="INVALID INPUT") null
+        else gptResult
+
+
 
     }
 }
