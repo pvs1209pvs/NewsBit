@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.*
 import com.param.newsbit.database.LocalDatabase
 import com.param.newsbit.repo.Repository
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -26,14 +27,16 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun selectNews(date: LocalDate = LocalDate.now()) =
-        chipGenre.switchMap { repo.selectNewsByGenre(it, date) }
+    fun selectNews(date: LocalDate = LocalDate.now()) = chipGenre.switchMap { repo.selectNewsByGenre(it, date) }
 
     fun selectSummary(url: String): LiveData<String?> {
 
         Log.d(javaClass.simpleName, "Selecting summary $url")
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO + CoroutineExceptionHandler { _, throwable ->
+            throwable.printStackTrace()
+        }
+        ) {
             repo.fetchSummary(url)
         }
 

@@ -4,7 +4,9 @@ import android.util.Log
 import com.param.newsbit.entity.News
 import org.jsoup.Jsoup
 import org.w3c.dom.Element
-import java.io.InputStream
+import java.net.HttpURLConnection
+import java.net.MalformedURLException
+import java.net.SocketTimeoutException
 import java.net.URL
 import java.text.DateFormatSymbols
 import java.time.LocalDate
@@ -16,51 +18,85 @@ object RSSFeedParser {
     fun getRSSFeed(genre: String): List<News> {
 
         Log.d(javaClass.simpleName, "Parsing genre = $genre")
-        val url =  FeedURL.genre[genre]!!
 
+        val url = FeedURL.genre[genre]!!
         Log.d(javaClass.simpleName, "Parsing url = $url")
-        val feed = URL(url).openConnection().getInputStream()!!
+
+        try {
+
+            val feedConnection = URL(url).openConnection() as HttpURLConnection
+            feedConnection.connectTimeout = 10000
+
+            if (feedConnection.responseCode == HttpURLConnection.HTTP_OK) {
+
+                val feed = URL(url).openConnection().getInputStream()!!
 
 
-        val newsFeedList = mutableListOf<News>()
+                val itemTags = DocumentBuilderFactory
+                    .newInstance()
+                    .newDocumentBuilder()
+                    .parse(feed)
+                    .documentElement
+                    .getElementsByTagName("item")
 
-        val root = DocumentBuilderFactory
-            .newInstance()
-            .newDocumentBuilder()
-            .parse(feed)
-            .documentElement
+                feed.close()
+                feedConnection.disconnect()
 
-        val itemTags = root.getElementsByTagName("item")
+                Log.d("items found", itemTags.length.toString())
 
-        for (i in 0 until itemTags.length) {
+                val newsFeedList = mutableListOf<News>()
 
-            val item = itemTags.item(i) as Element
+                for (i in 0 until itemTags.length) {
 
-            val itemUrl = item.getElementsByTagName("link").item(0).textContent
-            val title = item.getElementsByTagName("title").item(0).textContent
-            val pubDate = item.getElementsByTagName("pubDate").item(0).textContent
+                    val item = itemTags.item(i) as Element
 
-            val media = item.getElementsByTagName("media:content").item(0) as Element?
-            val imageUrl = media?.getAttribute("url")
+                    val linkTag = item.getElementsByTagName("link")
+                    val itemUrl = if (linkTag.length > 0) linkTag.item(0).textContent else continue
 
-            newsFeedList += News(
-                title = title,
-                summary = null,
-                url = itemUrl,
-                genre = genre,
-                imageUrl = imageUrl,
-                pubDate = dateParser(pubDate),
-                isBookmarked = false
-            )
+                    val pubDateTag = item.getElementsByTagName("pubDate")
+                    val pubDate =
+                        if (pubDateTag.length > 0) pubDateTag.item(0).textContent else continue
 
+                    val titleTag = item.getElementsByTagName("title")
+                    val title = if (titleTag.length > 0) titleTag.item(0).textContent else "null"
+
+                    val mediaTag = item.getElementsByTagName("enclosure")
+                    val media = if (mediaTag.length > 0) mediaTag.item(0) as Element else null
+                    val imageUrl = if (media != null) media.getAttribute("url") else "null"
+
+                    newsFeedList += News(
+                        title = title,
+                        summary = null,
+                        url = itemUrl,
+                        genre = genre,
+                        imageUrl = imageUrl,
+                        pubDate = dateParser(pubDate),
+                        isBookmarked = false
+                    )
+
+                }
+
+                Log.d("$genre feed items parsed", newsFeedList.size.toString())
+
+                return newsFeedList
+            } else {
+                Log.w(
+                    "Invalid response code when downloading feed",
+                    "${feedConnection.responseCode} ${feedConnection.responseMessage}"
+                )
+                return emptyList()
+            }
+
+        } catch (e: SocketTimeoutException) {
+            Log.w("Timeout when downloading rss feed", e.stackTrace.contentToString())
+            return emptyList()
+
+        } catch (e: MalformedURLException) {
+            Log.w("Malformed url", e.stackTrace.contentToString())
+            return emptyList()
         }
 
-        Log.d("$genre feed items parsed", newsFeedList.size.toString())
-
-        return newsFeedList
-
     }
-
 
 
     fun getTStarBody(url: String): String {

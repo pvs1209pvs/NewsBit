@@ -1,5 +1,6 @@
 package com.param.newsbit.ui.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -52,14 +53,18 @@ class NewsArticleFragment : Fragment() {
         viewModel.selectSummary(args.newsHeader.url).observe(viewLifecycleOwner) {
 
             if (it == null) {
+
                 binding.progressBar.visibility = View.VISIBLE
-                Handler(Looper.getMainLooper()).postDelayed({
-                    binding.progressBar.visibility = View.GONE
-                    summaryFailSnackbar()
-                }, 10000)
+
+                Handler(Looper.getMainLooper()).postDelayed(
+                    { binding.progressBar.visibility = View.GONE }, 10000
+                )
+
             } else {
-                binding.newsSummary.text = it
+
                 binding.progressBar.visibility = View.GONE
+                binding.newsSummary.text = it
+
             }
 
         }
@@ -107,19 +112,6 @@ class NewsArticleFragment : Fragment() {
 
     }
 
-    private fun summaryFailSnackbar() {
-
-        val snackbar = Snackbar.make(
-            binding.root,
-            "Unable to summarize, try again later",
-            Snackbar.LENGTH_SHORT
-        )
-
-        snackbar.anchorView =
-            requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
-        snackbar.show()
-
-    }
 
     private fun setIconMenuBookmark(menuItem: MenuItem, bookmark: Boolean) {
 
@@ -130,6 +122,5 @@ class NewsArticleFragment : Fragment() {
         menuItem.setIcon(bookmarkToggleIcon)
 
     }
-
 
 }

@@ -6,8 +6,8 @@
     android:layout_height="match_parent"
     android:layout_marginHorizontal="16dp"
     android:layout_marginTop="16dp"
+    android:id="@+id/homeRoot"
     tools:context=".ui.fragments.NewsArticleFragment">
-
 
     <TextView
         android:id="@+id/newsArticleTitle"
@@ -31,22 +31,21 @@
         app:layout_constraintTop_toBottomOf="@+id/newsArticleTitle"
         tools:src="@tools:sample/backgrounds/scenic" />
 
-
     <TextView
         android:id="@+id/newsArticleDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginVertical="8dp"
         android:text="5/9/2023"
-        app:layout_constraintBottom_toTopOf="@+id/newsSummary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/newsArticleImage" />
 
-    <TextView
-        android:id="@+id/readFullNews"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/summaryLen"
+        android:text="Summary length"
+        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Read full news"
         app:layout_constraintBottom_toTopOf="@+id/newsSummary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/newsArticleImage" />
@@ -60,7 +59,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/readFullNews" />
+        app:layout_constraintTop_toBottomOf="@+id/newsArticleDate" />
 
     <ProgressBar
         android:id="@+id/progressBar"

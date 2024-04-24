@@ -16,15 +16,14 @@ interface NewsDao {
     @Query("SELECT COUNT(*) FROM news_table WHERE genre = :genre AND pubDate = :dateString")
     suspend fun localCount(genre: String, dateString: String): Int
 
-    @Query("SELECT * FROM news_table WHERE genre = :genre AND pubDate = :dateString")
-    fun selectByGenre(genre: String, dateString: String): LiveData<List<News>>
+    @Query("SELECT * FROM news_table WHERE genre = :genre AND pubDate >= DATE(:today, '-1 day')")
+    fun selectByGenre(genre: String, today: String): LiveData<List<News>>
 
     @Query("SELECT * FROM news_table WHERE isBookmarked = 1")
     fun selectBookmarked(): LiveData<List<News>>
 
     @Query("SELECT isBookmarked FROM news_table WHERE url = :url")
     fun selectBookmark(url: String): LiveData<Int>
-
 
     @Query("SELECT summary FROM news_table WHERE url = :url")
     suspend fun selectSummary(url: String): String?

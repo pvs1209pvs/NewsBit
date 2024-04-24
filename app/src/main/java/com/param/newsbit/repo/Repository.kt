@@ -1,52 +1,37 @@
 package com.param.newsbit.repo
 
 import android.util.Log
-import androidx.lifecycle.LiveData
 import com.param.newsbit.dao.NewsDao
-import com.param.newsbit.entity.News
 import com.param.newsbit.model.parser.ChatGPTNewsSummarizer
 import com.param.newsbit.model.parser.RSSFeedParser
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.json.JSONObject
 import java.time.LocalDate
 
 class Repository(private val newsDao: NewsDao) {
 
+    /**
+     * Downloads news from the internet and directly adds them to the database.
+     */
     suspend fun downloadFromInternet(genre: String, date: LocalDate) {
-
-        val jsonObj = JSONObject().apply {
-            put("year", date.year)
-            put("month", date.monthValue)
-            put("day", date.dayOfMonth)
-        }
-
-        val dateString = jsonObj.toString()
-
-        val localCount = newsDao.localCount(genre, dateString)
-
-        Log.d(javaClass.simpleName, "$localCount found locally")
-
-        if (localCount == 0) {
-            val fromCloud = RSSFeedParser.getRSSFeed(genre)
-            newsDao.insertAll(fromCloud)
-        }
-
+        val fromCloud = RSSFeedParser.getRSSFeed(genre)
+        newsDao.insertAll(fromCloud)
     }
 
-    fun selectNewsByGenre(genre: String, date: LocalDate): LiveData<List<News>> {
+//    suspend fun downloadFromInternet(genre: String, date: LocalDate) {
+//
+//        val localCount = newsDao.localCount(genre, date.toString())
+//
+//        Log.d(javaClass.simpleName, "$localCount found locally")
+//
+//        if (localCount == 0) {
+//            val fromCloud = RSSFeedParser.getRSSFeed(genre)
+//            newsDao.insertAll(fromCloud)
+//        }
+//
+//    }
 
-        val jsonObj = JSONObject().apply {
-            put("year", date.year)
-            put("month", date.monthValue)
-            put("day", date.dayOfMonth)
-        }
+    fun selectNewsByGenre(genre: String, date: LocalDate) =
+        newsDao.selectByGenre(genre, date.toString())
 
-        val dateString = jsonObj.toString()
-
-        return newsDao.selectByGenre(genre, dateString)
-
-    }
 
     suspend fun fetchSummary(url: String) {
 
@@ -56,8 +41,13 @@ class Repository(private val newsDao: NewsDao) {
 
             Log.d(javaClass.simpleName, "Getting summary from Chat GPT")
 
-            val newsBody = RSSFeedParser.getTStarBody(url)
+            val newsBody = RSSFeedParser.getTStarBody(url).replace("\"", "'")
+
+            Log.d("News body", newsBody)
+
             val chatGptResponse = ChatGPTNewsSummarizer.summarize(newsBody)
+
+            Log.d("Chat GPT Summary", chatGptResponse.toString())
 
             if (chatGptResponse != null) {
                 newsDao.updateSummary(url, chatGptResponse)
@@ -72,12 +62,9 @@ class Repository(private val newsDao: NewsDao) {
     fun selectSummary(url: String) = newsDao.selectSummaryLD(url)
 
     suspend fun toggleBookmark(url: String, value: Boolean) {
-//        Log.d("Change bookmark", "${news.isBookmarked} -> ${!news.isBookmarked}")
         newsDao.toggleBookmark(url, value)
     }
 
     fun selectNewsBookmarked() = newsDao.selectBookmarked()
-
-    fun selectBookmar(url: String) = newsDao.selectBookmark(url)
 
 }
