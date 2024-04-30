@@ -5,45 +5,26 @@ import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 
 object ChatGPTNewsSummarizer {
 
-    private fun simpleResponse(newsBody: String): JSONObject {
+    private val TAG = javaClass.simpleName
 
-        val jsonObject = JSONObject()
+    private const val apiKey = "sk-proj-nnNHOLJOoyGj7rOqAVtvT3BlbkFJMSdJLW6Bt4ewBdCVVCdo"
+    private const val url = "https://api.openai.com/v1/chat/completions"
+    private val mediaType = "application/json; charset=utf-8".toMediaType()
 
-        jsonObject.put("model", "gpt-3.5-turbo")
-        jsonObject.put("prompt", "tell me a joke")
+    private val headers = Headers.Builder()
+        .add("Content-Type", "application/json")
+        .add("Authorization", "Bearer $apiKey")
+        .build()
 
-        return jsonObject
 
-    }
-
-    private fun req(newsBody: String): JSONObject {
-
-        val jsonObject = JSONObject()
-
-        jsonObject.put("model", "gpt-3.5-turbo")
-
-        jsonObject.put("type", "json_object")
-
-        val message = JSONObject().apply {
-            put("role", "user")
-            put("content", "What is 2+2?")
-        }
-
-        val messageArray = JSONArray().put(message)
-
-        jsonObject.put("messages", messageArray)
-
-        return jsonObject
-
-    }
-
-    private fun buildChatGPTRequestBody(newsBody: String): JSONObject {
+    private fun gptRequestBody(newsBody: String): RequestBody {
 
         val jsonObject = JSONObject()
 
@@ -58,7 +39,7 @@ object ChatGPTNewsSummarizer {
             put("role", "user")
             put(
                 "content",
-                "Please summarize the following new article: $newsBody"
+                "Please summarize the following news article: $newsBody"
             )
         }
 
@@ -69,47 +50,34 @@ object ChatGPTNewsSummarizer {
 
         jsonObject.put("messages", msgArray)
 
-        return jsonObject
+        return jsonObject.toString().toRequestBody(mediaType)
 
     }
 
-    fun summarize(message: String): String? {
+    /**
+     * Throws an exception if the ChatGPT API failed to summarized the text.
+     * @return News article summarized by ChatGPT API.
+     */
+    fun summarize(newsBody: String): String {
 
-        Log.d(javaClass.simpleName, "Summarize with chat gpt")
-
-        val apiKey = "sk-proj-nnNHOLJOoyGj7rOqAVtvT3BlbkFJMSdJLW6Bt4ewBdCVVCdo"
-        val url = "https://api.openai.com/v1/chat/completions"
-        val mediaType = "application/json; charset=utf-8".toMediaType()
-        val requestBody = buildChatGPTRequestBody(message).toString().toRequestBody(mediaType)
-
-        val headers = Headers.Builder()
-            .add("Content-Type", "application/json")
-            .add("Authorization", "Bearer $apiKey")
-            .build()
-
-        val request = Request
-            .Builder()
+        val request = Request.Builder()
             .url(url)
             .headers(headers)
-            .post(requestBody)
+            .post(gptRequestBody(newsBody))
             .build()
 
-        return OkHttpClient().newCall(request).execute().use {
+        return OkHttpClient().newCall(request).execute().use { response ->
 
-            Log.d("Response Code", it.code.toString())
+            Log.i(TAG,  "Response code = ${response.code}")
 
-            if (!it.isSuccessful) {
-                return@use null
+            if (!response.isSuccessful || response.body == null) {
+                throw IllegalStateException("ChatGPT API error = ${response.code} ${response.message}")
             }
 
-            if (it.body == null) {
-                return@use null
-            }
-
-            val responseBody = it.body!!.string()
+            val responseBody = response.body!!.string()
 
             if (responseBody.isEmpty() || responseBody.isBlank()) {
-                return@use null
+                throw IllegalStateException("Blank/empty body return by ChatGPT API")
             }
 
             return@use JSONObject(responseBody)

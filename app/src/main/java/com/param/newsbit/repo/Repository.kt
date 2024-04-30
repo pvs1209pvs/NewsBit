@@ -1,61 +1,119 @@
 package com.param.newsbit.repo
 
 import android.util.Log
+import com.param.newsbit.api.TStarAPI
+import com.param.newsbit.api.TStarRetrofit
 import com.param.newsbit.dao.NewsDao
+import com.param.newsbit.entity.News
+import com.param.newsbit.model.parser.ArticleDownloader
 import com.param.newsbit.model.parser.ChatGPTNewsSummarizer
-import com.param.newsbit.model.parser.RSSFeedParser
+import com.param.newsbit.model.parser.FeedDownloader
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
+import javax.inject.Inject
 
-class Repository(private val newsDao: NewsDao) {
+class Repository @Inject constructor(
+    private val newsDao: NewsDao,
+    private val tStarRetrofit: TStarAPI,
+) {
+
+    private val TAG = javaClass.simpleName
 
     /**
-     * Downloads news from the internet and directly adds them to the database.
+     * Downloads a list of news of the given genre.
+     * genre = null for top stories
      */
-    suspend fun downloadFromInternet(genre: String, date: LocalDate) {
-        val fromCloud = RSSFeedParser.getRSSFeed(genre)
-        newsDao.insertAll(fromCloud)
+    suspend fun retroDownload(genre: String) {
+
+        val category = if (genre == "Top Stories") null else genre
+
+        val localCount = newsDao.localCount(genre, LocalDate.now().toString())
+
+        if (localCount == 0) {
+
+            val response = tStarRetrofit.downloadNews(category, 20)
+
+            if (!response.isSuccessful) {
+                Log.e(TAG, "${response.code()} = ${response.errorBody()}")
+                throw IllegalStateException("Retrofit download news = ${response.code()} ${response.errorBody()}")
+            }
+
+            if (response.body() == null) {
+                Log.e(TAG, "Response body null")
+                throw IllegalStateException("Response body null")
+            }
+
+            val allNews = response.body()!!.rows.map {
+                News(
+                    url = it.url,
+                    title = it.title,
+                    genre = genre,
+                    summary = "",
+                    imageUrl = it.preview.url,
+                    isBookmarked = false,
+                    pubDate = Instant.ofEpochMilli(it.starttime.utc.toLong())
+                        .atZone(ZoneId.systemDefault()).toLocalDate()
+                )
+            }
+
+            Log.i(TAG, "retroDownload: ${allNews.size} articles downloaded")
+
+        }
+
     }
 
-//    suspend fun downloadFromInternet(genre: String, date: LocalDate) {
-//
-//        val localCount = newsDao.localCount(genre, date.toString())
-//
-//        Log.d(javaClass.simpleName, "$localCount found locally")
-//
-//        if (localCount == 0) {
-//            val fromCloud = RSSFeedParser.getRSSFeed(genre)
-//            newsDao.insertAll(fromCloud)
-//        }
-//
-//    }
+
+    /**
+     * Downloads news from the API and directly adds them to the database.
+     */
+    suspend fun downloadArticles(genre: String, date: LocalDate) {
+
+        val localCount = newsDao.localCount(genre, date.toString())
+
+        if (localCount == 0) {
+            val fromApi = FeedDownloader.getRSSFeed(genre)
+            newsDao.insertAll(fromApi)
+        }
+
+    }
 
     fun selectNewsByGenre(genre: String, date: LocalDate) =
         newsDao.selectByGenre(genre, date.toString())
 
 
-    suspend fun fetchSummary(url: String) {
+    suspend fun downloadSummary(articleUrl: String) {
 
-        val summary = newsDao.selectSummary(url)
+//        throw NullPointerException("this is fun")
 
-        if (summary == null) {
+        Log.i(TAG, "Downloading summary $articleUrl")
 
-            Log.d(javaClass.simpleName, "Getting summary from Chat GPT")
+        val localSummary = newsDao.selectSummary(articleUrl)
 
-            val newsBody = RSSFeedParser.getTStarBody(url).replace("\"", "'")
+        Log.i(TAG, "Local summary found ${localSummary != null}")
 
-            Log.d("News body", newsBody)
+        if (localSummary.isNullOrBlank()) { // only download if summary hasn't been downloaded before
 
-            val chatGptResponse = ChatGPTNewsSummarizer.summarize(newsBody)
+            val newsBody = ArticleDownloader.getNewsBody(articleUrl).replace("\"", "'")
+            Log.i(TAG, "News body (len) ${newsBody.length}")
 
-            Log.d("Chat GPT Summary", chatGptResponse.toString())
+            val gptSummary = ChatGPTNewsSummarizer.summarize(newsBody)
+            Log.i(TAG, "ChatGPT summary (len) ${gptSummary.length}")
 
-            if (chatGptResponse != null) {
-                newsDao.updateSummary(url, chatGptResponse)
-            }
+            newsDao.updateSummary(articleUrl, gptSummary)
 
-        } else {
-            Log.d("fetchSummaryGPT Local", summary.length.toString())
         }
+
+    }
+
+    suspend fun refreshSummary(articleUrl: String) {
+
+        Log.i(TAG, "Refreshing summary $articleUrl")
+
+        val newsBody = ArticleDownloader.getNewsBody(articleUrl).replace("\"", "'")
+        val gptSummary = ChatGPTNewsSummarizer.summarize(newsBody)
+
+        newsDao.updateSummary(articleUrl, gptSummary)
 
     }
 
@@ -66,5 +124,7 @@ class Repository(private val newsDao: NewsDao) {
     }
 
     fun selectNewsBookmarked() = newsDao.selectBookmarked()
+
+
 
 }

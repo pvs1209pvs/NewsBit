@@ -2,7 +2,6 @@ package com.param.newsbit.model.parser
 
 import android.util.Log
 import com.param.newsbit.entity.News
-import org.jsoup.Jsoup
 import org.w3c.dom.Element
 import java.net.HttpURLConnection
 import java.net.MalformedURLException
@@ -13,14 +12,17 @@ import java.time.LocalDate
 import java.util.regex.Pattern
 import javax.xml.parsers.DocumentBuilderFactory
 
-object RSSFeedParser {
+object FeedDownloader {
+
+    private val TAG = javaClass.simpleName
 
     fun getRSSFeed(genre: String): List<News> {
 
-        Log.d(javaClass.simpleName, "Parsing genre = $genre")
+        Log.d(TAG, "Parsing genre = $genre")
 
         val url = FeedURL.genre[genre]!!
-        Log.d(javaClass.simpleName, "Parsing url = $url")
+
+        Log.d(TAG, "Parsing url = $url")
 
         try {
 
@@ -30,7 +32,6 @@ object RSSFeedParser {
             if (feedConnection.responseCode == HttpURLConnection.HTTP_OK) {
 
                 val feed = URL(url).openConnection().getInputStream()!!
-
 
                 val itemTags = DocumentBuilderFactory
                     .newInstance()
@@ -42,7 +43,7 @@ object RSSFeedParser {
                 feed.close()
                 feedConnection.disconnect()
 
-                Log.d("items found", itemTags.length.toString())
+                Log.d(TAG, "${itemTags.length} items downloaded from the feed")
 
                 val newsFeedList = mutableListOf<News>()
 
@@ -66,7 +67,7 @@ object RSSFeedParser {
 
                     newsFeedList += News(
                         title = title,
-                        summary = null,
+                        summary = "",
                         url = itemUrl,
                         genre = genre,
                         imageUrl = imageUrl,
@@ -76,39 +77,24 @@ object RSSFeedParser {
 
                 }
 
-                Log.d("$genre feed items parsed", newsFeedList.size.toString())
+                Log.d(TAG, "getRSSFeed: ${newsFeedList.size} items parsed for $genre")
 
                 return newsFeedList
             } else {
-                Log.w(
-                    "Invalid response code when downloading feed",
-                    "${feedConnection.responseCode} ${feedConnection.responseMessage}"
+                Log.e(
+                    TAG,
+                    "Error downloadign feed ${feedConnection.responseCode} ${feedConnection.responseMessage}"
                 )
                 return emptyList()
             }
 
         } catch (e: SocketTimeoutException) {
-            Log.w("Timeout when downloading rss feed", e.stackTrace.contentToString())
+            Log.e(TAG, e.message.toString())
             return emptyList()
-
         } catch (e: MalformedURLException) {
-            Log.w("Malformed url", e.stackTrace.contentToString())
+            Log.e(TAG, e.message.toString())
             return emptyList()
         }
-
-    }
-
-
-    fun getTStarBody(url: String): String {
-
-        Log.d(javaClass.simpleName + "/getTStarBody", url)
-
-        return Jsoup
-            .connect(url)
-            .get() // TODO org.jsoup.HttpStatusException: HTTP error fetching URL. Status=404,
-            .select("div#article-body")
-            .select("p")
-            .joinToString("") { it.text() }
 
     }
 

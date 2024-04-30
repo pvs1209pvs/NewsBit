@@ -32,10 +32,9 @@ interface NewsDao {
     fun selectSummaryLD(url: String): LiveData<String?>
 
     @Query("UPDATE news_table SET summary = :newSummary WHERE url = :url")
-    suspend fun updateSummary(url: String, newSummary: String)
+    suspend fun updateSummary(url: String, newSummary: String?)
 
     @Query("UPDATE news_table SET isBookmarked = :value WHERE url = :url")
     suspend fun toggleBookmark(url: String, value: Boolean)
-
 
 }

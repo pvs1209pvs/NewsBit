@@ -16,9 +16,13 @@ import com.param.newsbit.viewmodel.ViewModel
 import com.param.newsbit.entity.News
 import com.param.newsbit.model.parser.FeedURL
 import com.param.newsbit.ui.adapter.AdapterNewsHead
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_home.view.*
 
+@AndroidEntryPoint
 class HomeFragment : Fragment() {
+
+    private val TAG = javaClass.simpleName
 
     private lateinit var adapterNewsHead: AdapterNewsHead
     private lateinit var binding: FragmentHomeBinding
@@ -38,6 +42,7 @@ class HomeFragment : Fragment() {
 
         super.onViewCreated(view, savedInstanceState)
 
+
         val navigateOnClick: (News) -> Unit = {
             val action = HomeFragmentDirections.actionHomeToNewsArticle(it)
             findNavController().navigate(action)
@@ -55,19 +60,31 @@ class HomeFragment : Fragment() {
             adapter = adapterNewsHead
         }
 
+        // Update Genre Chip
         binding.chipGroup.setOnCheckedStateChangeListener { _, selectedChips ->
-            Log.d(javaClass.simpleName, "Selected chip = $selectedChips")
+            Log.i(TAG, "$selectedChips chip selected")
             viewModel.chipGenre.value = selectedGenre(selectedChips)
         }
 
-        viewModel.chipGenre.observe(viewLifecycleOwner){
-            Log.d(javaClass.simpleName,"Downloading from internet for $it")
-            viewModel.downloadFromInternet(it)
+
+        // Get News by Genre
+        viewModel.chipGenre.observe(viewLifecycleOwner) { genre ->
+            Log.i(TAG, "Downloading $genre news from internet")
+            viewModel.downloadRetro(genre)
+//            viewModel.downloadFromInternet(genre)
         }
 
-        viewModel.selectNews().observe(viewLifecycleOwner){
-            Log.d(javaClass.simpleName, "Display news = $it")
+        // Display News by Genre
+        viewModel.selectNews().observe(viewLifecycleOwner) {
+            Log.i(TAG, "Display news = $it")
             adapterNewsHead.setList(it)
+        }
+
+
+        // Handle error downloading all news
+        viewModel.downloadNewsError.observe(viewLifecycleOwner) { error ->
+            Log.i(TAG, "Error downloading all news $error")
+            binding.allNewsRV.visibility = if (error) View.GONE else View.VISIBLE
         }
 
     }
