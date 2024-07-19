@@ -14,10 +14,10 @@ import com.google.android.material.chip.ChipDrawable
 import com.param.newsbit.databinding.FragmentHomeBinding
 import com.param.newsbit.viewmodel.ViewModel
 import com.param.newsbit.entity.News
-import com.param.newsbit.model.parser.FeedURL
+import com.param.newsbit.model.parser.NetworkStatus
 import com.param.newsbit.ui.adapter.AdapterNewsHead
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_home.view.*
+
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -28,20 +28,29 @@ class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private val viewModel: ViewModel by viewModels()
 
+    private val newsCategories = setOf(
+        "Top Stories",
+        "Business",
+        "Real Estate",
+        "Opinion",
+        "Politics",
+        "Life"
+    )
+
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
-        createGenreChipGroup(FeedURL.genre.keys)
+        createGenreChipGroup()
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         super.onViewCreated(view, savedInstanceState)
-
 
         val navigateOnClick: (News) -> Unit = {
             val action = HomeFragmentDirections.actionHomeToNewsArticle(it)
@@ -55,7 +64,7 @@ class HomeFragment : Fragment() {
         adapterNewsHead = AdapterNewsHead(navigateOnClick, bookmarkOnClick)
 
         // Set up RecyclerView News
-        view.allNewsRV.apply {
+        binding.allNewsRV.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = adapterNewsHead
         }
@@ -69,9 +78,7 @@ class HomeFragment : Fragment() {
 
         // Get News by Genre
         viewModel.chipGenre.observe(viewLifecycleOwner) { genre ->
-            Log.i(TAG, "Downloading $genre news from internet")
             viewModel.downloadRetro(genre)
-//            viewModel.downloadFromInternet(genre)
         }
 
         // Display News by Genre
@@ -82,26 +89,47 @@ class HomeFragment : Fragment() {
 
 
         // Handle error downloading all news
-        viewModel.downloadNewsError.observe(viewLifecycleOwner) { error ->
-            Log.i(TAG, "Error downloading all news $error")
-            binding.allNewsRV.visibility = if (error) View.GONE else View.VISIBLE
+        viewModel.downloadNewsError.observe(viewLifecycleOwner) { networkStatus ->
+
+            Log.i(TAG, "Downloading all news network status = $networkStatus")
+
+            when (networkStatus) {
+
+                NetworkStatus.SUCCESS -> {
+                    binding.allNewsRV.visibility = View.VISIBLE
+                    binding.homeProgressBar.visibility = View.GONE
+                }
+
+                NetworkStatus.IN_PROGRESS -> {
+                    binding.allNewsRV.visibility = View.GONE
+                    binding.homeProgressBar.visibility = View.VISIBLE
+                }
+
+                NetworkStatus.ERROR -> {
+                    binding.allNewsRV.visibility = View.GONE
+                    binding.homeProgressBar.visibility = View.GONE
+                }
+
+                else -> {}
+
+            }
+
         }
 
     }
 
-    private fun createGenreChipGroup(genres: Set<String>) {
+    private fun createGenreChipGroup() {
 
-        val styleChipChoice =
-            com.google.android.material.R.style.Widget_MaterialComponents_Chip_Choice
+        val chipStyle = com.google.android.material.R.style.Widget_MaterialComponents_Chip_Choice
 
-        genres.forEachIndexed { index, genre ->
+        newsCategories.forEachIndexed { index, genre ->
             val chip = Chip(requireContext()).apply {
                 setChipDrawable(
                     ChipDrawable.createFromAttributes(
                         requireContext(),
                         null,
                         0,
-                        styleChipChoice
+                        chipStyle
                     )
                 )
                 text = genre
@@ -113,11 +141,10 @@ class HomeFragment : Fragment() {
 
         binding.chipGroup.check(0)
 
-
     }
 
     private fun selectedGenre(selectedChips: List<Int>) =
-        FeedURL.genre.keys.toList()[selectedChips.first()]
+        newsCategories.toList()[selectedChips.first()]
 
 
 }

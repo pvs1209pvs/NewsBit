@@ -10,7 +10,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 
-object ChatGPTNewsSummarizer {
+object ChatGPTSummarizer {
 
     private val TAG = javaClass.simpleName
 

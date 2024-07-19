@@ -16,13 +16,11 @@ import coil.size.Scale
 import coil.transform.RoundedCornersTransformation
 import com.param.newsbit.R
 import com.param.newsbit.databinding.FragmentNewsArticleBinding
+import com.param.newsbit.model.parser.NetworkStatus
 import com.param.newsbit.viewmodel.ViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_news_article.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.net.SocketTimeoutException
 
 
 @AndroidEntryPoint
@@ -58,20 +56,10 @@ class NewsArticleFragment : Fragment() {
 
         // Swipe down to refresh summary
         binding.swipeRefresh.setOnRefreshListener {
-
-            viewModel.refreshSummary2(args.newsHeader.url)
-            swipeRefresh.isRefreshing = false
-
-            /*   viewModel.refreshSummary(args.newsHeader.url).invokeOnCompletion { jobError ->
-                   if (jobError == null) {
-                       swipeRefresh.isRefreshing = false
-                   } else {
-                       Log.d("View model job error", jobError.message.toString())
-                   }
-               }
-   */
-
+            viewModel.refreshSummary(args.newsHeader.url)
+            binding.swipeRefresh.isRefreshing = true
         }
+
 
         viewModel.downloadSummary(args.newsHeader.url)
 
@@ -79,7 +67,7 @@ class NewsArticleFragment : Fragment() {
         // Download image
         lifecycleScope.launch(Dispatchers.IO) {
 
-            Log.d(TAG, "Coil image url = ${args.newsHeader.imageUrl.toString()}")
+            Log.i(TAG, "Coil image url = ${args.newsHeader.imageUrl.toString()}")
 
             binding.newsArticleImage.load(args.newsHeader.imageUrl) {
                 transformations(RoundedCornersTransformation(8f))
@@ -88,27 +76,6 @@ class NewsArticleFragment : Fragment() {
                 scale(Scale.FIT)
             }
         }
-
-
-        // Download summary
-/*        lifecycleScope.launch(Dispatchers.IO) {
-
-            try {
-                viewModel.downloadSummary(args.newsHeader.url)
-            } catch (socketTimeoutException: SocketTimeoutException) {
-                Log.e(TAG, "Socket timeout ${socketTimeoutException.message}")
-            } catch (e: Exception) {
-
-                withContext(Dispatchers.Main) {
-                    Log.e(TAG, "Download summary exception ${e.message} ${e.printStackTrace()}")
-                    binding.newsSummary.visibility = View.GONE
-                    binding.errorSummary.visibility = View.VISIBLE
-                    binding.progressBar.visibility = View.GONE
-                }
-
-            }
-
-        }*/
 
 
         viewModel.selectSummary(args.newsHeader.url).observe(viewLifecycleOwner) { summary ->
@@ -122,34 +89,60 @@ class NewsArticleFragment : Fragment() {
         }
 
 
-        viewModel.downloadSummaryError.observe(viewLifecycleOwner) { isError ->
+        viewModel.downloadSummaryError.observe(viewLifecycleOwner) { networkStatus ->
 
-            Log.i(TAG, "Error downloading summary = $isError")
+            Log.i(TAG, "Downloading summary status = $networkStatus")
 
-            if (isError) {
-                binding.newsSummary.visibility = View.GONE
-                binding.errorSummary.visibility = View.VISIBLE
-                binding.progressBar.visibility = View.GONE
-            } else {
-                binding.newsSummary.visibility = View.VISIBLE
-                binding.errorSummary.visibility = View.GONE
-                binding.progressBar.visibility = View.GONE
+            when (networkStatus) {
+
+                NetworkStatus.IN_PROGRESS -> {
+                    binding.progressBar.visibility = View.VISIBLE
+                    binding.newsSummary.visibility = View.GONE
+                    binding.errorSummary.visibility = View.GONE
+                }
+
+                NetworkStatus.SUCCESS -> {
+                    binding.newsSummary.visibility = View.VISIBLE
+                    binding.errorSummary.visibility = View.GONE
+                    binding.progressBar.visibility = View.GONE
+                }
+
+                NetworkStatus.ERROR -> {
+                    binding.newsSummary.visibility = View.GONE
+                    binding.errorSummary.visibility = View.VISIBLE
+                    binding.progressBar.visibility = View.GONE
+                }
+
+                else -> {}
+
             }
 
         }
 
-        viewModel.refreshSummaryError.observe(viewLifecycleOwner) { isError ->
+        viewModel.refreshSummaryError.observe(viewLifecycleOwner) { networkStatus ->
 
-            Log.i(TAG, "Error refreshing summary $isError")
+            Log.i(TAG, "Refresh summary status = $networkStatus")
 
-            if (isError) {
-                binding.newsSummary.visibility = View.GONE
-                binding.errorSummary.visibility = View.VISIBLE
-                binding.progressBar.visibility = View.GONE
-            } else {
-                binding.newsSummary.visibility = View.VISIBLE
-                binding.errorSummary.visibility = View.GONE
-                binding.progressBar.visibility = View.GONE
+            when (networkStatus) {
+
+                NetworkStatus.NOT_STARTED -> {
+                    binding.swipeRefresh.isRefreshing = false
+                }
+
+                NetworkStatus.IN_PROGRESS -> {
+                    binding.swipeRefresh.isRefreshing = true
+                }
+
+                NetworkStatus.SUCCESS -> {
+                    binding.swipeRefresh.isRefreshing = false
+                }
+
+                NetworkStatus.ERROR -> {
+                    binding.swipeRefresh.isRefreshing = false
+                }
+
+                else -> {}
+
             }
 
         }

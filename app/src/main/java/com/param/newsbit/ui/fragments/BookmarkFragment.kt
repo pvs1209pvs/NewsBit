@@ -11,13 +11,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.param.newsbit.databinding.FragmentBookmarkBinding
 import com.param.newsbit.viewmodel.ViewModel
 import com.param.newsbit.ui.adapter.AdapterNewsBookmark
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class BookmarkFragment : Fragment() {
 
     private lateinit var binding: FragmentBookmarkBinding
     private lateinit var adapterNewsBookmark: AdapterNewsBookmark
+    private val viewModel: ViewModel by viewModels()
 
-    private val viewModel by viewModels<ViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,7 +41,7 @@ class BookmarkFragment : Fragment() {
             adapter = adapterNewsBookmark
         }
 
-        viewModel.selectNewsBookmark().observe(viewLifecycleOwner){
+        viewModel.selectNewsBookmark().observe(viewLifecycleOwner) {
             Log.d("bookmark frag", "${it.size} bookmarked items")
             adapterNewsBookmark.setList(it)
 

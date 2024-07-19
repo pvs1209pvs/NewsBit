@@ -1,9 +1,9 @@
 package com.param.newsbit.viewmodel
 
 import android.app.Application
-import android.net.http.UrlRequest.Status
 import android.util.Log
 import androidx.lifecycle.*
+import com.param.newsbit.model.parser.NetworkStatus
 import com.param.newsbit.repo.Repository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -20,72 +20,61 @@ class ViewModel @Inject constructor(
 
     val chipGenre = MutableLiveData("Top Stories")
 
-    private val _downloadNewsError = MutableLiveData(false)
-    val downloadNewsError: LiveData<Boolean> = _downloadNewsError
+    private val _downloadNewsError = MutableLiveData(NetworkStatus.IN_PROGRESS)
+    val downloadNewsError: LiveData<NetworkStatus> = _downloadNewsError
 
-    private val _downloadSummaryError = MutableLiveData(false)
-    val downloadSummaryError: LiveData<Boolean> = _downloadSummaryError
+    private val _downloadSummaryError = MutableLiveData(NetworkStatus.IN_PROGRESS)
+    val downloadSummaryError: LiveData<NetworkStatus> = _downloadSummaryError
 
-    private val _refreshSummaryError = MutableLiveData(false)
-    val refreshSummaryError: LiveData<Boolean> = _refreshSummaryError
+    private val _refreshSummaryError = MutableLiveData(NetworkStatus.NOT_STARTED)
+    val refreshSummaryError: LiveData<NetworkStatus> = _refreshSummaryError
 
     fun downloadRetro(genre: String) {
 
         val coroutineExceptionHandler = CoroutineExceptionHandler { _, e ->
             Log.i(TAG, e.message.toString())
-            _downloadNewsError.postValue(true)
+            _downloadNewsError.postValue(NetworkStatus.ERROR)
         }
 
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            repo.retroDownload(genre)
-            _downloadNewsError.postValue(false)
+            repo.downloadNews(genre)
+            _downloadNewsError.postValue(NetworkStatus.SUCCESS)
         }
 
     }
-
-    fun downloadFromInternet(genre: String, date: LocalDate = LocalDate.now()) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repo.downloadArticles(genre, date)
-        }
-    }
-
-    fun selectNews(date: LocalDate = LocalDate.now()) =
-        chipGenre.switchMap { repo.selectNewsByGenre(it, date) }
-
 
     fun downloadSummary(url: String) {
 
         val coroutineExceptionHandler = CoroutineExceptionHandler { _, _ ->
             Log.i(TAG, "Error downloading summary $url")
-            _downloadSummaryError.postValue(true)
+            _downloadSummaryError.postValue(NetworkStatus.ERROR)
         }
 
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             repo.downloadSummary(url)
-            _downloadSummaryError.postValue(false)
+            _downloadSummaryError.postValue(NetworkStatus.SUCCESS)
         }
     }
 
-    fun refreshSummary(articleUrl: String): Job {
-        return viewModelScope.launch(Dispatchers.IO) {
-            repo.refreshSummary(articleUrl)
-        }
-    }
 
-    fun refreshSummary2(articleUrl: String) {
+    fun selectNews(date: LocalDate = LocalDate.now()) =
+        chipGenre.switchMap { repo.getNewsByGenre(it, date) }
+
+
+    fun refreshSummary(articleUrl: String) {
 
         val coroutineExceptionHandler = CoroutineExceptionHandler{_,_ ->
-            _refreshSummaryError.postValue(true)
+            _refreshSummaryError.postValue(NetworkStatus.ERROR)
         }
 
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             repo.refreshSummary(articleUrl)
-            _refreshSummaryError.postValue(false)
+            _refreshSummaryError.postValue(NetworkStatus.SUCCESS)
         }
 
     }
 
-    fun selectSummary(url: String) = repo.selectSummary(url)
+    fun selectSummary(url: String) = repo.getSummary(url)
 
 
     fun toggleBookmark(url: String, value: Boolean) {
@@ -94,6 +83,6 @@ class ViewModel @Inject constructor(
         }
     }
 
-    fun selectNewsBookmark() = repo.selectNewsBookmarked()
+    fun selectNewsBookmark() = repo.getBookmarkedNews()
 
 }

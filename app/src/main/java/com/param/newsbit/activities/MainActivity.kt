@@ -18,11 +18,13 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
+
     private lateinit var appBarConfiguration: AppBarConfiguration
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
 
     private val navController by lazy { (supportFragmentManager.findFragmentById(R.id.navHostFrag) as NavHostFragment).navController }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
