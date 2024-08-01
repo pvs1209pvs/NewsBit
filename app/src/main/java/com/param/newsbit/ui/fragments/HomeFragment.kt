@@ -17,6 +17,7 @@ import com.param.newsbit.entity.News
 import com.param.newsbit.model.parser.NetworkStatus
 import com.param.newsbit.ui.adapter.AdapterNewsHead
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.LocalDate
 
 
 @AndroidEntryPoint
@@ -71,8 +72,9 @@ class HomeFragment : Fragment() {
 
         // Update Genre Chip
         binding.chipGroup.setOnCheckedStateChangeListener { _, selectedChips ->
-            Log.i(TAG, "$selectedChips chip selected")
-            viewModel.chipGenre.value = selectedGenre(selectedChips)
+            val selectedGenre = selectedGenre(selectedChips)
+            Log.i(TAG, "$selectedGenre selected")
+            viewModel.chipGenre.value = selectedGenre
         }
 
 
@@ -115,6 +117,13 @@ class HomeFragment : Fragment() {
             }
 
         }
+
+        // todo: testing
+//        viewModel.selectNews(LocalDate.of(2024, 8,1)).observe(viewLifecycleOwner){
+//            it.forEach {
+//                Log.i(TAG, "Selected news testing ${it.title.substring(0, 10)} ${it.pubDate}")
+//            }
+//        }
 
     }
 

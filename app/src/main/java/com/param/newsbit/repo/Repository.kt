@@ -26,14 +26,14 @@ class Repository @Inject constructor(
 
         val localCount = newsDao.localCount(genre, LocalDate.now().toString())
 
-        Log.i(TAG, "$localCount news in local database")
+        Log.i(TAG, "$localCount $genre News in local database")
 
         if (localCount == 0) {
 
             Log.i(TAG, "Downloading $genre")
 
             val response =
-                tStarRetrofit.downloadNews(if (genre == "Top Stories") null else genre, 20)
+                tStarRetrofit.downloadNews(if (genre == "Top Stories") null else "$genre*", 20)
 
             if (!response.isSuccessful) {
                 Log.e(
@@ -71,7 +71,10 @@ class Repository @Inject constructor(
 
             }
 
-            Log.i(TAG, "retroDownload: Downloaded ${allNews.size} $genre articles ")
+            Log.i(TAG, "${allNews.size} $genre News downloaded using Retrofit")
+            allNews.forEach {
+                Log.i(TAG, "Downloaded News: ${it.title.substring(0,10)} ${it.pubDate}")
+            }
 
             newsDao.insertAll(allNews)
 
@@ -89,9 +92,9 @@ class Repository @Inject constructor(
 
         val localSummary = newsDao.selectSummary(newsUrl)
 
-        Log.i(TAG, "Local summary $localSummary")
+        Log.i(TAG, "Local summary length ${localSummary.length}")
 
-        if (localSummary == null) {
+        if (localSummary.isBlank()) {
             val newsContent = newsDao.selectContent(newsUrl)
             val gptSummary = ChatGPTSummarizer.summarize(newsContent)
             newsDao.updateSummary(newsUrl, gptSummary)

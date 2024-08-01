@@ -15,13 +15,12 @@ object ChatGPTSummarizer {
 
     private val TAG = javaClass.simpleName
 
-    private var apiKey = BuildConfig.CHAT_GPT_API_KEY
-    private const val url = "https://api.openai.com/v1/chat/completions"
+    private const val API_URL = "https://api.openai.com/v1/chat/completions"
     private val mediaType = "application/json; charset=utf-8".toMediaType()
 
     private val headers = Headers.Builder()
         .add("Content-Type", "application/json")
-        .add("Authorization", "Bearer $apiKey")
+        .add("Authorization", "Bearer ${BuildConfig.CHAT_GPT_API_KEY}")
         .build()
 
 
@@ -57,14 +56,14 @@ object ChatGPTSummarizer {
 
     /**
      * Summarizes the news body.
-     * @return News article summarized by ChatGPT API.
+     * @return Summarized news by ChatGPT API.
      * @throws IllegalStateException Throws error if API call was unsuccessful or the content body
-     * was empty or blank.
+     * was blank.
      */
     fun summarize(newsContent: String): String {
 
         val request = Request.Builder()
-            .url(url)
+            .url(API_URL)
             .headers(headers)
             .post(gptRequestBody(newsContent))
             .build()
@@ -79,7 +78,7 @@ object ChatGPTSummarizer {
 
             val responseBody = response.body!!.string()
 
-            if (responseBody.isEmpty() || responseBody.isBlank()) {
+            if (responseBody.isBlank()) {
                 throw IllegalStateException("Blank/empty body return by ChatGPT API")
             }
 

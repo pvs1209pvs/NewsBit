@@ -62,8 +62,8 @@ class NewsArticleFragment : Fragment() {
 
         viewModel.downloadSummary(args.newsHeader.url)
 
-        viewModel.selectSummary(args.newsHeader.url).observe(viewLifecycleOwner) { summary ->
-            if (summary != null) {
+        viewModel.selectSummary(args.newsHeader.url).observe(viewLifecycleOwner) { summary->
+            if (!summary.isNullOrBlank()) {
                 binding.newsSummary.text = summary
             }
         }

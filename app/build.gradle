@@ -21,7 +21,12 @@ android {
         versionName "1.0"
         testInstrumentationRunner "com.param.newsbit.HiltTestRunner"
 
-        buildConfigField("String", "CHAT_GPT_API_KEY", "\"\"")
+        buildConfigField(
+                "String",
+                "CHAT_GPT_API_KEY",
+                "\"${project.findProperty("CHAT_GPT_API_KEY")}\""
+        )
+
     }
 
     buildTypes {

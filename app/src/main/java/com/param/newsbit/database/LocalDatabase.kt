@@ -5,7 +5,7 @@ import androidx.room.*
 import com.param.newsbit.dao.NewsDao
 import com.param.newsbit.entity.News
 
-@Database(entities = [News::class], version = 3, exportSchema = false)
+@Database(entities = [News::class], version = 2, exportSchema = false)
 @TypeConverters(Converter::class)
 abstract class LocalDatabase : RoomDatabase() {
 
@@ -28,7 +28,7 @@ abstract class LocalDatabase : RoomDatabase() {
                     context.applicationContext,
                     LocalDatabase::class.java,
                     "local_database"
-                ).build()
+                ).fallbackToDestructiveMigration().build()
                 INSTANCE = instance
                 return instance
             }
