@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.*
+import androidx.core.content.ContextCompat
 import androidx.core.view.MenuProvider
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
@@ -50,21 +51,27 @@ class NewsArticleFragment : Fragment() {
         binding.apply {
             newsArticleTitle.text = args.newsHeader.title
             newsSummary.movementMethod = ScrollingMovementMethod()
+            newsFull.movementMethod = ScrollingMovementMethod()
             newsArticleDate.text = args.newsHeader.pubDate.run { "$dayOfMonth, $month $year" }
         }
 
-
-        // Swipe down to refresh summary
         binding.swipeRefresh.setOnRefreshListener {
             viewModel.refreshSummary(args.newsHeader.url)
             binding.swipeRefresh.isRefreshing = true
         }
 
-
         viewModel.downloadSummary(args.newsHeader.url)
 
+        viewModel.selectSummary(args.newsHeader.url).observe(viewLifecycleOwner) { summary ->
+            if (summary != null) {
+                binding.newsSummary.text = summary
+            }
+        }
 
-        // Download image
+        viewModel.selectNewsBody(args.newsHeader.url).observe(viewLifecycleOwner) { body ->
+            binding.newsFull.text = body
+        }
+
         lifecycleScope.launch(Dispatchers.IO) {
 
             Log.i(TAG, "Coil image url = ${args.newsHeader.imageUrl.toString()}")
@@ -75,19 +82,46 @@ class NewsArticleFragment : Fragment() {
                 error(R.drawable._04_error)
                 scale(Scale.FIT)
             }
-        }
-
-
-        viewModel.selectSummary(args.newsHeader.url).observe(viewLifecycleOwner) { summary ->
-
-            Log.i(TAG, "Summary null or blank ${summary.isNullOrBlank()}")
-
-            if (!summary.isNullOrBlank()) {
-                binding.newsSummary.text = summary
-            }
 
         }
 
+        binding.showSummary.setOnClickListener {
+
+            binding.newsSummary.visibility = View.VISIBLE
+            binding.newsFull.visibility = View.GONE
+
+            binding.showSummary.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(), R.color.purple_500
+                )
+            )
+
+            binding.showFull.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(), R.color.black
+                )
+            )
+
+        }
+
+        binding.showFull.setOnClickListener {
+
+            binding.newsSummary.visibility = View.GONE
+            binding.newsFull.visibility = View.VISIBLE
+
+            binding.showSummary.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(), R.color.black
+                )
+            )
+
+            binding.showFull.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(), R.color.purple_500
+                )
+            )
+
+        }
 
         viewModel.downloadSummaryError.observe(viewLifecycleOwner) { networkStatus ->
 
@@ -147,7 +181,6 @@ class NewsArticleFragment : Fragment() {
 
         }
 
-
         requireActivity().addMenuProvider(object : MenuProvider {
 
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -176,7 +209,6 @@ class NewsArticleFragment : Fragment() {
             }
 
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
-
 
     }
 

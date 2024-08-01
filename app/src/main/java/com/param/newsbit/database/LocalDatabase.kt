@@ -5,7 +5,7 @@ import androidx.room.*
 import com.param.newsbit.dao.NewsDao
 import com.param.newsbit.entity.News
 
-@Database(entities = [News::class], version = 1, exportSchema = false)
+@Database(entities = [News::class], version = 3, exportSchema = false)
 @TypeConverters(Converter::class)
 abstract class LocalDatabase : RoomDatabase() {
 

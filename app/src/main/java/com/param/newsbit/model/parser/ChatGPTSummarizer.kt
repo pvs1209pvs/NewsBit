@@ -1,6 +1,7 @@
 package com.param.newsbit.model.parser
 
 import android.util.Log
+import com.param.newsbit.BuildConfig
 import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -14,7 +15,7 @@ object ChatGPTSummarizer {
 
     private val TAG = javaClass.simpleName
 
-    private const val apiKey = "sk-proj-nnNHOLJOoyGj7rOqAVtvT3BlbkFJMSdJLW6Bt4ewBdCVVCdo"
+    private var apiKey = BuildConfig.CHAT_GPT_API_KEY
     private const val url = "https://api.openai.com/v1/chat/completions"
     private val mediaType = "application/json; charset=utf-8".toMediaType()
 
@@ -55,20 +56,22 @@ object ChatGPTSummarizer {
     }
 
     /**
-     * Throws an exception if the ChatGPT API failed to summarized the text.
+     * Summarizes the news body.
      * @return News article summarized by ChatGPT API.
+     * @throws IllegalStateException Throws error if API call was unsuccessful or the content body
+     * was empty or blank.
      */
-    fun summarize(newsBody: String): String {
+    fun summarize(newsContent: String): String {
 
         val request = Request.Builder()
             .url(url)
             .headers(headers)
-            .post(gptRequestBody(newsBody))
+            .post(gptRequestBody(newsContent))
             .build()
 
         return OkHttpClient().newCall(request).execute().use { response ->
 
-            Log.i(TAG,  "Response code = ${response.code}")
+            Log.i(TAG, "Response code = ${response.code}")
 
             if (!response.isSuccessful || response.body == null) {
                 throw IllegalStateException("ChatGPT API error = ${response.code} ${response.message}")

@@ -26,7 +26,7 @@ class Repository @Inject constructor(
 
         val localCount = newsDao.localCount(genre, LocalDate.now().toString())
 
-        Log.i(TAG, "$localCount locally found")
+        Log.i(TAG, "$localCount news in local database")
 
         if (localCount == 0) {
 
@@ -38,9 +38,9 @@ class Repository @Inject constructor(
             if (!response.isSuccessful) {
                 Log.e(
                     TAG,
-                    "Error downloading news using retro ${response.code()} = ${response.errorBody()}"
+                    "Error downloading News using retro ${response.code()} = ${response.errorBody()}"
                 )
-                throw IllegalStateException("Error downloading news using retrofit = ${response.code()} ${response.errorBody()}")
+                throw IllegalStateException("Error downloading News using retrofit = ${response.code()} ${response.errorBody()}")
             }
 
             if (response.body() == null) {
@@ -49,16 +49,26 @@ class Repository @Inject constructor(
             }
 
             val allNews = response.body()!!.rows.map {
+
+                val content = it.content.joinToString(" ") { paragraph ->
+                    // Replace HTML tag with blank text.
+                    paragraph.replace("<[^>]+>".toRegex(), "")
+                }
+
+                val pubDate = Instant
+                    .ofEpochMilli(it.starttime.utc.toLong())
+                    .atZone(ZoneId.systemDefault()).toLocalDate()
+
                 News(
                     url = it.url,
                     title = it.title,
                     genre = genre,
-                    summary = "",
+                    content = content,
                     imageUrl = it.preview.url,
                     isBookmarked = false,
-                    pubDate = Instant.ofEpochMilli(it.starttime.utc.toLong())
-                        .atZone(ZoneId.systemDefault()).toLocalDate()
+                    pubDate = pubDate
                 )
+
             }
 
             Log.i(TAG, "retroDownload: Downloaded ${allNews.size} $genre articles ")
@@ -73,40 +83,37 @@ class Repository @Inject constructor(
         newsDao.selectByGenre(genre, date.toString())
 
 
-    suspend fun downloadSummary(articleUrl: String) {
+    suspend fun downloadSummary(newsUrl: String) {
 
-        Log.i(TAG, "Downloading summary $articleUrl")
+        Log.i(TAG, "Downloading summary $newsUrl")
 
-        val localSummary = newsDao.selectSummary(articleUrl)
+        val localSummary = newsDao.selectSummary(newsUrl)
 
-        Log.i(TAG, "Local summary found ${localSummary != null}")
+        Log.i(TAG, "Local summary $localSummary")
 
-        if (localSummary.isNullOrBlank()) { // only download if summary hasn't been downloaded before
-
-            val newsBody = ArticleDownloader.getNewsBody(articleUrl).replace("\"", "'")
-            Log.i(TAG, "News body (len) ${newsBody.length}")
-
-            val gptSummary = ChatGPTSummarizer.summarize(newsBody)
+        if (localSummary == null) {
+            val newsContent = newsDao.selectContent(newsUrl)
+            val gptSummary = ChatGPTSummarizer.summarize(newsContent)
+            newsDao.updateSummary(newsUrl, gptSummary)
             Log.i(TAG, "ChatGPT summary (len) ${gptSummary.length}")
-
-            newsDao.updateSummary(articleUrl, gptSummary)
-
         }
 
     }
 
-    suspend fun refreshSummary(articleUrl: String) {
+    suspend fun refreshSummary(newsUrl: String) {
 
-        Log.i(TAG, "Refreshing summary $articleUrl")
+        Log.i(TAG, "Refreshing summary $newsUrl")
 
-        val newsBody = ArticleDownloader.getNewsBody(articleUrl).replace("\"", "'")
-        val gptSummary = ChatGPTSummarizer.summarize(newsBody)
-
-        newsDao.updateSummary(articleUrl, gptSummary)
+        val newsContent = newsDao.selectContent(newsUrl)
+        val gptSummary = ChatGPTSummarizer.summarize(newsContent)
+        newsDao.updateSummary(newsUrl, gptSummary)
+        Log.i(TAG, "ChatGPT summary (len) ${gptSummary.length}")
 
     }
 
     fun getSummary(url: String) = newsDao.selectSummaryLD(url)
+
+    fun getNewsBody(url: String) = newsDao.selectBody(url)
 
     suspend fun toggleBookmark(url: String, value: Boolean) {
         newsDao.toggleBookmark(url, value)
@@ -114,5 +121,12 @@ class Repository @Inject constructor(
 
     fun getBookmarkedNews() = newsDao.selectBookmarked()
 
+    suspend fun deleteOlderThanWeek(){
+        newsDao.deleteOlderThanWeek(LocalDate.now().toString())
+    }
+
+    //
+    fun selectAll() = newsDao.selectAll()
+    //
 
 }

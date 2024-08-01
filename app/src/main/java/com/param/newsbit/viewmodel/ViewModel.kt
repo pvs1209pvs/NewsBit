@@ -43,15 +43,15 @@ class ViewModel @Inject constructor(
 
     }
 
-    fun downloadSummary(url: String) {
+    fun downloadSummary(newsUrl: String) {
 
         val coroutineExceptionHandler = CoroutineExceptionHandler { _, _ ->
-            Log.i(TAG, "Error downloading summary $url")
+            Log.e(TAG, "Error downloading summary for $newsUrl")
             _downloadSummaryError.postValue(NetworkStatus.ERROR)
         }
 
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            repo.downloadSummary(url)
+            repo.downloadSummary(newsUrl)
             _downloadSummaryError.postValue(NetworkStatus.SUCCESS)
         }
     }
@@ -61,14 +61,14 @@ class ViewModel @Inject constructor(
         chipGenre.switchMap { repo.getNewsByGenre(it, date) }
 
 
-    fun refreshSummary(articleUrl: String) {
+    fun refreshSummary(newsUrl: String) {
 
-        val coroutineExceptionHandler = CoroutineExceptionHandler{_,_ ->
+        val coroutineExceptionHandler = CoroutineExceptionHandler { _, _ ->
             _refreshSummaryError.postValue(NetworkStatus.ERROR)
         }
 
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            repo.refreshSummary(articleUrl)
+            repo.refreshSummary(newsUrl)
             _refreshSummaryError.postValue(NetworkStatus.SUCCESS)
         }
 
@@ -76,6 +76,7 @@ class ViewModel @Inject constructor(
 
     fun selectSummary(url: String) = repo.getSummary(url)
 
+    fun selectNewsBody(url: String) = repo.getNewsBody(url)
 
     fun toggleBookmark(url: String, value: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -84,5 +85,15 @@ class ViewModel @Inject constructor(
     }
 
     fun selectNewsBookmark() = repo.getBookmarkedNews()
+
+    fun deleteOlderThanWeek() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.deleteOlderThanWeek()
+        }
+    }
+
+    //
+    fun selectAll() = repo.selectAll()
+    //
 
 }

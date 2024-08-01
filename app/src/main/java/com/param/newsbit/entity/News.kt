@@ -12,6 +12,7 @@ data class News(
     @PrimaryKey var url: String,
     var title: String,
     var genre: String,
+    var content: String,
     var summary: String? = "",
     var imageUrl: String?,
     var isBookmarked: Boolean,
