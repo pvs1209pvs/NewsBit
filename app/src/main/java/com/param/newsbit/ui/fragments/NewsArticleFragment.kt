@@ -28,7 +28,6 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class NewsArticleFragment : Fragment() {
 
-
     private val TAG = javaClass.simpleName
 
     private lateinit var binding: FragmentNewsArticleBinding
@@ -87,12 +86,7 @@ class NewsArticleFragment : Fragment() {
 
         }
 
-
-        binding.contentToggleChipGroup.setOnCheckedStateChangeListener { _, _ ->
-
-            val selectedViewMode = getViewMode()
-
-            Log.i(TAG, "Summary or Full ChipGroup selection = $selectedViewMode")
+        viewModel.viewMode.observe(viewLifecycleOwner) { selectedViewMode ->
 
             when (selectedViewMode) {
 
@@ -140,7 +134,7 @@ class NewsArticleFragment : Fragment() {
                 "Show Full" -> {
                     binding.newsFull.visibility = View.VISIBLE
 
-                    // Prevents summary related updates from overlapping full news.
+                    // Prevents summary related UI from overlapping full news.
                     binding.progressBar.visibility = View.GONE
                     binding.newsSummary.visibility = View.GONE
                     binding.errorSummary.visibility = View.GONE
@@ -151,7 +145,17 @@ class NewsArticleFragment : Fragment() {
 
         }
 
-
+        binding.contentToggleChipGroup.setOnCheckedStateChangeListener { _, _ ->
+            val selectedViewMode = binding.contentToggleChipGroup.children
+                .toList()
+                .map { it as Chip }
+                .filter { it.isChecked }
+                .map { it.text }
+                .first()
+                .toString()
+            Log.i(TAG, "Summary or Full ChipGroup selection = $selectedViewMode")
+            viewModel.viewMode.value = selectedViewMode
+        }
 
         requireActivity().addMenuProvider(
             object : MenuProvider {
@@ -199,14 +203,5 @@ class NewsArticleFragment : Fragment() {
         menuItem.setIcon(bookmarkToggleIcon)
 
     }
-
-    private fun getViewMode() = binding.contentToggleChipGroup.children
-        .toList()
-        .map { it as Chip }
-        .filter { it.isChecked }
-        .map { it.text }
-        .first()
-        .toString()
-
 
 }

@@ -20,6 +20,8 @@ class ViewModel @Inject constructor(
 
     val chipGenre = MutableLiveData("Top Stories")
 
+    val viewMode = MutableLiveData("Show Summary")
+
     private val _downloadNewsError = MutableLiveData(NetworkStatus.IN_PROGRESS)
     val downloadNewsError: LiveData<NetworkStatus> = _downloadNewsError
 
