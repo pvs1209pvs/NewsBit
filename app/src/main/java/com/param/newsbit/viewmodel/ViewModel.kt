@@ -19,7 +19,6 @@ class ViewModel @Inject constructor(
     private val TAG = javaClass.simpleName
 
     val chipGenre = MutableLiveData("Top Stories")
-
     val viewMode = MutableLiveData("Show Summary")
 
     private val _downloadNewsError = MutableLiveData(NetworkStatus.IN_PROGRESS)

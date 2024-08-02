@@ -49,35 +49,35 @@ class NewsArticleFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.apply {
-            newsArticleTitle.text = args.newsHeader.title
+            newsArticleTitle.text = args.newsTitle
             newsSummary.movementMethod = ScrollingMovementMethod()
             newsFull.movementMethod = ScrollingMovementMethod()
-            newsArticleDate.text = args.newsHeader.pubDate.run { "$dayOfMonth, $month $year" }
+            newsArticleDate.text = args.newsPubDate
         }
 
         binding.swipeRefresh.setOnRefreshListener {
-            viewModel.refreshSummary(args.newsHeader.url)
+            viewModel.refreshSummary(args.newsUrl)
             binding.swipeRefresh.isRefreshing = true
         }
 
-        viewModel.downloadSummary(args.newsHeader.url)
+        viewModel.downloadSummary(args.newsUrl)
 
-        viewModel.selectSummary(args.newsHeader.url).observe(viewLifecycleOwner) { summary ->
+        viewModel.selectSummary(args.newsUrl).observe(viewLifecycleOwner) { summary ->
             if (!summary.isNullOrBlank()) {
                 binding.newsSummary.text = summary
             }
         }
 
-        viewModel.selectNewsBody(args.newsHeader.url).observe(viewLifecycleOwner) { body ->
+        viewModel.selectNewsBody(args.newsUrl).observe(viewLifecycleOwner) { body ->
             binding.newsFull.text = body
             Log.i(TAG, "News body len ${body.length}")
         }
 
         lifecycleScope.launch(Dispatchers.IO) {
 
-            Log.i(TAG, "Coil image url = ${args.newsHeader.imageUrl.toString()}")
+            Log.i(TAG, "Coil image url = ${args.newsImgUrl.toString()}")
 
-            binding.newsArticleImage.load(args.newsHeader.imageUrl) {
+            binding.newsArticleImage.load(args.newsImgUrl) {
                 transformations(RoundedCornersTransformation(8f))
                 crossfade(500)
                 error(R.drawable._04_error)
@@ -162,7 +162,7 @@ class NewsArticleFragment : Fragment() {
 
                 override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                     menuInflater.inflate(R.menu.menu_news_article, menu)
-                    setIconMenuBookmark(menu[0], args.newsHeader.isBookmarked)
+                    setIconMenuBookmark(menu[0], args.newsIsBookmarked)
                 }
 
                 override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -171,13 +171,11 @@ class NewsArticleFragment : Fragment() {
 
                         R.id.bookmarkToggle -> {
 
-                            args.newsHeader.isBookmarked = !args.newsHeader.isBookmarked
-
-                            setIconMenuBookmark(menuItem, args.newsHeader.isBookmarked)
+                            setIconMenuBookmark(menuItem, !args.newsIsBookmarked)
 
                             viewModel.toggleBookmark(
-                                args.newsHeader.url,
-                                args.newsHeader.isBookmarked
+                                args.newsUrl,
+                                !args.newsIsBookmarked
                             )
 
                             true

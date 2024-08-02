@@ -63,10 +63,9 @@ class Repository @Inject constructor(
                     url = it.url,
                     title = it.title,
                     genre = genre,
+                    pubDate = pubDate,
                     content = content,
-                    imageUrl = it.preview.url,
-                    isBookmarked = false,
-                    pubDate = pubDate
+                    imageUrl = it.preview.url
                 )
 
             }

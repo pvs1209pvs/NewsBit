@@ -12,10 +12,10 @@ data class News(
     @PrimaryKey var url: String,
     var title: String,
     var genre: String,
+    var pubDate: LocalDate,
     var content: String,
     var summary: String = "",
-    var imageUrl: String?,
-    var isBookmarked: Boolean,
-    var pubDate: LocalDate
+    var imageUrl: String? = null,
+    var isBookmarked: Boolean = false
 ) : Parcelable
 

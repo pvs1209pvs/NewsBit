@@ -25,8 +25,26 @@
         tools:layout="@layout/fragment_news_article">
 
         <argument
-            android:name="newsHeader"
-            app:argType="com.param.newsbit.entity.News" />
+            android:name="newsUrl"
+            app:argType="string" />
+
+        <argument
+            android:name="newsTitle"
+            app:argType="string" />
+
+        <argument
+            android:name="newsPubDate"
+            app:argType="string" />
+
+        <argument
+            android:name="newsImgUrl"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+
+        <argument
+            android:name="newsIsBookmarked"
+            app:argType="boolean" />
 
     </fragment>
 

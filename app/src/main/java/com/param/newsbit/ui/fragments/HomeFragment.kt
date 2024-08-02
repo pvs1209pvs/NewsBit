@@ -54,7 +54,13 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val navigateOnClick: (News) -> Unit = {
-            val action = HomeFragmentDirections.actionHomeToNewsArticle(it)
+            val action = HomeFragmentDirections.actionHomeToNewsArticle(
+                it.url,
+                it.title,
+                it.pubDate.toString(),
+                it.isBookmarked,
+                it.imageUrl
+            )
             findNavController().navigate(action)
         }
 
@@ -118,12 +124,7 @@ class HomeFragment : Fragment() {
 
         }
 
-        // todo: testing
-//        viewModel.selectNews(LocalDate.of(2024, 8,1)).observe(viewLifecycleOwner){
-//            it.forEach {
-//                Log.i(TAG, "Selected news testing ${it.title.substring(0, 10)} ${it.pubDate}")
-//            }
-//        }
+
 
     }
 
