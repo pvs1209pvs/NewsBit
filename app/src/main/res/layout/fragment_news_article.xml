@@ -75,6 +75,18 @@
 
     </com.google.android.material.chip.ChipGroup>
 
+    <TextView
+        android:id="@+id/newsFull"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scrollbars="vertical"
+        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/contentToggleChipGroup" />
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefresh"
         android:layout_width="0dp"
@@ -92,18 +104,6 @@
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-    <TextView
-        android:id="@+id/newsFull"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:scrollbars="vertical"
-        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/swipeRefresh"
-        app:layout_constraintTop_toBottomOf="@+id/contentToggleChipGroup" />
 
     <ProgressBar
         android:id="@+id/progressBar"

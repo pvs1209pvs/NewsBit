@@ -97,17 +97,54 @@ class NewsArticleFragment : Fragment() {
             when (selectedViewMode) {
 
                 "Show Summary" -> {
-                    binding.newsSummary.visibility = View.VISIBLE
                     binding.newsFull.visibility = View.GONE
+                    binding.swipeRefresh.visibility = View.VISIBLE
+
+                    viewModel.downloadSummaryError.observe(viewLifecycleOwner) { networkStatus ->
+
+                        Log.i(TAG, "Downloading summary status = $networkStatus")
+
+                        when (networkStatus) {
+
+                            NetworkStatus.IN_PROGRESS -> {
+                                binding.progressBar.visibility = View.VISIBLE
+                                binding.newsSummary.visibility = View.GONE
+                                binding.errorSummary.visibility = View.GONE
+                            }
+
+                            NetworkStatus.SUCCESS -> {
+                                binding.progressBar.visibility = View.GONE
+                                binding.newsSummary.visibility = View.VISIBLE
+                                binding.errorSummary.visibility = View.GONE
+                            }
+
+                            NetworkStatus.ERROR -> {
+                                binding.progressBar.visibility = View.GONE
+                                binding.newsSummary.visibility = View.GONE
+                                binding.errorSummary.visibility = View.VISIBLE
+                            }
+
+                            else -> {}
+
+                        }
+
+                    }
+
+                    viewModel.refreshSummaryError.observe(viewLifecycleOwner) { networkStat ->
+                        Log.i(TAG, "Refresh summary status = $networkStat")
+                        binding.swipeRefresh.isRefreshing = networkStat == NetworkStatus.IN_PROGRESS
+                    }
+
                 }
 
                 "Show Full" -> {
-                    binding.newsSummary.visibility = View.GONE
                     binding.newsFull.visibility = View.VISIBLE
 
                     // Prevents summary related updates from overlapping full news.
                     binding.progressBar.visibility = View.GONE
-                    binding.swipeRefresh.isRefreshing = false
+                    binding.newsSummary.visibility = View.GONE
+                    binding.errorSummary.visibility = View.GONE
+                    binding.swipeRefresh.visibility = View.GONE
                 }
 
             }
@@ -115,71 +152,6 @@ class NewsArticleFragment : Fragment() {
         }
 
 
-        viewModel.downloadSummaryError.observe(viewLifecycleOwner) { networkStatus ->
-
-            Log.i(TAG, "Downloading summary status = $networkStatus")
-
-            val viewModel = getViewMode()
-
-            when (networkStatus) {
-
-                NetworkStatus.IN_PROGRESS -> {
-                    if (viewModel == "Show Summary") {
-                        binding.progressBar.visibility = View.VISIBLE
-                        binding.newsSummary.visibility = View.GONE
-                        binding.errorSummary.visibility = View.GONE
-                    }
-                }
-
-                NetworkStatus.SUCCESS -> {
-                    if (viewModel == "Show Summary") {
-                        binding.progressBar.visibility = View.GONE
-                        binding.newsSummary.visibility = View.VISIBLE
-                        binding.errorSummary.visibility = View.GONE
-                    }
-                }
-
-                NetworkStatus.ERROR -> {
-                    if (viewModel == "Show Summary") {
-                        binding.progressBar.visibility = View.GONE
-                        binding.newsSummary.visibility = View.GONE
-                        binding.errorSummary.visibility = View.VISIBLE
-                    }
-                }
-
-                else -> {}
-
-            }
-
-        }
-
-        viewModel.refreshSummaryError.observe(viewLifecycleOwner) { networkStatus ->
-
-            Log.i(TAG, "Refresh summary status = $networkStatus")
-
-            when (networkStatus) {
-
-                NetworkStatus.NOT_STARTED -> {
-                    binding.swipeRefresh.isRefreshing = false
-                }
-
-                NetworkStatus.IN_PROGRESS -> {
-                    binding.swipeRefresh.isRefreshing = true
-                }
-
-                NetworkStatus.SUCCESS -> {
-                    binding.swipeRefresh.isRefreshing = false
-                }
-
-                NetworkStatus.ERROR -> {
-                    binding.swipeRefresh.isRefreshing = false
-                }
-
-                else -> {}
-
-            }
-
-        }
 
         requireActivity().addMenuProvider(
             object : MenuProvider {
