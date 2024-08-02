@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.*
-import androidx.core.content.ContextCompat
 import androidx.core.view.MenuProvider
+import androidx.core.view.children
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -15,6 +15,7 @@ import androidx.navigation.fragment.navArgs
 import coil.load
 import coil.size.Scale
 import coil.transform.RoundedCornersTransformation
+import com.google.android.material.chip.Chip
 import com.param.newsbit.R
 import com.param.newsbit.databinding.FragmentNewsArticleBinding
 import com.param.newsbit.model.parser.NetworkStatus
@@ -62,7 +63,7 @@ class NewsArticleFragment : Fragment() {
 
         viewModel.downloadSummary(args.newsHeader.url)
 
-        viewModel.selectSummary(args.newsHeader.url).observe(viewLifecycleOwner) { summary->
+        viewModel.selectSummary(args.newsHeader.url).observe(viewLifecycleOwner) { summary ->
             if (!summary.isNullOrBlank()) {
                 binding.newsSummary.text = summary
             }
@@ -70,6 +71,7 @@ class NewsArticleFragment : Fragment() {
 
         viewModel.selectNewsBody(args.newsHeader.url).observe(viewLifecycleOwner) { body ->
             binding.newsFull.text = body
+            Log.i(TAG, "News body len ${body.length}")
         }
 
         lifecycleScope.launch(Dispatchers.IO) {
@@ -85,66 +87,64 @@ class NewsArticleFragment : Fragment() {
 
         }
 
-        binding.showSummary.setOnClickListener {
 
-            binding.newsSummary.visibility = View.VISIBLE
-            binding.newsFull.visibility = View.GONE
+        binding.contentToggleChipGroup.setOnCheckedStateChangeListener { _, _ ->
 
-            binding.showSummary.setTextColor(
-                ContextCompat.getColor(
-                    requireContext(), R.color.purple_500
-                )
-            )
+            val selectedViewMode = getViewMode()
 
-            binding.showFull.setTextColor(
-                ContextCompat.getColor(
-                    requireContext(), R.color.black
-                )
-            )
+            Log.i(TAG, "Summary or Full ChipGroup selection = $selectedViewMode")
 
-        }
+            when (selectedViewMode) {
 
-        binding.showFull.setOnClickListener {
+                "Show Summary" -> {
+                    binding.newsSummary.visibility = View.VISIBLE
+                    binding.newsFull.visibility = View.GONE
+                }
 
-            binding.newsSummary.visibility = View.GONE
-            binding.newsFull.visibility = View.VISIBLE
+                "Show Full" -> {
+                    binding.newsSummary.visibility = View.GONE
+                    binding.newsFull.visibility = View.VISIBLE
 
-            binding.showSummary.setTextColor(
-                ContextCompat.getColor(
-                    requireContext(), R.color.black
-                )
-            )
+                    // Prevents summary related updates from overlapping full news.
+                    binding.progressBar.visibility = View.GONE
+                    binding.swipeRefresh.isRefreshing = false
+                }
 
-            binding.showFull.setTextColor(
-                ContextCompat.getColor(
-                    requireContext(), R.color.purple_500
-                )
-            )
+            }
 
         }
+
 
         viewModel.downloadSummaryError.observe(viewLifecycleOwner) { networkStatus ->
 
             Log.i(TAG, "Downloading summary status = $networkStatus")
 
+            val viewModel = getViewMode()
+
             when (networkStatus) {
 
                 NetworkStatus.IN_PROGRESS -> {
-                    binding.progressBar.visibility = View.VISIBLE
-                    binding.newsSummary.visibility = View.GONE
-                    binding.errorSummary.visibility = View.GONE
+                    if (viewModel == "Show Summary") {
+                        binding.progressBar.visibility = View.VISIBLE
+                        binding.newsSummary.visibility = View.GONE
+                        binding.errorSummary.visibility = View.GONE
+                    }
                 }
 
                 NetworkStatus.SUCCESS -> {
-                    binding.newsSummary.visibility = View.VISIBLE
-                    binding.errorSummary.visibility = View.GONE
-                    binding.progressBar.visibility = View.GONE
+                    if (viewModel == "Show Summary") {
+                        binding.progressBar.visibility = View.GONE
+                        binding.newsSummary.visibility = View.VISIBLE
+                        binding.errorSummary.visibility = View.GONE
+                    }
                 }
 
                 NetworkStatus.ERROR -> {
-                    binding.newsSummary.visibility = View.GONE
-                    binding.errorSummary.visibility = View.VISIBLE
-                    binding.progressBar.visibility = View.GONE
+                    if (viewModel == "Show Summary") {
+                        binding.progressBar.visibility = View.GONE
+                        binding.newsSummary.visibility = View.GONE
+                        binding.errorSummary.visibility = View.VISIBLE
+                    }
                 }
 
                 else -> {}
@@ -181,34 +181,39 @@ class NewsArticleFragment : Fragment() {
 
         }
 
-        requireActivity().addMenuProvider(object : MenuProvider {
+        requireActivity().addMenuProvider(
+            object : MenuProvider {
 
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.menu_news_article, menu)
-                setIconMenuBookmark(menu[0], args.newsHeader.isBookmarked)
-            }
-
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-
-                return when (menuItem.itemId) {
-
-                    R.id.bookmarkToggle -> {
-
-                        args.newsHeader.isBookmarked = !args.newsHeader.isBookmarked
-
-                        setIconMenuBookmark(menuItem, args.newsHeader.isBookmarked)
-
-                        viewModel.toggleBookmark(args.newsHeader.url, args.newsHeader.isBookmarked)
-
-                        true
-                    }
-
-                    else -> false
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menuInflater.inflate(R.menu.menu_news_article, menu)
+                    setIconMenuBookmark(menu[0], args.newsHeader.isBookmarked)
                 }
 
-            }
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
 
-        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+                    return when (menuItem.itemId) {
+
+                        R.id.bookmarkToggle -> {
+
+                            args.newsHeader.isBookmarked = !args.newsHeader.isBookmarked
+
+                            setIconMenuBookmark(menuItem, args.newsHeader.isBookmarked)
+
+                            viewModel.toggleBookmark(
+                                args.newsHeader.url,
+                                args.newsHeader.isBookmarked
+                            )
+
+                            true
+                        }
+
+                        else -> false
+                    }
+
+                }
+
+            }, viewLifecycleOwner, Lifecycle.State.RESUMED
+        )
 
     }
 
@@ -222,5 +227,14 @@ class NewsArticleFragment : Fragment() {
         menuItem.setIcon(bookmarkToggleIcon)
 
     }
+
+    private fun getViewMode() = binding.contentToggleChipGroup.children
+        .toList()
+        .map { it as Chip }
+        .filter { it.isChecked }
+        .map { it.text }
+        .first()
+        .toString()
+
 
 }

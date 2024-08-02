@@ -29,7 +29,7 @@ class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private val viewModel: ViewModel by viewModels()
 
-    private val newsCategories = setOf(
+    private val newsCategories = listOf(
         "Top Stories",
         "Business",
         "Real Estate",
@@ -152,8 +152,7 @@ class HomeFragment : Fragment() {
 
     }
 
-    private fun selectedGenre(selectedChips: List<Int>) =
-        newsCategories.toList()[selectedChips.first()]
+    private fun selectedGenre(selectedChips: List<Int>) = newsCategories[selectedChips.first()]
 
 
 }

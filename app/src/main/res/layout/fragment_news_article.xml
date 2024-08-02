@@ -44,39 +44,45 @@
         app:layout_constraintTop_toBottomOf="@+id/newsArticleDate"
         tools:src="@tools:sample/backgrounds/scenic" />
 
-    <TextView
-        android:id="@+id/showFull"
-        android:layout_width="0dp"
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/contentToggleChipGroup"
+        android:layout_width="217dp"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="8dp"
-        android:gravity="center"
-        android:text="Show Full"
-        app:layout_constraintEnd_toStartOf="@+id/showSummary"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/newsArticleImage" />
-
-    <TextView
-        android:id="@+id/showSummary"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Show Summary"
-        android:textColor="@color/purple_500"
-        app:layout_constraintBaseline_toBaselineOf="@+id/showFull"
+        android:foregroundGravity="center"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/showFull" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/newsArticleImage"
+        app:selectionRequired="true"
+        app:singleSelection="true">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/showSummaryChip"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkable="true"
+            android:checked="true"
+            android:text="Show Summary" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/showFullChip"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkable="true"
+            android:text="Show Full" />
+
+    </com.google.android.material.chip.ChipGroup>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefresh"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/showFull">
+        app:layout_constraintTop_toBottomOf="@+id/contentToggleChipGroup">
 
         <TextView
             android:id="@+id/newsSummary"
@@ -91,14 +97,13 @@
         android:id="@+id/newsFull"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
         android:scrollbars="vertical"
         android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/swipeRefresh"
-        app:layout_constraintTop_toBottomOf="@+id/showFull" />
+        app:layout_constraintTop_toBottomOf="@+id/contentToggleChipGroup" />
 
     <ProgressBar
         android:id="@+id/progressBar"
