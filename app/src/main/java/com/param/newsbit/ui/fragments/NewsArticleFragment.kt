@@ -153,6 +153,7 @@ class NewsArticleFragment : Fragment() {
                 .map { it.text }
                 .first()
                 .toString()
+
             Log.i(TAG, "Summary or Full ChipGroup selection = $selectedViewMode")
             viewModel.viewMode.value = selectedViewMode
         }

@@ -17,7 +17,6 @@ import com.param.newsbit.entity.News
 import com.param.newsbit.model.parser.NetworkStatus
 import com.param.newsbit.ui.adapter.AdapterNewsHead
 import dagger.hilt.android.AndroidEntryPoint
-import java.time.LocalDate
 
 
 @AndroidEntryPoint
@@ -29,29 +28,28 @@ class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private val viewModel: ViewModel by viewModels()
 
-    private val newsCategories = listOf(
-        "Top Stories",
-        "Business",
-        "Real Estate",
-        "Opinion",
-        "Politics",
-        "Life"
+    private val newsGenre = mapOf(
+        "Top Stories" to null,
+        "Business" to "business*",
+        "Real Estate" to "real-estate*",
+        "Opinion" to "opinion*",
+        "Politics" to "politics*",
+        "Entertainment" to "entertainment*",
+        "Life" to "life*"
     )
 
+//    private val newsGenre = listOf(
+//        "Top Stories",
+//        "Business",
+//        "Real Estate",
+//        "Opinion",
+//        "Politics",
+//        "Life"
+//    )
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = FragmentHomeBinding.inflate(inflater, container, false)
-        createGenreChipGroup()
-        return binding.root
-    }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
         val navigateOnClick: (News) -> Unit = {
             val action = HomeFragmentDirections.actionHomeToNewsArticle(
@@ -70,11 +68,28 @@ class HomeFragment : Fragment() {
 
         adapterNewsHead = AdapterNewsHead(navigateOnClick, bookmarkOnClick)
 
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentHomeBinding.inflate(inflater, container, false)
+        createGenreChipGroup()
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        super.onViewCreated(view, savedInstanceState)
+
         // Set up RecyclerView News
         binding.allNewsRV.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = adapterNewsHead
         }
+
 
         // Update Genre Chip
         binding.chipGroup.setOnCheckedStateChangeListener { _, selectedChips ->
@@ -88,6 +103,7 @@ class HomeFragment : Fragment() {
         viewModel.chipGenre.observe(viewLifecycleOwner) { genre ->
             viewModel.downloadRetro(genre)
         }
+
 
         // Display News by Genre
         viewModel.selectNews().observe(viewLifecycleOwner) {
@@ -125,14 +141,13 @@ class HomeFragment : Fragment() {
         }
 
 
-
     }
 
     private fun createGenreChipGroup() {
 
         val chipStyle = com.google.android.material.R.style.Widget_MaterialComponents_Chip_Choice
 
-        newsCategories.forEachIndexed { index, genre ->
+        newsGenre.keys.forEachIndexed { index, genre ->
             val chip = Chip(requireContext()).apply {
                 setChipDrawable(
                     ChipDrawable.createFromAttributes(
@@ -153,7 +168,8 @@ class HomeFragment : Fragment() {
 
     }
 
-    private fun selectedGenre(selectedChips: List<Int>) = newsCategories[selectedChips.first()]
-
+    private fun selectedGenre(selectedChips: List<Int>): String {
+        return newsGenre.keys.toList()[selectedChips.first()]
+    }
 
 }

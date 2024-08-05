@@ -18,6 +18,8 @@ class Repository @Inject constructor(
 
     private val TAG = javaClass.simpleName
 
+
+
     /**
      * Downloads a list of news of the given genre.
      * genre = null for top stories
@@ -32,15 +34,17 @@ class Repository @Inject constructor(
 
             Log.i(TAG, "Downloading $genre")
 
-            val response =
-                tStarRetrofit.downloadNews(if (genre == "Top Stories") null else "$genre*", 20)
+            val response = tStarRetrofit.downloadNews(
+                if (genre == "Top Stories") null else "$genre*",
+                20
+            )
 
             if (!response.isSuccessful) {
                 Log.e(
                     TAG,
                     "Error downloading News using retro ${response.code()} = ${response.errorBody()}"
                 )
-                throw IllegalStateException("Error downloading News using retrofit = ${response.code()} ${response.errorBody()}")
+                throw IllegalStateException("Error downloading News using Retrofit = ${response.code()} ${response.errorBody()}")
             }
 
             if (response.body() == null) {
@@ -72,7 +76,7 @@ class Repository @Inject constructor(
 
             Log.i(TAG, "${allNews.size} $genre News downloaded using Retrofit")
             allNews.forEach {
-                Log.i(TAG, "Downloaded News: ${it.title.substring(0,10)} ${it.pubDate}")
+                Log.i(TAG, "Downloaded News: ${it.title.substring(0, 10)} ${it.pubDate}")
             }
 
             newsDao.insertAll(allNews)
@@ -123,7 +127,7 @@ class Repository @Inject constructor(
 
     fun getBookmarkedNews() = newsDao.selectBookmarked()
 
-    suspend fun deleteOlderThanWeek(){
+    suspend fun deleteOlderThanWeek() {
         newsDao.deleteOlderThanWeek(LocalDate.now().toString())
     }
 
