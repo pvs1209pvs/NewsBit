@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.param.newsbit.model.parser.NewsGenre
 import com.param.newsbit.repo.Repository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -77,17 +78,7 @@ class NewsDownloadWorker @AssistedInject constructor(
 
         try {
 
-            val newsGenre = listOf(
-                "Top Stories",
-                "Business",
-                "Real Estate",
-                "Opinion",
-                "Politics",
-                "Entertainment",
-                "Life"
-            )
-
-            newsGenre.forEach {
+           NewsGenre.newsGenre.forEach {
                 repository.downloadNews(it)
             }
 

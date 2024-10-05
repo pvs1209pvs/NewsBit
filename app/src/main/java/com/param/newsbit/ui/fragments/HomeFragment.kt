@@ -17,6 +17,7 @@ import com.param.newsbit.databinding.FragmentHomeBinding
 import com.param.newsbit.viewmodel.ViewModel
 import com.param.newsbit.entity.News
 import com.param.newsbit.model.parser.NetworkStatus
+import com.param.newsbit.model.parser.NewsGenre
 import com.param.newsbit.ui.adapter.AdapterNewsHead
 import com.param.newsbit.worker.NewsDownloadWorker
 import dagger.hilt.android.AndroidEntryPoint
@@ -32,25 +33,6 @@ class HomeFragment : Fragment() {
     private lateinit var adapterNewsHead: AdapterNewsHead
     private lateinit var binding: FragmentHomeBinding
     private val viewModel: ViewModel by viewModels()
-
-    private val newsGenre = mapOf(
-        "Top Stories" to null,
-        "Business" to "business*",
-        "Real Estate" to "real-estate*",
-        "Opinion" to "opinion*",
-        "Politics" to "politics*",
-        "Entertainment" to "entertainment*",
-        "Life" to "life*"
-    )
-
-//    private val newsGenre = listOf(
-//        "Top Stories",
-//        "Business",
-//        "Real Estate",
-//        "Opinion",
-//        "Politics",
-//        "Life"
-//    )
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -158,7 +140,7 @@ class HomeFragment : Fragment() {
 
         val chipStyle = com.google.android.material.R.style.Widget_MaterialComponents_Chip_Choice
 
-        newsGenre.keys.forEachIndexed { index, genre ->
+        NewsGenre.newsGenre.forEachIndexed { index, genre ->
             val chip = Chip(requireContext()).apply {
                 setChipDrawable(
                     ChipDrawable.createFromAttributes(
@@ -179,8 +161,7 @@ class HomeFragment : Fragment() {
 
     }
 
-    private fun selectedGenre(selectedChips: List<Int>): String {
-        return newsGenre.keys.toList()[selectedChips.first()]
-    }
+    private fun selectedGenre(selectedChips: List<Int>) = NewsGenre.newsGenre[selectedChips.first()]
+
 
 }
