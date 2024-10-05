@@ -9,6 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipDrawable
 import com.param.newsbit.databinding.FragmentHomeBinding
@@ -16,7 +18,10 @@ import com.param.newsbit.viewmodel.ViewModel
 import com.param.newsbit.entity.News
 import com.param.newsbit.model.parser.NetworkStatus
 import com.param.newsbit.ui.adapter.AdapterNewsHead
+import com.param.newsbit.worker.NewsDownloadWorker
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.Duration
+import java.util.concurrent.TimeUnit
 
 
 @AndroidEntryPoint
@@ -83,6 +88,12 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         super.onViewCreated(view, savedInstanceState)
+
+        // Set up Work Manager to download N4ews
+        val workRequest = PeriodicWorkRequestBuilder<NewsDownloadWorker>(Duration.ofMinutes(15))
+            .build()
+
+        WorkManager.getInstance(requireContext()).enqueue(workRequest)
 
         // Set up RecyclerView News
         binding.allNewsRV.apply {

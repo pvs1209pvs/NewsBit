@@ -69,9 +69,9 @@ class Repository @Inject constructor(
         }
 
         Log.i(TAG, "${allNews.size} $genre News downloaded using Retrofit")
-        allNews.forEach {
-            Log.i(TAG, "Downloaded News: ${it.title.substring(0, 10)} ${it.pubDate}")
-        }
+//        allNews.forEach {
+//            Log.i(TAG, "Downloaded News: ${it.title.substring(0, 10)} ${it.pubDate}")
+//        }
 
         newsDao.insertAll(allNews)
 
