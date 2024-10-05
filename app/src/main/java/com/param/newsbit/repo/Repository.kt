@@ -18,7 +18,7 @@ class Repository @Inject constructor(
 
     private val TAG = javaClass.simpleName
 
-
+    var reduction = mutableListOf<Double>()
 
     /**
      * Downloads a list of news of the given genre.
@@ -26,62 +26,55 @@ class Repository @Inject constructor(
      */
     suspend fun downloadNews(genre: String) {
 
-        val localCount = newsDao.localCount(genre, LocalDate.now().toString())
+        Log.i(TAG, "Downloading $genre")
 
-        Log.i(TAG, "$localCount $genre News in local database")
+        val response = tStarRetrofit.downloadNews(
+            if (genre == "Top Stories") null else "$genre*",
+            20
+        )
 
-        if (localCount == 0) {
+        if (!response.isSuccessful) {
+            Log.e(
+                TAG,
+                "Error downloading News using retro ${response.code()} = ${response.errorBody()}"
+            )
+            throw IllegalStateException("Error downloading News using Retrofit = ${response.code()} ${response.errorBody()}")
+        }
 
-            Log.i(TAG, "Downloading $genre")
+        if (response.body() == null) {
+            Log.e(TAG, "Response body null")
+            throw IllegalStateException("Response body null")
+        }
 
-            val response = tStarRetrofit.downloadNews(
-                if (genre == "Top Stories") null else "$genre*",
-                20
+        val allNews = response.body()!!.rows.map {
+
+            val content = it.content.joinToString(" ") { paragraph ->
+                // Removes HTML tag.
+                paragraph.replace("<[^>]+>".toRegex(), "")
+            }
+
+            val pubDate = Instant
+                .ofEpochMilli(it.starttime.utc.toLong())
+                .atZone(ZoneId.systemDefault()).toLocalDate()
+
+            News(
+                url = it.url,
+                title = it.title,
+                genre = genre,
+                pubDate = pubDate,
+                content = content,
+                imageUrl = it.preview.url
             )
 
-            if (!response.isSuccessful) {
-                Log.e(
-                    TAG,
-                    "Error downloading News using retro ${response.code()} = ${response.errorBody()}"
-                )
-                throw IllegalStateException("Error downloading News using Retrofit = ${response.code()} ${response.errorBody()}")
-            }
-
-            if (response.body() == null) {
-                Log.e(TAG, "Response body null")
-                throw IllegalStateException("Response body null")
-            }
-
-            val allNews = response.body()!!.rows.map {
-
-                val content = it.content.joinToString(" ") { paragraph ->
-                    // Replace HTML tag with blank text.
-                    paragraph.replace("<[^>]+>".toRegex(), "")
-                }
-
-                val pubDate = Instant
-                    .ofEpochMilli(it.starttime.utc.toLong())
-                    .atZone(ZoneId.systemDefault()).toLocalDate()
-
-                News(
-                    url = it.url,
-                    title = it.title,
-                    genre = genre,
-                    pubDate = pubDate,
-                    content = content,
-                    imageUrl = it.preview.url
-                )
-
-            }
-
-            Log.i(TAG, "${allNews.size} $genre News downloaded using Retrofit")
-            allNews.forEach {
-                Log.i(TAG, "Downloaded News: ${it.title.substring(0, 10)} ${it.pubDate}")
-            }
-
-            newsDao.insertAll(allNews)
-
         }
+
+        Log.i(TAG, "${allNews.size} $genre News downloaded using Retrofit")
+        allNews.forEach {
+            Log.i(TAG, "Downloaded News: ${it.title.substring(0, 10)} ${it.pubDate}")
+        }
+
+        newsDao.insertAll(allNews)
+
 
     }
 
@@ -101,7 +94,9 @@ class Repository @Inject constructor(
             val newsContent = newsDao.selectContent(newsUrl)
             val gptSummary = ChatGPTSummarizer.summarize(newsContent)
             newsDao.updateSummary(newsUrl, gptSummary)
-            Log.i(TAG, "ChatGPT summary (len) ${gptSummary.length}")
+
+            reduction.add((newsContent.length - gptSummary.length) / (newsContent.length * 1.0))
+            Log.i(TAG, "Reduction  ${reduction.average()}")
         }
 
     }
