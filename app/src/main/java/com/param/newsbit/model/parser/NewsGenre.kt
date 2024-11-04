@@ -2,7 +2,7 @@ package com.param.newsbit.model.parser
 
 object NewsGenre {
 
-    val newsGenre = listOf(
+    val TITLES = listOf(
         "Top Stories",
         "Business",
         "Real Estate",

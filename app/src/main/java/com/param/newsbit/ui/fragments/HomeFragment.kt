@@ -9,6 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.work.Constraints
+import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.android.material.chip.Chip
@@ -22,7 +24,6 @@ import com.param.newsbit.ui.adapter.AdapterNewsHead
 import com.param.newsbit.worker.NewsDownloadWorker
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.Duration
-import java.util.concurrent.TimeUnit
 
 
 @AndroidEntryPoint
@@ -71,8 +72,13 @@ class HomeFragment : Fragment() {
 
         super.onViewCreated(view, savedInstanceState)
 
-        // Set up Work Manager to download N4ews
-        val workRequest = PeriodicWorkRequestBuilder<NewsDownloadWorker>(Duration.ofMinutes(15))
+        val workManagerConstraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.UNMETERED)
+            .setRequiresCharging(true)
+            .build()
+
+        val workRequest = PeriodicWorkRequestBuilder<NewsDownloadWorker>(Duration.ofHours(6))
+            .setConstraints(workManagerConstraints)
             .build()
 
         WorkManager.getInstance(requireContext()).enqueue(workRequest)
@@ -140,7 +146,7 @@ class HomeFragment : Fragment() {
 
         val chipStyle = com.google.android.material.R.style.Widget_MaterialComponents_Chip_Choice
 
-        NewsGenre.newsGenre.forEachIndexed { index, genre ->
+        NewsGenre.TITLES.forEachIndexed { index, genre ->
             val chip = Chip(requireContext()).apply {
                 setChipDrawable(
                     ChipDrawable.createFromAttributes(
@@ -161,7 +167,7 @@ class HomeFragment : Fragment() {
 
     }
 
-    private fun selectedGenre(selectedChips: List<Int>) = NewsGenre.newsGenre[selectedChips.first()]
+    private fun selectedGenre(selectedChips: List<Int>) = NewsGenre.TITLES[selectedChips.first()]
 
 
 }
