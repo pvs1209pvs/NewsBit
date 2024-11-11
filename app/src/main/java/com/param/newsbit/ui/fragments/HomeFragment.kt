@@ -106,7 +106,7 @@ class HomeFragment : Fragment() {
 
         // Display News by Genre
         viewModel.selectNews().observe(viewLifecycleOwner) {
-            Log.i(TAG, "Display news = $it")
+            Log.i(TAG, " Local news articles: ${it.size}")
             adapterNewsHead.setList(it)
         }
 

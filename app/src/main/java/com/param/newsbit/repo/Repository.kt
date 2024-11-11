@@ -33,6 +33,8 @@ class Repository @Inject constructor(
             20
         )
 
+        Log.i(TAG, "Response code: ${response.code()}")
+
         if (!response.isSuccessful) {
             Log.e(
                 TAG,
@@ -47,6 +49,7 @@ class Repository @Inject constructor(
         }
 
         val allNews = response.body()!!.rows.map {
+
 
             val content = it.content.joinToString(" ") { paragraph ->
                 // Removes HTML tag.
@@ -68,13 +71,9 @@ class Repository @Inject constructor(
 
         }
 
-        Log.i(TAG, "${allNews.size} $genre News downloaded using Retrofit")
-//        allNews.forEach {
-//            Log.i(TAG, "Downloaded News: ${it.title.substring(0, 10)} ${it.pubDate}")
-//        }
+        Log.i(TAG, "$genre news downloaded using Retrofit: ${allNews.size}")
 
         newsDao.insertAll(allNews)
-
 
     }
 
