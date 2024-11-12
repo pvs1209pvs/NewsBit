@@ -1,6 +1,7 @@
 package com.param.newsbit.dao
 
 import androidx.lifecycle.LiveData
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -13,14 +14,19 @@ interface NewsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(newsList: List<News>)
 
-    @Query("SELECT content FROM news_table " +
-            "WHERE url = :url")
-    suspend fun selectContent(url: String): String
-
     @Query("SELECT * FROM news_table " +
             "WHERE genre = :genre AND pubDate >= DATE(:today, '-7 day') " +
             "ORDER BY pubDate DESC")
     fun selectByGenre(genre: String, today: String): LiveData<List<News>>
+
+    @Query("SELECT * FROM news_table " +
+            "WHERE genre = :genre AND pubDate >= DATE(:today, '-7 day') " +
+            "ORDER BY pubDate DESC")
+    fun selectAll(genre: String, today: String): PagingSource<Int, News>
+
+    @Query("SELECT content FROM news_table " +
+            "WHERE url = :url")
+    suspend fun selectContent(url: String): String
 
     @Query("SELECT summary FROM news_table " +
             "WHERE url = :url")

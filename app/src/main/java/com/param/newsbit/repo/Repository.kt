@@ -1,7 +1,12 @@
 package com.param.newsbit.repo
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.liveData
 import com.param.newsbit.api.TStarAPI
 import com.param.newsbit.dao.NewsDao
 import com.param.newsbit.entity.News
@@ -74,6 +79,15 @@ class Repository @Inject constructor(
         Log.i(TAG, "$genre news downloaded using Retrofit: ${allNews.size}")
 
         newsDao.insertAll(allNews)
+
+    }
+
+    fun getNews(genre: String, date: LocalDate): LiveData<PagingData<News>> {
+
+        return Pager(
+            config = PagingConfig(pageSize = 20, initialLoadSize = 5),
+            pagingSourceFactory = { newsDao.selectAll(genre, date.toString()) }
+        ).liveData
 
     }
 

@@ -31,9 +31,9 @@ class HomeFragment : Fragment() {
 
     private val TAG = javaClass.simpleName
 
+    private val viewModel: ViewModel by viewModels()
     private lateinit var adapterNewsHead: AdapterNewsHead
     private lateinit var binding: FragmentHomeBinding
-    private val viewModel: ViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -41,13 +41,12 @@ class HomeFragment : Fragment() {
 
         val navigateOnClick: (News) -> Unit = {
             val action = HomeFragmentDirections.actionHomeToNewsArticle(
-                    it.url,
-                    it.title,
-                    it.pubDate.toString(),
-                    it.isBookmarked,
-                    it.imageUrl
-                )
-
+                it.url,
+                it.title,
+                it.pubDate.toString(),
+                it.isBookmarked,
+                it.imageUrl
+            )
             findNavController().navigate(action)
         }
 
@@ -104,11 +103,9 @@ class HomeFragment : Fragment() {
             viewModel.downloadRetro(genre)
         }
 
-
-        // Display News by Genre
-        viewModel.selectNews().observe(viewLifecycleOwner) {
-            Log.i(TAG, "${viewModel.chipGenre.value} news articles from local database: ${it.size}")
-            adapterNewsHead.setList(it)
+        viewModel.getNews().observe(viewLifecycleOwner) {
+            Log.i(TAG, it.toString())
+            adapterNewsHead.submitData(viewLifecycleOwner.lifecycle, it)
         }
 
 

@@ -91,9 +91,6 @@ dependencies {
     implementation 'androidx.test.ext:junit-ktx:1.1.5'
     implementation 'androidx.test:runner:1.5.2'
 
-    // Paging
-    implementation "androidx.paging:paging-runtime:3.3.2"
-
     // Navigation
     def nav_version = "2.6.0"
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
@@ -107,8 +104,12 @@ dependencies {
     // Room
     implementation "androidx.room:room-runtime:2.6.1"
     implementation "androidx.room:room-ktx:2.6.1"
+    implementation "androidx.room:room-paging:2.6.1"
     annotationProcessor "androidx.room:room-compiler:2.6.1"
     kapt "androidx.room:room-compiler:2.6.1"
+
+    // Paging
+    implementation "androidx.paging:paging-runtime-ktx:3.3.2"
 
     // Dagger Hilt
     implementation "com.google.dagger:hilt-android:2.50"

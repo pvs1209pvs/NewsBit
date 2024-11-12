@@ -2,6 +2,7 @@ package com.param.newsbit.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
@@ -10,7 +11,6 @@ import coil.transform.RoundedCornersTransformation
 import com.param.newsbit.R
 import com.param.newsbit.databinding.ItemNewsHeadBinding
 import com.param.newsbit.entity.News
-import com.param.newsbit.ui.adapter.diffutils.NewsDiffUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,13 +18,17 @@ import kotlinx.coroutines.launch
 class AdapterNewsHead(
     private val myOnClick: (News) -> Unit,
     private val bookmarkOnClick: (News) -> Unit
-) : RecyclerView.Adapter<AdapterNewsHead.ViewHolderNewsHead>() {
+) : PagingDataAdapter<News, AdapterNewsHead.ViewHolderNewsHead>(DF) {
 
     inner class ViewHolderNewsHead(val binding: ItemNewsHeadBinding) :
         RecyclerView.ViewHolder(binding.root)
 
-
-    private val list = mutableListOf<News>()
+    companion object{
+        private val DF = object : DiffUtil.ItemCallback<News>() {
+            override fun areItemsTheSame(oldItem: News, newItem: News) = oldItem.url == newItem.url
+            override fun areContentsTheSame(oldItem: News, newItem: News) = oldItem == newItem
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderNewsHead {
 
@@ -40,7 +44,7 @@ class AdapterNewsHead(
 
     override fun onBindViewHolder(holder: ViewHolderNewsHead, position: Int) {
 
-        val news = list[position]
+        val news = getItem(position) ?: return
 
         CoroutineScope(Dispatchers.Default).launch {
 
@@ -53,11 +57,15 @@ class AdapterNewsHead(
         }
 
         holder.binding.apply {
+
             newsTitle.text = news.title
             newsGenre.text = news.pubDate.run { "$dayOfMonth $month, $year" }
 
+
             val bookmarkImageRes =
-                if (news.isBookmarked) R.drawable.ic_round_bookmark_24 else R.drawable.ic_round_bookmark_border_24
+                if (news.isBookmarked) R.drawable.ic_round_bookmark_24
+                else R.drawable.ic_round_bookmark_border_24
+
             bookmark.setImageResource(bookmarkImageRes)
         }
 
@@ -69,19 +77,6 @@ class AdapterNewsHead(
         holder.binding.bookmark.setOnClickListener {
             bookmarkOnClick(news)
         }
-
-    }
-
-    override fun getItemCount() = list.size
-
-    fun setList(newList: List<News>) {
-
-        val diffResult = DiffUtil.calculateDiff(NewsDiffUtil(list, newList))
-
-        list.clear()
-        list.addAll(newList)
-
-        diffResult.dispatchUpdatesTo(this)
 
     }
 

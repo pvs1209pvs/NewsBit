@@ -3,6 +3,7 @@ package com.param.newsbit.viewmodel
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.*
+import androidx.paging.cachedIn
 import com.param.newsbit.model.parser.NetworkStatus
 import com.param.newsbit.repo.Repository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -57,9 +58,8 @@ class ViewModel @Inject constructor(
         }
     }
 
-
-    fun selectNews(date: LocalDate = LocalDate.now()) = chipGenre.switchMap { repo.getNewsByGenre(it, date) }
-
+//    fun getNews() = repo.getNews().cachedIn(viewModelScope)
+    fun getNews(date: LocalDate = LocalDate.now()) = chipGenre.switchMap { repo.getNews(it, date) }
 
     fun refreshSummary(newsUrl: String) {
 
