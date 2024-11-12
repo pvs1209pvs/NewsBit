@@ -1,10 +1,10 @@
 package com.param.newsbit.repo
 
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import com.param.newsbit.api.TStarAPI
 import com.param.newsbit.dao.NewsDao
 import com.param.newsbit.entity.News
-import com.param.newsbit.model.parser.ArticleDownloader
 import com.param.newsbit.model.parser.ChatGPTSummarizer
 import java.time.Instant
 import java.time.LocalDate
@@ -114,10 +114,10 @@ class Repository @Inject constructor(
 
     fun getSummary(url: String) = newsDao.selectSummaryLD(url)
 
-    fun getNewsBody(url: String) = newsDao.selectBody(url)
+    suspend fun getNewsBody(url: String) = MutableLiveData(newsDao.selectContent(url))
 
     suspend fun toggleBookmark(url: String, value: Boolean) {
-        newsDao.toggleBookmark(url, value)
+        newsDao.updateBookmark(url, value)
     }
 
     fun getBookmarkedNews() = newsDao.selectBookmarked()

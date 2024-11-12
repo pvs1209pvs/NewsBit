@@ -76,7 +76,7 @@ class ViewModel @Inject constructor(
 
     fun selectSummary(url: String) = repo.getSummary(url)
 
-    fun selectNewsBody(url: String) = repo.getNewsBody(url)
+    suspend fun selectNewsBody(url: String) = repo.getNewsBody(url)
 
     fun toggleBookmark(url: String, value: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {

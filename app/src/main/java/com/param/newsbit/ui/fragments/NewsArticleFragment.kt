@@ -68,10 +68,14 @@ class NewsArticleFragment : Fragment() {
             }
         }
 
-        viewModel.selectNewsBody(args.newsUrl).observe(viewLifecycleOwner) { body ->
-            binding.newsFull.text = body
-            Log.i(TAG, "News body len ${body.length}")
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.selectNewsBody(args.newsUrl).observe(viewLifecycleOwner) { body ->
+                binding.newsFull.text = body
+                Log.i(TAG, "News body len ${body.length}")
+            }
         }
+
+
 
         lifecycleScope.launch(Dispatchers.IO) {
 

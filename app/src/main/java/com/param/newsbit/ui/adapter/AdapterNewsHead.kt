@@ -1,6 +1,5 @@
 package com.param.newsbit.ui.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -21,29 +20,23 @@ class AdapterNewsHead(
     private val bookmarkOnClick: (News) -> Unit
 ) : RecyclerView.Adapter<AdapterNewsHead.ViewHolderNewsHead>() {
 
-    inner class ViewHolderNewsHead(val binding: ItemNewsHeadBinding) : RecyclerView.ViewHolder(binding.root)
+    inner class ViewHolderNewsHead(val binding: ItemNewsHeadBinding) :
+        RecyclerView.ViewHolder(binding.root)
+
 
     private val list = mutableListOf<News>()
 
-    fun setList(newList: List<News>) {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderNewsHead {
 
-        val diffResult = DiffUtil.calculateDiff(NewsDiffUtil(list, newList))
-
-        list.clear()
-        list.addAll(newList)
-
-        diffResult.dispatchUpdatesTo(this)
-
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        ViewHolderNewsHead(
+        return ViewHolderNewsHead(
             ItemNewsHeadBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
                 false
             )
         )
+
+    }
 
     override fun onBindViewHolder(holder: ViewHolderNewsHead, position: Int) {
 
@@ -63,7 +56,8 @@ class AdapterNewsHead(
             newsTitle.text = news.title
             newsGenre.text = news.pubDate.run { "$dayOfMonth $month, $year" }
 
-            val bookmarkImageRes = if (news.isBookmarked) R.drawable.ic_round_bookmark_24 else R.drawable.ic_round_bookmark_border_24
+            val bookmarkImageRes =
+                if (news.isBookmarked) R.drawable.ic_round_bookmark_24 else R.drawable.ic_round_bookmark_border_24
             bookmark.setImageResource(bookmarkImageRes)
         }
 
@@ -79,5 +73,16 @@ class AdapterNewsHead(
     }
 
     override fun getItemCount() = list.size
+
+    fun setList(newList: List<News>) {
+
+        val diffResult = DiffUtil.calculateDiff(NewsDiffUtil(list, newList))
+
+        list.clear()
+        list.addAll(newList)
+
+        diffResult.dispatchUpdatesTo(this)
+
+    }
 
 }
