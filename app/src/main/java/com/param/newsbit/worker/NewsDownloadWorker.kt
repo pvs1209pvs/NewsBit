@@ -22,13 +22,8 @@ class NewsDownloadWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
 
         try {
-
-           NewsGenre.TITLES.forEach {
-                repository.downloadNews(it)
-            }
-
+            NewsGenre.TITLES.forEach { repository.downloadNews(it) }
             return Result.success()
-
         } catch (e: Exception) {
             Log.e(TAG, e.message.toString())
         }

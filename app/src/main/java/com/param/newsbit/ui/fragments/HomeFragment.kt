@@ -41,12 +41,13 @@ class HomeFragment : Fragment() {
 
         val navigateOnClick: (News) -> Unit = {
             val action = HomeFragmentDirections.actionHomeToNewsArticle(
-                it.url,
-                it.title,
-                it.pubDate.toString(),
-                it.isBookmarked,
-                it.imageUrl
-            )
+                    it.url,
+                    it.title,
+                    it.pubDate.toString(),
+                    it.isBookmarked,
+                    it.imageUrl
+                )
+
             findNavController().navigate(action)
         }
 
@@ -106,7 +107,7 @@ class HomeFragment : Fragment() {
 
         // Display News by Genre
         viewModel.selectNews().observe(viewLifecycleOwner) {
-            Log.i(TAG, " Local news articles: ${it.size}")
+            Log.i(TAG, "${viewModel.chipGenre.value} news articles from local database: ${it.size}")
             adapterNewsHead.setList(it)
         }
 
@@ -114,7 +115,7 @@ class HomeFragment : Fragment() {
         // Handle error downloading all news
         viewModel.downloadNewsError.observe(viewLifecycleOwner) { networkStatus ->
 
-            Log.i(TAG, "Downloading all news network status = $networkStatus")
+            Log.i(TAG, "Downloading all news network status: $networkStatus")
 
             when (networkStatus) {
 

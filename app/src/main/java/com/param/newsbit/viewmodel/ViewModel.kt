@@ -58,8 +58,7 @@ class ViewModel @Inject constructor(
     }
 
 
-    fun selectNews(date: LocalDate = LocalDate.now()) =
-        chipGenre.switchMap { repo.getNewsByGenre(it, date) }
+    fun selectNews(date: LocalDate = LocalDate.now()) = chipGenre.switchMap { repo.getNewsByGenre(it, date) }
 
 
     fun refreshSummary(newsUrl: String) {
@@ -92,9 +91,5 @@ class ViewModel @Inject constructor(
             repo.deleteOlderThanWeek()
         }
     }
-
-    //
-    fun selectAll() = repo.selectAll()
-    //
 
 }

@@ -107,6 +107,7 @@ class Repository @Inject constructor(
         val newsContent = newsDao.selectContent(newsUrl)
         val gptSummary = ChatGPTSummarizer.summarize(newsContent)
         newsDao.updateSummary(newsUrl, gptSummary)
+
         Log.i(TAG, "ChatGPT summary (len) ${gptSummary.length}")
 
     }
@@ -124,9 +125,5 @@ class Repository @Inject constructor(
     suspend fun deleteOlderThanWeek() {
         newsDao.deleteOlderThanWeek(LocalDate.now().toString())
     }
-
-    //
-    fun selectAll() = newsDao.selectAll()
-    //
 
 }
