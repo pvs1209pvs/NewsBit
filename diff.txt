@@ -1,0 +1,226 @@
+diff --git a/app/src/main/java/com/param/newsbit/dao/NewsDao.kt b/app/src/main/java/com/param/newsbit/dao/NewsDao.kt
+index a8ba421..56efed5 100644
+--- a/app/src/main/java/com/param/newsbit/dao/NewsDao.kt
++++ b/app/src/main/java/com/param/newsbit/dao/NewsDao.kt
+@@ -5,28 +5,14 @@ import androidx.room.Dao
+ import androidx.room.Insert
+ import androidx.room.OnConflictStrategy
+ import androidx.room.Query
+-import androidx.room.Upsert
+ import com.param.newsbit.entity.News
+ 
+ @Dao
+ interface NewsDao {
+ 
+-    //
+-    // todo: can be removed, was only used for testing
+-//    @Query("SELECT * FROM news_table")
+-//    fun selectAll(): LiveData<List<News>>
+-    //
+-
+-
+     @Insert(onConflict = OnConflictStrategy.REPLACE)
+-//    @Upsert
+     suspend fun insertAll(newsList: List<News>)
+ 
+-
+-    @Query("SELECT COUNT(*) FROM news_table " +
+-            "WHERE genre = :genre AND pubDate = :dateString")
+-    suspend fun localCount(genre: String, dateString: String): Int
+-
+     @Query("SELECT content FROM news_table " +
+             "WHERE url = :url")
+     suspend fun selectContent(url: String): String
+@@ -36,14 +22,6 @@ interface NewsDao {
+             "ORDER BY pubDate DESC ")
+     fun selectByGenre(genre: String, today: String): LiveData<List<News>>
+ 
+-    @Query("SELECT * FROM news_table " +
+-            "WHERE isBookmarked = 1")
+-    fun selectBookmarked(): LiveData<List<News>>
+-
+-    @Query("SELECT isBookmarked FROM news_table " +
+-            "WHERE url = :url")
+-    fun selectBookmark(url: String): LiveData<Int>
+-
+     @Query("SELECT summary FROM news_table " +
+             "WHERE url = :url")
+     suspend fun selectSummary(url: String): String
+@@ -52,10 +30,6 @@ interface NewsDao {
+             "WHERE url = :url")
+     fun selectSummaryLD(url: String): LiveData<String>
+ 
+-    @Query("SELECT content FROM news_table " +
+-            "WHERE url = :url")
+-    fun selectBody(url: String): LiveData<String>
+-
+     @Query("UPDATE news_table " +
+             "SET summary = :newSummary " +
+             "WHERE url = :url")
+@@ -64,7 +38,15 @@ interface NewsDao {
+     @Query("UPDATE news_table " +
+             "SET isBookmarked = :value " +
+             "WHERE url = :url")
+-    suspend fun toggleBookmark(url: String, value: Boolean)
++    suspend fun updateBookmark(url: String, value: Boolean)
++
++    @Query("SELECT * FROM news_table " +
++            "WHERE isBookmarked = 1")
++    fun selectBookmarked(): LiveData<List<News>>
++
++    @Query("SELECT isBookmarked FROM news_table " +
++            "WHERE url = :url")
++    fun selectBookmark(url: String): LiveData<Int>
+ 
+     // 604800 seconds in a week
+     @Query("DELETE FROM news_table " +
+@@ -72,6 +54,3 @@ interface NewsDao {
+     suspend fun deleteOlderThanWeek(today: String)
+ 
+ }
+-
+-
+-// pubDate >= DATE(:today, '-7 day')
+\ No newline at end of file
+diff --git a/app/src/main/java/com/param/newsbit/repo/Repository.kt b/app/src/main/java/com/param/newsbit/repo/Repository.kt
+index 971a01f..daf59bc 100644
+--- a/app/src/main/java/com/param/newsbit/repo/Repository.kt
++++ b/app/src/main/java/com/param/newsbit/repo/Repository.kt
+@@ -1,10 +1,10 @@
+ package com.param.newsbit.repo
+ 
+ import android.util.Log
++import androidx.lifecycle.MutableLiveData
+ import com.param.newsbit.api.TStarAPI
+ import com.param.newsbit.dao.NewsDao
+ import com.param.newsbit.entity.News
+-import com.param.newsbit.model.parser.ArticleDownloader
+ import com.param.newsbit.model.parser.ChatGPTSummarizer
+ import java.time.Instant
+ import java.time.LocalDate
+@@ -114,10 +114,10 @@ class Repository @Inject constructor(
+ 
+     fun getSummary(url: String) = newsDao.selectSummaryLD(url)
+ 
+-    fun getNewsBody(url: String) = newsDao.selectBody(url)
++    suspend fun getNewsBody(url: String) = MutableLiveData(newsDao.selectContent(url))
+ 
+     suspend fun toggleBookmark(url: String, value: Boolean) {
+-        newsDao.toggleBookmark(url, value)
++        newsDao.updateBookmark(url, value)
+     }
+ 
+     fun getBookmarkedNews() = newsDao.selectBookmarked()
+diff --git a/app/src/main/java/com/param/newsbit/ui/adapter/AdapterNewsHead.kt b/app/src/main/java/com/param/newsbit/ui/adapter/AdapterNewsHead.kt
+index a0ee389..e2fdefb 100644
+--- a/app/src/main/java/com/param/newsbit/ui/adapter/AdapterNewsHead.kt
++++ b/app/src/main/java/com/param/newsbit/ui/adapter/AdapterNewsHead.kt
+@@ -1,6 +1,5 @@
+ package com.param.newsbit.ui.adapter
+ 
+-import android.util.Log
+ import android.view.LayoutInflater
+ import android.view.ViewGroup
+ import androidx.recyclerview.widget.DiffUtil
+@@ -21,23 +20,15 @@ class AdapterNewsHead(
+     private val bookmarkOnClick: (News) -> Unit
+ ) : RecyclerView.Adapter<AdapterNewsHead.ViewHolderNewsHead>() {
+ 
+-    inner class ViewHolderNewsHead(val binding: ItemNewsHeadBinding) : RecyclerView.ViewHolder(binding.root)
++    inner class ViewHolderNewsHead(val binding: ItemNewsHeadBinding) :
++        RecyclerView.ViewHolder(binding.root)
+ 
+-    private val list = mutableListOf<News>()
+-
+-    fun setList(newList: List<News>) {
+-
+-        val diffResult = DiffUtil.calculateDiff(NewsDiffUtil(list, newList))
+-
+-        list.clear()
+-        list.addAll(newList)
+ 
+-        diffResult.dispatchUpdatesTo(this)
++    private val list = mutableListOf<News>()
+ 
+-    }
++    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderNewsHead {
+ 
+-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+-        ViewHolderNewsHead(
++        return ViewHolderNewsHead(
+             ItemNewsHeadBinding.inflate(
+                 LayoutInflater.from(parent.context),
+                 parent,
+@@ -45,6 +36,8 @@ class AdapterNewsHead(
+             )
+         )
+ 
++    }
++
+     override fun onBindViewHolder(holder: ViewHolderNewsHead, position: Int) {
+ 
+         val news = list[position]
+@@ -63,7 +56,8 @@ class AdapterNewsHead(
+             newsTitle.text = news.title
+             newsGenre.text = news.pubDate.run { "$dayOfMonth $month, $year" }
+ 
+-            val bookmarkImageRes = if (news.isBookmarked) R.drawable.ic_round_bookmark_24 else R.drawable.ic_round_bookmark_border_24
++            val bookmarkImageRes =
++                if (news.isBookmarked) R.drawable.ic_round_bookmark_24 else R.drawable.ic_round_bookmark_border_24
+             bookmark.setImageResource(bookmarkImageRes)
+         }
+ 
+@@ -80,4 +74,15 @@ class AdapterNewsHead(
+ 
+     override fun getItemCount() = list.size
+ 
+-}
++    fun setList(newList: List<News>) {
++
++        val diffResult = DiffUtil.calculateDiff(NewsDiffUtil(list, newList))
++
++        list.clear()
++        list.addAll(newList)
++
++        diffResult.dispatchUpdatesTo(this)
++
++    }
++
++}
+\ No newline at end of file
+diff --git a/app/src/main/java/com/param/newsbit/ui/fragments/NewsArticleFragment.kt b/app/src/main/java/com/param/newsbit/ui/fragments/NewsArticleFragment.kt
+index c8c5cc2..6187bf5 100644
+--- a/app/src/main/java/com/param/newsbit/ui/fragments/NewsArticleFragment.kt
++++ b/app/src/main/java/com/param/newsbit/ui/fragments/NewsArticleFragment.kt
+@@ -68,11 +68,15 @@ class NewsArticleFragment : Fragment() {
+             }
+         }
+ 
+-        viewModel.selectNewsBody(args.newsUrl).observe(viewLifecycleOwner) { body ->
+-            binding.newsFull.text = body
+-            Log.i(TAG, "News body len ${body.length}")
++        viewLifecycleOwner.lifecycleScope.launch {
++            viewModel.selectNewsBody(args.newsUrl).observe(viewLifecycleOwner) { body ->
++                binding.newsFull.text = body
++                Log.i(TAG, "News body len ${body.length}")
++            }
+         }
+ 
++
++
+         lifecycleScope.launch(Dispatchers.IO) {
+ 
+             Log.i(TAG, "Coil image url = ${args.newsImgUrl.toString()}")
+diff --git a/app/src/main/java/com/param/newsbit/viewmodel/ViewModel.kt b/app/src/main/java/com/param/newsbit/viewmodel/ViewModel.kt
+index ba2e4b9..ded8c59 100644
+--- a/app/src/main/java/com/param/newsbit/viewmodel/ViewModel.kt
++++ b/app/src/main/java/com/param/newsbit/viewmodel/ViewModel.kt
+@@ -76,7 +76,7 @@ class ViewModel @Inject constructor(
+ 
+     fun selectSummary(url: String) = repo.getSummary(url)
+ 
+-    fun selectNewsBody(url: String) = repo.getNewsBody(url)
++    suspend fun selectNewsBody(url: String) = repo.getNewsBody(url)
+ 
+     fun toggleBookmark(url: String, value: Boolean) {
+         viewModelScope.launch(Dispatchers.IO) {
