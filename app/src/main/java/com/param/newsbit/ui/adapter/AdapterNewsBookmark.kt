@@ -14,9 +14,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class AdapterNewsBookmark : RecyclerView.Adapter<AdapterNewsBookmark.ViewHolderNewsBookmark>() {
+class AdapterNewsBookmark(
+    private val bookmarkedNewsOnClick: (news:News) -> Unit
+) : RecyclerView.Adapter<AdapterNewsBookmark.ViewHolderNewsBookmark>() {
 
-    inner class ViewHolderNewsBookmark(val binding: ItemNewsBookmarkBinding) : RecyclerView.ViewHolder(binding.root)
+    inner class ViewHolderNewsBookmark(val binding: ItemNewsBookmarkBinding) :
+        RecyclerView.ViewHolder(binding.root)
 
     private val list = mutableListOf<News>()
 
@@ -58,6 +61,10 @@ class AdapterNewsBookmark : RecyclerView.Adapter<AdapterNewsBookmark.ViewHolderN
             newsBookmarkTitle.text = news.title
             newsBookmarkDate.text = news.pubDate.run { "$dayOfMonth $month, $year" }
             newsBookmarkGenre.text = news.genre
+        }
+
+        holder.binding.root.setOnClickListener {
+            bookmarkedNewsOnClick(news)
         }
 
     }

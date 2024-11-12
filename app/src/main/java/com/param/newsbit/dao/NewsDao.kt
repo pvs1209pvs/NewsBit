@@ -19,7 +19,7 @@ interface NewsDao {
 
     @Query("SELECT * FROM news_table " +
             "WHERE genre = :genre AND pubDate >= DATE(:today, '-7 day') " +
-            "ORDER BY pubDate DESC ")
+            "ORDER BY pubDate DESC")
     fun selectByGenre(genre: String, today: String): LiveData<List<News>>
 
     @Query("SELECT summary FROM news_table " +

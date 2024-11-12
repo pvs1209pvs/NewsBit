@@ -52,6 +52,10 @@
         android:id="@+id/bookmarkFragment"
         android:name="com.param.newsbit.ui.fragments.BookmarkFragment"
         android:label="Bookmark"
-        tools:layout="@layout/fragment_bookmark" />
+        tools:layout="@layout/fragment_bookmark" >
+        <action
+            android:id="@+id/action_bookmarkFragment_to_newsArticleFragment"
+            app:destination="@id/newsArticleFragment" />
+    </fragment>
 
 </navigation>

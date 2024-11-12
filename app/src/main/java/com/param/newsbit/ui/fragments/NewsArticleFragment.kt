@@ -50,9 +50,9 @@ class NewsArticleFragment : Fragment() {
 
         binding.apply {
             newsArticleTitle.text = args.newsTitle
+            newsArticleDate.text = args.newsPubDate
             newsSummary.movementMethod = ScrollingMovementMethod()
             newsFull.movementMethod = ScrollingMovementMethod()
-            newsArticleDate.text = args.newsPubDate
         }
 
         binding.swipeRefresh.setOnRefreshListener {

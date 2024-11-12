@@ -7,8 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.param.newsbit.databinding.FragmentBookmarkBinding
+import com.param.newsbit.entity.News
 import com.param.newsbit.viewmodel.ViewModel
 import com.param.newsbit.ui.adapter.AdapterNewsBookmark
 import dagger.hilt.android.AndroidEntryPoint
@@ -29,12 +31,34 @@ class BookmarkFragment : Fragment() {
         return binding.root
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+
+        super.onCreate(savedInstanceState)
+
+        val bookmarkedNewsOnClick: (news: News) -> Unit = {
+
+            val action = BookmarkFragmentDirections.actionBookmarkFragmentToNewsArticleFragment(
+                it.url,
+                it.title,
+                it.pubDate.toString(),
+                it.isBookmarked,
+                it.imageUrl
+
+            )
+
+            findNavController().navigate(action)
+
+        }
+
+        adapterNewsBookmark = AdapterNewsBookmark(bookmarkedNewsOnClick)
+
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         Log.d("Fragment Bookmark", "onViewCreated")
 
-        adapterNewsBookmark = AdapterNewsBookmark()
 
         binding.bookmarksNews.apply {
             layoutManager = LinearLayoutManager(requireContext())
