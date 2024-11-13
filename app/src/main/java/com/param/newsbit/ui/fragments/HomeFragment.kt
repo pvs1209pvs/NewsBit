@@ -3,12 +3,18 @@ package com.param.newsbit.ui.fragments
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.MenuProvider
+import androidx.core.view.get
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,6 +23,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipDrawable
+import com.param.newsbit.R
 import com.param.newsbit.databinding.FragmentHomeBinding
 import com.param.newsbit.viewmodel.ViewModel
 import com.param.newsbit.entity.News
@@ -97,16 +104,16 @@ class HomeFragment : Fragment() {
         }
 
 
-        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
-
-            override fun onQueryTextSubmit(query: String?) = false
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                viewModel.searchQuery.value = newText
-                return true
-            }
-
-        })
+//        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+//
+//            override fun onQueryTextSubmit(query: String?) = false
+//
+//            override fun onQueryTextChange(newText: String?): Boolean {
+//                viewModel.searchQuery.value = newText
+//                return true
+//            }
+//
+//        })
 
 //        binding.searchText.doOnTextChanged { text, _, _, _ ->
 //            viewModel.searchQuery.value = text.toString()
@@ -153,6 +160,39 @@ class HomeFragment : Fragment() {
             }
 
         }
+
+
+        requireActivity().addMenuProvider(
+
+            object : MenuProvider {
+
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menuInflater.inflate(R.menu.menu_home, menu)
+                }
+
+                override fun onPrepareMenu(menu: Menu) {
+
+                    val searchItem  = menu.findItem(R.id.search_item).actionView as SearchView
+
+                    searchItem.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+
+                        override fun onQueryTextSubmit(query: String?) = false
+
+                        override fun onQueryTextChange(newText: String?): Boolean {
+                            viewModel.searchQuery.value = newText
+                            return true
+                        }
+
+                    })
+
+                }
+
+                override fun onMenuItemSelected(menuItem: MenuItem) = true
+
+            }, viewLifecycleOwner, Lifecycle.State.RESUMED
+
+        )
+
 
     }
 
