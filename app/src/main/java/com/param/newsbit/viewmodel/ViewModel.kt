@@ -3,7 +3,8 @@ package com.param.newsbit.viewmodel
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.*
-import androidx.paging.cachedIn
+import androidx.paging.PagingData
+import com.param.newsbit.entity.News
 import com.param.newsbit.model.parser.NetworkStatus
 import com.param.newsbit.repo.Repository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,6 +23,9 @@ class ViewModel @Inject constructor(
     val chipGenre = MutableLiveData("Top Stories")
     val viewMode = MutableLiveData("Show Summary")
 
+    val searchQuery = MutableLiveData("")
+//     val searchQuery : LiveData<String> = _searchQuery
+
     private val _downloadNewsError = MutableLiveData(NetworkStatus.IN_PROGRESS)
     val downloadNewsError: LiveData<NetworkStatus> = _downloadNewsError
 
@@ -31,7 +35,7 @@ class ViewModel @Inject constructor(
     private val _refreshSummaryError = MutableLiveData(NetworkStatus.NOT_STARTED)
     val refreshSummaryError: LiveData<NetworkStatus> = _refreshSummaryError
 
-    fun downloadRetro(genre: String) {
+    fun downloadNews(genre: String) {
 
         val coroutineExceptionHandler = CoroutineExceptionHandler { _, e ->
             Log.i(TAG, e.message.toString())
@@ -58,8 +62,21 @@ class ViewModel @Inject constructor(
         }
     }
 
-//    fun getNews() = repo.getNews().cachedIn(viewModelScope)
+    //    fun getNews() = repo.getNews().cachedIn(viewModelScope)
     fun getNews(date: LocalDate = LocalDate.now()) = chipGenre.switchMap { repo.getNews(it, date) }
+
+    fun getNewByTitle(): LiveData<PagingData<News>> {
+
+        return searchQuery.switchMap {
+
+            if (it.isEmpty() || it.isBlank()) {
+                chipGenre.switchMap { genre -> repo.getNews(genre, LocalDate.now()) }
+            } else {
+                repo.getNewByTitle(it)
+            }
+        }
+
+    }
 
     fun refreshSummary(newsUrl: String) {
 

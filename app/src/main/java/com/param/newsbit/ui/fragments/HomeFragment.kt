@@ -5,12 +5,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.work.Constraints
-import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.android.material.chip.Chip
@@ -72,10 +72,7 @@ class HomeFragment : Fragment() {
 
         super.onViewCreated(view, savedInstanceState)
 
-        val workManagerConstraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.UNMETERED)
-            .setRequiresCharging(true)
-            .build()
+        val workManagerConstraints = Constraints.Builder().build()
 
         val workRequest = PeriodicWorkRequestBuilder<NewsDownloadWorker>(Duration.ofHours(6))
             .setConstraints(workManagerConstraints)
@@ -98,15 +95,32 @@ class HomeFragment : Fragment() {
         }
 
 
-        // Get News by Genre
-        viewModel.chipGenre.observe(viewLifecycleOwner) { genre ->
-            viewModel.downloadRetro(genre)
+        // Download news by genre
+        viewModel.chipGenre.observe(viewLifecycleOwner) {
+            viewModel.downloadNews(it)
         }
 
+
         viewModel.getNews().observe(viewLifecycleOwner) {
-            Log.i(TAG, it.toString())
             adapterNewsHead.submitData(viewLifecycleOwner.lifecycle, it)
         }
+
+
+        binding.searchText.doOnTextChanged { text, start, before, count ->
+            viewModel.searchQuery.value = text.toString()
+        }
+
+        viewModel.getNewByTitle().observe(viewLifecycleOwner) {
+            adapterNewsHead.submitData(viewLifecycleOwner.lifecycle, it)
+        }
+
+
+//        binding.go.setOnClickListener {
+//            val searchText = binding.searchText.text.toString()
+//            viewModel.getNewByTitle(searchText).observe(viewLifecycleOwner){
+//                adapterNewsHead.submitData(viewLifecycleOwner.lifecycle, it)
+//            }
+//        }
 
 
         // Handle error downloading all news
@@ -136,7 +150,6 @@ class HomeFragment : Fragment() {
             }
 
         }
-
 
     }
 
