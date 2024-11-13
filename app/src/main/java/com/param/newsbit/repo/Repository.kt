@@ -95,7 +95,16 @@ class Repository @Inject constructor(
 
         return Pager(
             config = PagingConfig(pageSize = 20, initialLoadSize = 5),
-            pagingSourceFactory = { newsDao.selectTitle(title) }
+            pagingSourceFactory = { newsDao.selectByTitle(title) }
+        ).liveData
+
+    }
+
+    fun getNewByTitleGenre(genre: String, title: String): LiveData<PagingData<News>> {
+
+        return Pager(
+            config = PagingConfig(pageSize = 20, initialLoadSize = 5),
+            pagingSourceFactory = { newsDao.selectByTitleGenre(title, genre) }
         ).liveData
 
     }

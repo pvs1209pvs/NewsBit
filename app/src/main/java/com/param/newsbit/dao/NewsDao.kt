@@ -13,7 +13,12 @@ interface NewsDao {
 
     @Query("SELECT * FROM news_table " +
             "WHERE title LIKE '%' || :title || '%' ")
-    fun selectTitle(title:String) : PagingSource<Int, News>
+    fun selectByTitle(title:String) : PagingSource<Int, News>
+
+    @Query("SELECT * FROM news_table " +
+            "WHERE title LIKE '%' || :title || '%' AND genre = :genre " +
+            "ORDER BY pubDate DESC")
+    fun selectByTitleGenre(title:String, genre :String) : PagingSource<Int, News>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(newsList: List<News>)

@@ -101,16 +101,20 @@ class HomeFragment : Fragment() {
         }
 
 
-        viewModel.getNews().observe(viewLifecycleOwner) {
-            adapterNewsHead.submitData(viewLifecycleOwner.lifecycle, it)
-        }
+//        viewModel.getNews().observe(viewLifecycleOwner) {
+//            adapterNewsHead.submitData(viewLifecycleOwner.lifecycle, it)
+//        }
 
 
         binding.searchText.doOnTextChanged { text, start, before, count ->
             viewModel.searchQuery.value = text.toString()
         }
 
-        viewModel.getNewByTitle().observe(viewLifecycleOwner) {
+//        viewModel.getNewByTitle().observe(viewLifecycleOwner) {
+//            adapterNewsHead.submitData(viewLifecycleOwner.lifecycle, it)
+//        }
+
+        viewModel.getNewsByTitleGenre().observe(viewLifecycleOwner) {
             adapterNewsHead.submitData(viewLifecycleOwner.lifecycle, it)
         }
 

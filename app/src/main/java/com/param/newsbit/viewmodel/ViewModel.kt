@@ -65,7 +65,43 @@ class ViewModel @Inject constructor(
     //    fun getNews() = repo.getNews().cachedIn(viewModelScope)
     fun getNews(date: LocalDate = LocalDate.now()) = chipGenre.switchMap { repo.getNews(it, date) }
 
+    fun getNewsByTitleGenre(): LiveData<PagingData<News>> {
+
+        // genre, title
+        val genreTitleMediator = MediatorLiveData<Pair<String?, String?>>().apply {
+
+            addSource(chipGenre) { genre ->
+                value = Pair(genre, searchQuery.value)
+            }
+
+            addSource(searchQuery) { sq ->
+                value = Pair(chipGenre.value, sq)
+            }
+
+        }
+
+        return genreTitleMediator.switchMap {
+
+            if (it.first != null && it.second != null) {
+                repo.getNewByTitleGenre(it.first.toString(), it.second.toString())
+            } else {
+                chipGenre.switchMap { genre -> repo.getNews(genre, LocalDate.now()) }
+            }
+
+        }
+
+    }
+
     fun getNewByTitle(): LiveData<PagingData<News>> {
+
+//        chipGenre.switchMap {  }
+
+        val x = searchQuery.switchMap { sq ->
+            chipGenre.switchMap { genre ->
+                repo.getNewByTitle(sq)
+            }
+        }
+
 
         return searchQuery.switchMap {
 
