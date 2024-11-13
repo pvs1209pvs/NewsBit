@@ -82,6 +82,15 @@ class Repository @Inject constructor(
 
     }
 
+    fun getNewByTitleGenre(genre: String, title: String): LiveData<PagingData<News>> {
+
+        return Pager(
+            config = PagingConfig(pageSize = 20, initialLoadSize = 5),
+            pagingSourceFactory = { newsDao.selectByTitleGenre(title, genre) }
+        ).liveData
+
+    }
+
     fun getNews(genre: String, date: LocalDate): LiveData<PagingData<News>> {
 
         return Pager(
@@ -91,20 +100,11 @@ class Repository @Inject constructor(
 
     }
 
-    fun getNewByTitle(title: String): LiveData<PagingData<News>> {
+    fun getNewsByDate(genre: String, date: LocalDate): LiveData<PagingData<News>> {
 
         return Pager(
             config = PagingConfig(pageSize = 20, initialLoadSize = 5),
-            pagingSourceFactory = { newsDao.selectByTitle(title) }
-        ).liveData
-
-    }
-
-    fun getNewByTitleGenre(genre: String, title: String): LiveData<PagingData<News>> {
-
-        return Pager(
-            config = PagingConfig(pageSize = 20, initialLoadSize = 5),
-            pagingSourceFactory = { newsDao.selectByTitleGenre(title, genre) }
+            pagingSourceFactory = { newsDao.selectByDate(genre, date.toString()) }
         ).liveData
 
     }

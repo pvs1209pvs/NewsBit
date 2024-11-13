@@ -10,8 +10,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.MenuProvider
-import androidx.core.view.get
-import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -43,8 +41,9 @@ class HomeFragment : Fragment() {
     private val TAG = javaClass.simpleName
 
     private val viewModel: ViewModel by viewModels()
-    private lateinit var adapterNewsHead: AdapterNewsHead
     private lateinit var binding: FragmentHomeBinding
+    private lateinit var adapterNewsHead: AdapterNewsHead
+    private lateinit var datePickerFragment: DatePickerFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -99,25 +98,19 @@ class HomeFragment : Fragment() {
 
         binding.chipGroup.setOnCheckedStateChangeListener { _, selectedChips ->
             val selectedGenre = selectedGenre(selectedChips)
-            Log.i(TAG, "$selectedGenre selected")
+            Log.i(TAG, "Genre chip selected: $selectedGenre")
             viewModel.chipGenre.value = selectedGenre
         }
 
+        datePickerFragment = DatePickerFragment { date ->
 
-//        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-//
-//            override fun onQueryTextSubmit(query: String?) = false
-//
-//            override fun onQueryTextChange(newText: String?): Boolean {
-//                viewModel.searchQuery.value = newText
-//                return true
-//            }
-//
-//        })
+            Log.i(TAG, "DatePicker date: $date")
 
-//        binding.searchText.doOnTextChanged { text, _, _, _ ->
-//            viewModel.searchQuery.value = text.toString()
-//        }
+            viewModel.getNewsByGenreDate(date).observe(viewLifecycleOwner) { data ->
+                adapterNewsHead.submitData(viewLifecycleOwner.lifecycle, data)
+            }
+
+        }
 
 
         lifecycleScope.launch(Dispatchers.IO) {
@@ -133,10 +126,9 @@ class HomeFragment : Fragment() {
             adapterNewsHead.submitData(viewLifecycleOwner.lifecycle, it)
         }
 
-
         viewModel.downloadNewsError.observe(viewLifecycleOwner) { networkStatus ->
 
-            Log.i(TAG, "Downloading all news network status: $networkStatus")
+            Log.i(TAG, "Network status when downloading news: $networkStatus")
 
             when (networkStatus) {
 
@@ -161,7 +153,6 @@ class HomeFragment : Fragment() {
 
         }
 
-
         requireActivity().addMenuProvider(
 
             object : MenuProvider {
@@ -172,7 +163,7 @@ class HomeFragment : Fragment() {
 
                 override fun onPrepareMenu(menu: Menu) {
 
-                    val searchItem  = menu.findItem(R.id.search_item).actionView as SearchView
+                    val searchItem = menu.findItem(R.id.search_item).actionView as SearchView
 
                     searchItem.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
@@ -187,12 +178,23 @@ class HomeFragment : Fragment() {
 
                 }
 
-                override fun onMenuItemSelected(menuItem: MenuItem) = true
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+
+                    return when (menuItem.itemId) {
+
+                        R.id.date_picker -> {
+                            datePickerFragment.show(childFragmentManager, "date picker")
+                            true
+                        }
+
+                        else -> false
+                    }
+
+                }
 
             }, viewLifecycleOwner, Lifecycle.State.RESUMED
 
         )
-
 
     }
 
@@ -222,6 +224,5 @@ class HomeFragment : Fragment() {
     }
 
     private fun selectedGenre(selectedChips: List<Int>) = NewsGenre.TITLES[selectedChips.first()]
-
 
 }

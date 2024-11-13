@@ -49,6 +49,11 @@ class ViewModel @Inject constructor(
 
     }
 
+    fun getNews(date:LocalDate) = chipGenre.switchMap { repo.getNewsByGenre(it,date) }
+
+    fun getNewsByGenreDate(date: LocalDate) = chipGenre.switchMap { repo.getNewsByDate(it, date) }
+
+
     fun getNewsByTitleGenre(): LiveData<PagingData<News>> {
 
         // genre, title

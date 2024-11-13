@@ -33,6 +33,10 @@ interface NewsDao {
             "ORDER BY pubDate DESC")
     fun selectAll(genre: String, today: String): PagingSource<Int, News>
 
+    @Query("SELECT * FROM news_table " +
+            "WHERE genre = :genre AND pubDate = :date")
+    fun selectByDate(genre: String, date:String) : PagingSource<Int, News>
+
     @Query("SELECT content FROM news_table " +
             "WHERE url = :url")
     suspend fun selectContent(url: String): String
