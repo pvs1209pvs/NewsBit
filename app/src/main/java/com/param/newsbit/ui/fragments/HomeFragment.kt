@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.work.Constraints
@@ -23,6 +24,8 @@ import com.param.newsbit.model.parser.NewsGenre
 import com.param.newsbit.ui.adapter.AdapterNewsHead
 import com.param.newsbit.worker.NewsDownloadWorker
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.time.Duration
 
 
@@ -80,54 +83,37 @@ class HomeFragment : Fragment() {
 
         WorkManager.getInstance(requireContext()).enqueue(workRequest)
 
-        // Set up RecyclerView News
+
         binding.allNewsRV.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = adapterNewsHead
         }
 
-
-        // Update Genre Chip
         binding.chipGroup.setOnCheckedStateChangeListener { _, selectedChips ->
             val selectedGenre = selectedGenre(selectedChips)
             Log.i(TAG, "$selectedGenre selected")
             viewModel.chipGenre.value = selectedGenre
         }
 
-
-        // Download news by genre
-        viewModel.chipGenre.observe(viewLifecycleOwner) {
-            viewModel.downloadNews(it)
-        }
-
-
-//        viewModel.getNews().observe(viewLifecycleOwner) {
-//            adapterNewsHead.submitData(viewLifecycleOwner.lifecycle, it)
-//        }
-
-
-        binding.searchText.doOnTextChanged { text, start, before, count ->
+        binding.searchText.doOnTextChanged { text, _, _, _ ->
             viewModel.searchQuery.value = text.toString()
         }
 
-//        viewModel.getNewByTitle().observe(viewLifecycleOwner) {
-//            adapterNewsHead.submitData(viewLifecycleOwner.lifecycle, it)
-//        }
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            viewModel.deleteOlderThanWeek()
+        }
+
+
+        viewModel.chipGenre.observe(viewLifecycleOwner) {
+            viewModel.downloadNews(it)
+        }
 
         viewModel.getNewsByTitleGenre().observe(viewLifecycleOwner) {
             adapterNewsHead.submitData(viewLifecycleOwner.lifecycle, it)
         }
 
 
-//        binding.go.setOnClickListener {
-//            val searchText = binding.searchText.text.toString()
-//            viewModel.getNewByTitle(searchText).observe(viewLifecycleOwner){
-//                adapterNewsHead.submitData(viewLifecycleOwner.lifecycle, it)
-//            }
-//        }
-
-
-        // Handle error downloading all news
         viewModel.downloadNewsError.observe(viewLifecycleOwner) { networkStatus ->
 
             Log.i(TAG, "Downloading all news network status: $networkStatus")

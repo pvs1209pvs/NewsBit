@@ -49,22 +49,6 @@ class ViewModel @Inject constructor(
 
     }
 
-    fun downloadSummary(newsUrl: String) {
-
-        val coroutineExceptionHandler = CoroutineExceptionHandler { _, _ ->
-            Log.e(TAG, "Error downloading summary for $newsUrl")
-            _downloadSummaryError.postValue(NetworkStatus.ERROR)
-        }
-
-        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            repo.downloadSummary(newsUrl)
-            _downloadSummaryError.postValue(NetworkStatus.SUCCESS)
-        }
-    }
-
-    //    fun getNews() = repo.getNews().cachedIn(viewModelScope)
-    fun getNews(date: LocalDate = LocalDate.now()) = chipGenre.switchMap { repo.getNews(it, date) }
-
     fun getNewsByTitleGenre(): LiveData<PagingData<News>> {
 
         // genre, title
@@ -92,26 +76,19 @@ class ViewModel @Inject constructor(
 
     }
 
-    fun getNewByTitle(): LiveData<PagingData<News>> {
+    suspend fun selectNewsBody(url: String) = repo.getNewsBody(url)
 
-//        chipGenre.switchMap {  }
+    fun downloadSummary(newsUrl: String) {
 
-        val x = searchQuery.switchMap { sq ->
-            chipGenre.switchMap { genre ->
-                repo.getNewByTitle(sq)
-            }
+        val coroutineExceptionHandler = CoroutineExceptionHandler { _, _ ->
+            Log.e(TAG, "Error downloading summary for $newsUrl")
+            _downloadSummaryError.postValue(NetworkStatus.ERROR)
         }
 
-
-        return searchQuery.switchMap {
-
-            if (it.isEmpty() || it.isBlank()) {
-                chipGenre.switchMap { genre -> repo.getNews(genre, LocalDate.now()) }
-            } else {
-                repo.getNewByTitle(it)
-            }
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            repo.downloadSummary(newsUrl)
+            _downloadSummaryError.postValue(NetworkStatus.SUCCESS)
         }
-
     }
 
     fun refreshSummary(newsUrl: String) {
@@ -128,8 +105,6 @@ class ViewModel @Inject constructor(
     }
 
     fun selectSummary(url: String) = repo.getSummary(url)
-
-    suspend fun selectNewsBody(url: String) = repo.getNewsBody(url)
 
     fun toggleBookmark(url: String, value: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
