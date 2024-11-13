@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -95,9 +96,21 @@ class HomeFragment : Fragment() {
             viewModel.chipGenre.value = selectedGenre
         }
 
-        binding.searchText.doOnTextChanged { text, _, _, _ ->
-            viewModel.searchQuery.value = text.toString()
-        }
+
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+
+            override fun onQueryTextSubmit(query: String?) = false
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                viewModel.searchQuery.value = newText
+                return true
+            }
+
+        })
+
+//        binding.searchText.doOnTextChanged { text, _, _, _ ->
+//            viewModel.searchQuery.value = text.toString()
+//        }
 
 
         lifecycleScope.launch(Dispatchers.IO) {
