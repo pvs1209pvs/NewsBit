@@ -31,7 +31,7 @@ class Repository @Inject constructor(
      */
     suspend fun downloadNews(genre: String) {
 
-        Log.i(TAG, "Downloading $genre")
+        Log.i(TAG, "Downloading: $genre")
 
         val response = tStarRetrofit.downloadNews(
             if (genre == "Top Stories") null else "$genre*",

@@ -22,9 +22,6 @@ class ViewModel @Inject constructor(
     private val TAG = javaClass.simpleName
 
     val newsFilter = MutableLiveData(NewsFilter("Top Stories", "", LocalDate.now()))
-    val chipGenre = MutableLiveData("Top Stories")
-    val searchQuery = MutableLiveData("")
-    val dateFiler = MutableLiveData(LocalDate.now())
     val viewMode = MutableLiveData("Show Summary")
 
     private val _downloadNewsError = MutableLiveData(NetworkStatus.IN_PROGRESS)
@@ -50,77 +47,19 @@ class ViewModel @Inject constructor(
 
     }
 
-    fun getNews(date: LocalDate) = chipGenre.switchMap { repo.getNewsByGenre(it, date) }
-
-    fun getNewsByGenreDate(date: LocalDate) = chipGenre.switchMap { repo.getNewsByDate(it, date) }
-
-
-    fun getNewsByTitleGenre(): LiveData<PagingData<News>> {
-
-        // genre, title
-        val genreTitleMediator = MediatorLiveData<Pair<String?, String?>>().apply {
-
-            addSource(chipGenre) { genre ->
-                value = Pair(genre, searchQuery.value)
-            }
-
-            addSource(searchQuery) { sq ->
-                value = Pair(chipGenre.value, sq)
-            }
-
-        }
-
-        return genreTitleMediator.switchMap {
-
-            if (it.first != null && it.second != null) {
-                repo.getNewByTitleGenre(it.first.toString(), it.second.toString())
-            } else {
-                chipGenre.switchMap { genre -> repo.getNews(genre, LocalDate.now()) }
-            }
-
-        }
-
-    }
 
     fun getNewsByGenreDateTitle(): LiveData<PagingData<News>> {
 
-        val filterMediator = MediatorLiveData<Triple<String, LocalDate, String>>().apply {
-
-            addSource(chipGenre) { cg ->
-                value = Triple(
-                    cg,
-                    dateFiler.value ?: LocalDate.now(),
-                    searchQuery.value ?: ""
-                )
-            }
-
-            addSource(searchQuery) { sq ->
-                value = Triple(
-                    chipGenre.value ?: "",
-                    dateFiler.value ?: LocalDate.now(),
-                    sq
-                )
-            }
-
-            addSource(dateFiler) { df ->
-                value = Triple(
-                    chipGenre.value ?: "",
-                    df,
-                    searchQuery.value ?: ""
-                )
-            }
-
-        }
-
-        return filterMediator.switchMap {
+        return newsFilter.switchMap {
 
             Log.i(TAG, "filters: $it")
 
             repo.getNewsByGenreDateTitle(
-                genre = it.first,
-                date = it.second,
-                searchQuery = it.third
+                it.genre,
+                it.date,
+                it.searchQuery,
             )
+
         }
 
     }

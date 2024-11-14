@@ -23,11 +23,11 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipDrawable
 import com.param.newsbit.R
 import com.param.newsbit.databinding.FragmentHomeBinding
-import com.param.newsbit.viewmodel.ViewModel
 import com.param.newsbit.entity.News
 import com.param.newsbit.model.parser.NetworkStatus
 import com.param.newsbit.model.parser.NewsGenre
 import com.param.newsbit.ui.adapter.AdapterNewsHead
+import com.param.newsbit.viewmodel.ViewModel
 import com.param.newsbit.worker.NewsDownloadWorker
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -97,24 +97,30 @@ class HomeFragment : Fragment() {
         }
 
         binding.chipGroup.setOnCheckedStateChangeListener { _, selectedChips ->
+
             val selectedGenre = selectedGenre(selectedChips)
             Log.i(TAG, "Genre chip selected: $selectedGenre")
-            viewModel.chipGenre.value = selectedGenre
+
+            viewModel.newsFilter.value = viewModel.newsFilter.value?.copy(genre = selectedGenre)
+
         }
 
         datePickerFragment = DatePickerFragment { date ->
             Log.i(TAG, "DatePicker date: $date")
-            viewModel.dateFiler.value = date
+            viewModel.newsFilter.value = viewModel.newsFilter.value?.copy(date = date)
+
         }
 
 
         lifecycleScope.launch(Dispatchers.IO) {
+            Log.i(TAG, "Delete news older than one week")
             viewModel.deleteOlderThanWeek()
         }
 
 
-        viewModel.chipGenre.observe(viewLifecycleOwner) {
-            viewModel.downloadNews(it)
+        viewModel.newsFilter.observe(viewLifecycleOwner) {
+            Log.i(TAG, "onViewCreated: news filter $it")
+            viewModel.downloadNews(it.genre)
         }
 
         viewModel.getNewsByGenreDateTitle().observe(viewLifecycleOwner) {
@@ -167,7 +173,8 @@ class HomeFragment : Fragment() {
                         override fun onQueryTextSubmit(query: String?) = false
 
                         override fun onQueryTextChange(newText: String?): Boolean {
-                            viewModel.searchQuery.value = newText
+                            viewModel.newsFilter.value =
+                                viewModel.newsFilter.value?.copy(searchQuery = newText ?: "")
                             return true
                         }
 

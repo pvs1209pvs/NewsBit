@@ -3,6 +3,7 @@ package com.param.newsbit.worker
 import android.content.Context
 import android.util.Log
 import androidx.hilt.work.HiltWorker
+import androidx.paging.LOG_TAG
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.param.newsbit.model.parser.NewsGenre
@@ -20,6 +21,8 @@ class NewsDownloadWorker @AssistedInject constructor(
     private val TAG = javaClass.simpleName
 
     override suspend fun doWork(): Result {
+
+        Log.i(TAG, "doWork: Downloading all genres")
 
         try {
             NewsGenre.TITLES.forEach { repository.downloadNews(it) }
