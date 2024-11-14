@@ -82,6 +82,18 @@ class Repository @Inject constructor(
 
     }
 
+    fun getNewsByGenreDateTitle(
+        genre: String,
+        date: LocalDate,
+        searchQuery: String
+    ): LiveData<PagingData<News>> {
+        return Pager(
+            config = PagingConfig(pageSize = 20, initialLoadSize = 5),
+            pagingSourceFactory = { newsDao.selectBy(genre, date.toString(), searchQuery) }
+        ).liveData
+    }
+
+
     fun getNewByTitleGenre(genre: String, title: String): LiveData<PagingData<News>> {
 
         return Pager(

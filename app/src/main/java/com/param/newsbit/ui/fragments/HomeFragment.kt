@@ -103,13 +103,8 @@ class HomeFragment : Fragment() {
         }
 
         datePickerFragment = DatePickerFragment { date ->
-
             Log.i(TAG, "DatePicker date: $date")
-
-            viewModel.getNewsByGenreDate(date).observe(viewLifecycleOwner) { data ->
-                adapterNewsHead.submitData(viewLifecycleOwner.lifecycle, data)
-            }
-
+            viewModel.dateFiler.value = date
         }
 
 
@@ -122,9 +117,15 @@ class HomeFragment : Fragment() {
             viewModel.downloadNews(it)
         }
 
-        viewModel.getNewsByTitleGenre().observe(viewLifecycleOwner) {
+//        viewModel.getNewsByTitleGenre().observe(viewLifecycleOwner) {
+//            adapterNewsHead.submitData(viewLifecycleOwner.lifecycle, it)
+//        }
+
+        viewModel.getNewsByGenreDateTitle().observe(viewLifecycleOwner) {
             adapterNewsHead.submitData(viewLifecycleOwner.lifecycle, it)
         }
+
+
 
         viewModel.downloadNewsError.observe(viewLifecycleOwner) { networkStatus ->
 

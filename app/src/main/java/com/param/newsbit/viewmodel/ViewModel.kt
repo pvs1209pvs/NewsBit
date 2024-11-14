@@ -21,10 +21,9 @@ class ViewModel @Inject constructor(
     private val TAG = javaClass.simpleName
 
     val chipGenre = MutableLiveData("Top Stories")
-    val viewMode = MutableLiveData("Show Summary")
-
     val searchQuery = MutableLiveData("")
-//     val searchQuery : LiveData<String> = _searchQuery
+    val dateFiler = MutableLiveData(LocalDate.now())
+    val viewMode = MutableLiveData("Show Summary")
 
     private val _downloadNewsError = MutableLiveData(NetworkStatus.IN_PROGRESS)
     val downloadNewsError: LiveData<NetworkStatus> = _downloadNewsError
@@ -49,7 +48,7 @@ class ViewModel @Inject constructor(
 
     }
 
-    fun getNews(date:LocalDate) = chipGenre.switchMap { repo.getNewsByGenre(it,date) }
+    fun getNews(date: LocalDate) = chipGenre.switchMap { repo.getNewsByGenre(it, date) }
 
     fun getNewsByGenreDate(date: LocalDate) = chipGenre.switchMap { repo.getNewsByDate(it, date) }
 
@@ -80,6 +79,49 @@ class ViewModel @Inject constructor(
         }
 
     }
+
+    fun getNewsByGenreDateTitle(): LiveData<PagingData<News>> {
+
+        val filterMediator = MediatorLiveData<Triple<String, LocalDate, String>>().apply {
+
+            addSource(chipGenre) { cg ->
+                value = Triple(
+                    cg,
+                    dateFiler.value ?: LocalDate.now(),
+                    searchQuery.value ?: ""
+                )
+            }
+
+            addSource(searchQuery) { sq ->
+                value = Triple(
+                    chipGenre.value ?: "",
+                    dateFiler.value ?: LocalDate.now(),
+                    sq
+                )
+            }
+
+            addSource(dateFiler) { df ->
+                value = Triple(
+                    chipGenre.value ?: "",
+                    df,
+                    searchQuery.value ?: "")
+            }
+
+        }
+
+        return filterMediator.switchMap {
+
+            Log.i(TAG, "filters: $it")
+
+            repo.getNewsByGenreDateTitle(
+                genre = it.first,
+                date = it.second,
+                searchQuery = it.third
+            )
+        }
+
+    }
+
 
     suspend fun selectNewsBody(url: String) = repo.getNewsBody(url)
 

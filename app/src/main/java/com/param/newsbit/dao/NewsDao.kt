@@ -12,6 +12,10 @@ import com.param.newsbit.entity.News
 interface NewsDao {
 
     @Query("SELECT * FROM news_table " +
+            "WHERE genre = :genre AND title LIKE '%' || :searchQuery || '%' AND pubDate = :date")
+    fun selectBy(genre:String, date: String, searchQuery:String) : PagingSource<Int, News>
+
+    @Query("SELECT * FROM news_table " +
             "WHERE title LIKE '%' || :title || '%' ")
     fun selectByTitle(title:String) : PagingSource<Int, News>
 
@@ -70,7 +74,7 @@ interface NewsDao {
     // TODO: do not delete bookmarked news
     // 604800 seconds in a week
     @Query("DELETE FROM news_table " +
-            "WHERE (UNIXEPOCH(:today)-UNIXEPOCH(pubDate) >= 604800)")
+            "WHERE (UNIXEPOCH(:today)-UNIXEPOCH(pubDate) >= 604800) AND isBookmarked = 0")
     suspend fun deleteOlderThanWeek(today: String)
 
 }
