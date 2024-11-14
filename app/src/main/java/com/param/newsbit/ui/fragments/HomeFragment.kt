@@ -117,14 +117,9 @@ class HomeFragment : Fragment() {
             viewModel.downloadNews(it)
         }
 
-//        viewModel.getNewsByTitleGenre().observe(viewLifecycleOwner) {
-//            adapterNewsHead.submitData(viewLifecycleOwner.lifecycle, it)
-//        }
-
         viewModel.getNewsByGenreDateTitle().observe(viewLifecycleOwner) {
             adapterNewsHead.submitData(viewLifecycleOwner.lifecycle, it)
         }
-
 
 
         viewModel.downloadNewsError.observe(viewLifecycleOwner) { networkStatus ->
@@ -153,6 +148,7 @@ class HomeFragment : Fragment() {
             }
 
         }
+
 
         requireActivity().addMenuProvider(
 

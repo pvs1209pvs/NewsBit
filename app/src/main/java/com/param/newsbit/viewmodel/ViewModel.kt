@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.*
 import androidx.paging.PagingData
 import com.param.newsbit.entity.News
+import com.param.newsbit.entity.NewsFilter
 import com.param.newsbit.model.parser.NetworkStatus
 import com.param.newsbit.repo.Repository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,6 +21,7 @@ class ViewModel @Inject constructor(
 
     private val TAG = javaClass.simpleName
 
+    val newsFilter = MutableLiveData(NewsFilter("Top Stories", "", LocalDate.now()))
     val chipGenre = MutableLiveData("Top Stories")
     val searchQuery = MutableLiveData("")
     val dateFiler = MutableLiveData(LocalDate.now())
@@ -104,7 +106,8 @@ class ViewModel @Inject constructor(
                 value = Triple(
                     chipGenre.value ?: "",
                     df,
-                    searchQuery.value ?: "")
+                    searchQuery.value ?: ""
+                )
             }
 
         }
