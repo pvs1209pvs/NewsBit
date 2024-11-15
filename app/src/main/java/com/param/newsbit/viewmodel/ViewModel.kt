@@ -28,6 +28,7 @@ class ViewModel @Inject constructor(
             LocalDate.now()
         )
     )
+
     val viewMode = MutableLiveData("Show Summary")
 
 

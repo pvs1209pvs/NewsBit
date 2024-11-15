@@ -122,6 +122,7 @@ class HomeFragment : Fragment() {
 
         }
 
+
         viewModel.getNewsByGenreDateTitle().observe(viewLifecycleOwner) {
             adapterNewsHead.submitData(viewLifecycleOwner.lifecycle, it)
         }
