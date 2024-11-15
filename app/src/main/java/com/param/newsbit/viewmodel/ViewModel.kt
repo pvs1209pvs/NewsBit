@@ -21,8 +21,15 @@ class ViewModel @Inject constructor(
 
     private val TAG = javaClass.simpleName
 
-    val newsFilter = MutableLiveData(NewsFilter("Top Stories", "", LocalDate.now()))
+    val newsFilter = MutableLiveData(
+        NewsFilter(
+            "Top Stories",
+            "",
+            LocalDate.now()
+        )
+    )
     val viewMode = MutableLiveData("Show Summary")
+
 
     private val _downloadNewsError = MutableLiveData(NetworkStatus.IN_PROGRESS)
     val downloadNewsError: LiveData<NetworkStatus> = _downloadNewsError
@@ -47,23 +54,10 @@ class ViewModel @Inject constructor(
 
     }
 
-
-    fun getNewsByGenreDateTitle(): LiveData<PagingData<News>> {
-
-        return newsFilter.switchMap {
-
-            Log.i(TAG, "filters: $it")
-
-            repo.getNewsByGenreDateTitle(
-                it.genre,
-                it.date,
-                it.searchQuery,
-            )
-
-        }
-
+    fun getNewsByGenreDateTitle() = newsFilter.switchMap {
+        Log.i(TAG, "getNewsByGenreDateTitle: $it")
+        repo.getNews(it)
     }
-
 
     suspend fun selectNewsBody(url: String) = repo.getNewsBody(url)
 

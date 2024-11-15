@@ -10,6 +10,7 @@ import androidx.paging.liveData
 import com.param.newsbit.api.TStarAPI
 import com.param.newsbit.dao.NewsDao
 import com.param.newsbit.entity.News
+import com.param.newsbit.entity.NewsFilter
 import com.param.newsbit.model.parser.ChatGPTSummarizer
 import java.time.Instant
 import java.time.LocalDate
@@ -82,47 +83,20 @@ class Repository @Inject constructor(
 
     }
 
-    fun getNewsByGenreDateTitle(
-        genre: String,
-        date: LocalDate,
-        searchQuery: String
-    ): LiveData<PagingData<News>> {
-        return Pager(
-            config = PagingConfig(pageSize = 20, initialLoadSize = 5),
-            pagingSourceFactory = { newsDao.selectBy(genre, date.toString(), searchQuery) }
-        ).liveData
-    }
-
-
-    fun getNewByTitleGenre(genre: String, title: String): LiveData<PagingData<News>> {
+    fun getNews(filter: NewsFilter): LiveData<PagingData<News>> {
 
         return Pager(
-            config = PagingConfig(pageSize = 20, initialLoadSize = 5),
-            pagingSourceFactory = { newsDao.selectByTitleGenre(title, genre) }
+            config = PagingConfig(pageSize = 20, initialLoadSize = 20),
+            pagingSourceFactory = {
+                newsDao.selectBy(
+                    filter.genre,
+                    filter.date.toString(),
+                    filter.searchQuery
+                )
+            }
         ).liveData
 
     }
-
-    fun getNews(genre: String, date: LocalDate): LiveData<PagingData<News>> {
-
-        return Pager(
-            config = PagingConfig(pageSize = 20, initialLoadSize = 5),
-            pagingSourceFactory = { newsDao.selectAll(genre, date.toString()) }
-        ).liveData
-
-    }
-
-    fun getNewsByDate(genre: String, date: LocalDate): LiveData<PagingData<News>> {
-
-        return Pager(
-            config = PagingConfig(pageSize = 20, initialLoadSize = 5),
-            pagingSourceFactory = { newsDao.selectByDate(genre, date.toString()) }
-        ).liveData
-
-    }
-
-    fun getNewsByGenre(genre: String, date: LocalDate) =
-        newsDao.selectByGenre(genre, date.toString())
 
 
     suspend fun downloadSummary(newsUrl: String) {

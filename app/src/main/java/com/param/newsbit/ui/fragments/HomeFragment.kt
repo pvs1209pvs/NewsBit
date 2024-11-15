@@ -66,6 +66,17 @@ class HomeFragment : Fragment() {
 
         adapterNewsHead = AdapterNewsHead(navigateOnClick, bookmarkOnClick)
 
+
+        NewsGenre.TITLES.forEach {
+            viewModel.downloadNews(it)
+        }
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            Log.i(TAG, "Delete news older than one week")
+            viewModel.deleteOlderThanWeek()
+        }
+
+
     }
 
     override fun onCreateView(
@@ -111,22 +122,9 @@ class HomeFragment : Fragment() {
 
         }
 
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            Log.i(TAG, "Delete news older than one week")
-            viewModel.deleteOlderThanWeek()
-        }
-
-
-        viewModel.newsFilter.observe(viewLifecycleOwner) {
-            Log.i(TAG, "onViewCreated: news filter $it")
-            viewModel.downloadNews(it.genre)
-        }
-
         viewModel.getNewsByGenreDateTitle().observe(viewLifecycleOwner) {
             adapterNewsHead.submitData(viewLifecycleOwner.lifecycle, it)
         }
-
 
         viewModel.downloadNewsError.observe(viewLifecycleOwner) { networkStatus ->
 
