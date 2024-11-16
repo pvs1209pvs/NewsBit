@@ -1,4 +1,4 @@
-package com.param.newsbit.ui.fragments
+package com.param.newsbit.ui.validator
 
 import com.google.android.material.datepicker.CalendarConstraints
 import kotlinx.android.parcel.Parcelize

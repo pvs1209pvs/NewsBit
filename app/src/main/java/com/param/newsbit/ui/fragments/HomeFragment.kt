@@ -30,6 +30,7 @@ import com.param.newsbit.entity.News
 import com.param.newsbit.model.parser.NetworkStatus
 import com.param.newsbit.model.parser.NewsGenre
 import com.param.newsbit.ui.adapter.AdapterNewsHead
+import com.param.newsbit.ui.validator.CustomDateValidator
 import com.param.newsbit.viewmodel.ViewModel
 import com.param.newsbit.worker.NewsDownloadWorker
 import dagger.hilt.android.AndroidEntryPoint
@@ -221,9 +222,11 @@ class HomeFragment : Fragment() {
                             }
 
                             true
+
                         }
 
                         else -> false
+
                     }
 
                 }
