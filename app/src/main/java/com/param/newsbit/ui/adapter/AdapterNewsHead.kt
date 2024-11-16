@@ -20,8 +20,7 @@ class AdapterNewsHead(
     private val bookmarkOnClick: (News) -> Unit
 ) : PagingDataAdapter<News, AdapterNewsHead.ViewHolderNewsHead>(DF) {
 
-    inner class ViewHolderNewsHead(val binding: ItemNewsHeadBinding) :
-        RecyclerView.ViewHolder(binding.root)
+    inner class ViewHolderNewsHead(val binding: ItemNewsHeadBinding) : RecyclerView.ViewHolder(binding.root)
 
     companion object{
         private val DF = object : DiffUtil.ItemCallback<News>() {
@@ -59,8 +58,7 @@ class AdapterNewsHead(
         holder.binding.apply {
 
             newsTitle.text = news.title
-            newsGenre.text = news.pubDate.run { "$dayOfMonth $month, $year" }
-
+            newsDate.text = news.pubDate.run { "$dayOfMonth $month, $year" }
 
             val bookmarkImageRes =
                 if (news.isBookmarked) R.drawable.ic_round_bookmark_24

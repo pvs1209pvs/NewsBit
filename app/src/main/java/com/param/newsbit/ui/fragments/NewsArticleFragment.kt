@@ -84,7 +84,7 @@ class NewsArticleFragment : Fragment() {
             binding.newsArticleImage.load(args.newsImgUrl) {
                 transformations(RoundedCornersTransformation(8f))
                 crossfade(500)
-                error(R.drawable._04_error)
+//                error(R.drawable._04_error)
                 scale(Scale.FIT)
             }
 
