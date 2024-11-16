@@ -5,7 +5,6 @@ object NewsGenre {
     val TITLES = listOf(
         "Top Stories",
         "Business",
-        "Real Estate",
         "Opinion",
         "Politics",
         "Entertainment",

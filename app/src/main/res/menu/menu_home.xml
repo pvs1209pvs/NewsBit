@@ -13,7 +13,7 @@
     <item
        android:id="@+id/date_picker"
         android:title="Date Picker"
-        android:icon="@drawable/baseline_calendar_month_24"
+        android:icon="@drawable/baseline_calendar_today_24"
         app:showAsAction="ifRoom|collapseActionView"/>
 
 </menu>
