@@ -90,16 +90,13 @@ class Repository @Inject constructor(
             pagingSourceFactory = {
                 newsDao.selectBy(
                     filter.genre,
-                    filter.date.toString(),
-                    filter.searchQuery
+                    filter.searchQuery,
+                    filter.startDate.toString(),
+                    filter.endDate.toString()
                 )
             }
         ).liveData
-
     }
-
-
-
 
     suspend fun downloadSummary(newsUrl: String) {
 

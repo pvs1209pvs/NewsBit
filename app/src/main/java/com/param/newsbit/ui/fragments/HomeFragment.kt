@@ -1,6 +1,5 @@
 package com.param.newsbit.ui.fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -37,9 +36,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.Instant
-import java.time.LocalDate
 import java.time.ZoneId
-import java.util.Calendar
 
 
 @AndroidEntryPoint
@@ -50,7 +47,6 @@ class HomeFragment : Fragment() {
     private val viewModel: ViewModel by viewModels()
     private lateinit var binding: FragmentHomeBinding
     private lateinit var adapterNewsHead: AdapterNewsHead
-    private lateinit var datePickerFragment: DatePickerFragment
     private lateinit var rangeDatePicker: MaterialDatePicker<Pair<Long, Long>>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -127,12 +123,6 @@ class HomeFragment : Fragment() {
             Log.i(TAG, "Genre chip selected: $selectedGenre")
 
             viewModel.newsFilter.value = viewModel.newsFilter.value?.copy(genre = selectedGenre)
-
-        }
-
-        datePickerFragment = DatePickerFragment { date ->
-            Log.i(TAG, "DatePicker date: $date")
-            viewModel.newsFilter.value = viewModel.newsFilter.value?.copy(date = date)
 
         }
 
@@ -219,12 +209,13 @@ class HomeFragment : Fragment() {
                                 Log.i(TAG, "onMenuItemSelected: rangeDatePicker: $start $end")
 
                                 viewModel.newsFilter.value =
-                                    viewModel.newsFilter.value?.copy(date = start)
+                                    viewModel.newsFilter.value?.copy(startDate = start)
 
+                                viewModel.newsFilter.value =
+                                    viewModel.newsFilter.value?.copy(endDate = end)
 
                             }
 
-//                            datePickerFragment.show(childFragmentManager, "date picker")
                             true
                         }
 

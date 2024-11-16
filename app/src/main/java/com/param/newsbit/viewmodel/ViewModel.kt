@@ -25,6 +25,7 @@ class ViewModel @Inject constructor(
         NewsFilter(
             "Top Stories",
             "",
+            LocalDate.now(),
             LocalDate.now()
         )
     )

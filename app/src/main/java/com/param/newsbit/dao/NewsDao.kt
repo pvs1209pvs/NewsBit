@@ -25,8 +25,8 @@ interface NewsDao {
             "pubDate BETWEEN :startDate AND :endDate")
     fun selectBy(
         genre:String,
-        startDate: String, endDate: String,
-        searchQuery:String
+        searchQuery:String,
+        startDate: String, endDate: String
     ) : PagingSource<Int, News>
 
 
