@@ -71,7 +71,7 @@ class NewsArticleFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.selectNewsBody(args.newsUrl).observe(viewLifecycleOwner) { body ->
                 binding.newsFull.text = body
-                Log.i(TAG, "News body len ${body.length}")
+                Log.i(TAG, "News body char length: ${body.length}")
             }
         }
 
@@ -79,12 +79,11 @@ class NewsArticleFragment : Fragment() {
 
         lifecycleScope.launch(Dispatchers.IO) {
 
-            Log.i(TAG, "Coil image url = ${args.newsImgUrl.toString()}")
+            Log.i(TAG, "News image url: ${args.newsImgUrl.toString()}")
 
             binding.newsArticleImage.load(args.newsImgUrl) {
                 transformations(RoundedCornersTransformation(8f))
                 crossfade(500)
-//                error(R.drawable._04_error)
                 scale(Scale.FIT)
             }
 
@@ -100,7 +99,7 @@ class NewsArticleFragment : Fragment() {
 
                     viewModel.downloadSummaryError.observe(viewLifecycleOwner) { networkStatus ->
 
-                        Log.i(TAG, "Downloading summary status = $networkStatus")
+                        Log.i(TAG, "Downloading summary Network Status: $networkStatus")
 
                         when (networkStatus) {
 
@@ -129,7 +128,7 @@ class NewsArticleFragment : Fragment() {
                     }
 
                     viewModel.refreshSummaryError.observe(viewLifecycleOwner) { networkStat ->
-                        Log.i(TAG, "Refresh summary status = $networkStat")
+                        Log.i(TAG, "Refresh summary Network Status: $networkStat")
                         binding.swipeRefresh.isRefreshing = networkStat == NetworkStatus.IN_PROGRESS
                     }
 
@@ -150,6 +149,7 @@ class NewsArticleFragment : Fragment() {
         }
 
         binding.contentToggleChipGroup.setOnCheckedStateChangeListener { _, _ ->
+
             val selectedViewMode = binding.contentToggleChipGroup.children
                 .toList()
                 .map { it as Chip }
@@ -158,7 +158,7 @@ class NewsArticleFragment : Fragment() {
                 .first()
                 .toString()
 
-            Log.i(TAG, "Summary or Full ChipGroup selection = $selectedViewMode")
+            Log.i(TAG, "Summary or Full ChipGroup selection: $selectedViewMode")
             viewModel.viewMode.value = selectedViewMode
         }
 

@@ -18,7 +18,8 @@ interface NewsDao {
     @Query("SELECT * FROM news_table " +
             "WHERE genre = :genre AND " +
             "title LIKE '%' || :searchQuery || '%' AND " +
-            "pubDate BETWEEN :startDate AND :endDate")
+            "pubDate BETWEEN :startDate AND :endDate " +
+            "ORDER BY pubDate DESC")
     fun selectBy(
         genre:String,
         searchQuery:String,

@@ -78,7 +78,7 @@ class HomeFragment : Fragment() {
         }
 
         lifecycleScope.launch(Dispatchers.IO) {
-            Log.i(TAG, "Delete news older than one week")
+            Log.i(TAG, "Deleting News older than one week.")
             viewModel.deleteOlderThanWeek()
         }
 
@@ -101,6 +101,7 @@ class HomeFragment : Fragment() {
 
         rangeDatePicker = MaterialDatePicker.Builder
             .dateRangePicker()
+            .setTheme(R.style.News_Bit_Range_Date_Picker)
             .setCalendarConstraints(weekFromPresentBackwards)
             .build()
 
@@ -126,12 +127,11 @@ class HomeFragment : Fragment() {
         binding.chipGroup.setOnCheckedStateChangeListener { _, selectedChips ->
 
             val selectedGenre = selectedGenre(selectedChips)
-            Log.i(TAG, "Genre chip selected: $selectedGenre")
+            Log.i(TAG, "Genre Chip: $selectedGenre")
 
             viewModel.newsFilter.value = viewModel.newsFilter.value?.copy(genre = selectedGenre)
 
         }
-
 
         viewModel.getNewsByGenreDateTitle().observe(viewLifecycleOwner) {
             adapterNewsHead.submitData(viewLifecycleOwner.lifecycle, it)
@@ -139,7 +139,7 @@ class HomeFragment : Fragment() {
 
         viewModel.downloadNewsError.observe(viewLifecycleOwner) { networkStatus ->
 
-            Log.i(TAG, "Network status when downloading news: $networkStatus")
+            Log.i(TAG, "Downloading News Network Status: $networkStatus")
 
             when (networkStatus) {
 
