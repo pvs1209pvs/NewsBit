@@ -1,5 +1,6 @@
 package com.param.newsbit.ui.fragments
 
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,6 +10,8 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.util.Pair
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -29,6 +32,7 @@ import com.param.newsbit.databinding.FragmentHomeBinding
 import com.param.newsbit.entity.News
 import com.param.newsbit.model.parser.NetworkStatus
 import com.param.newsbit.model.parser.NewsGenre
+import com.param.newsbit.notifaction.NewsNotificationService
 import com.param.newsbit.ui.adapter.AdapterNewsHead
 import com.param.newsbit.ui.validator.WeeksInPastDateValidator
 import com.param.newsbit.viewmodel.ViewModel
@@ -50,6 +54,7 @@ class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private lateinit var adapterNewsHead: AdapterNewsHead
     private lateinit var rangeDatePicker: MaterialDatePicker<Pair<Long, Long>>
+    private lateinit var newsNotificationService: NewsNotificationService
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -111,6 +116,29 @@ class HomeFragment : Fragment() {
 
         super.onViewCreated(view, savedInstanceState)
 
+        newsNotificationService = NewsNotificationService(requireActivity())
+
+        with(NotificationManagerCompat.from(requireContext())) {
+            if (ActivityCompat.checkSelfPermission(
+                    requireActivity(),
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                // TODO: Consider calling
+                // ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                // public fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>,
+                //                                        grantResults: IntArray)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+
+                return@with
+            }
+            // notificationId is a unique int for each notification that you must define.
+            newsNotificationService.showNotification()
+        }
+
+
         val workRequest = PeriodicWorkRequestBuilder<NewsDownloadWorker>(Duration.ofHours(6))
             .setConstraints(Constraints.Builder().build())
             .build()
@@ -128,6 +156,7 @@ class HomeFragment : Fragment() {
             Log.i(TAG, "Genre Chip: $selectedGenre")
 
             viewModel.newsFilter.value = viewModel.newsFilter.value?.copy(genre = selectedGenre)
+
 
         }
 
