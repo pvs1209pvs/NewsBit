@@ -77,7 +77,7 @@ class NewsArticleFragment : Fragment() {
 
 
 
-        lifecycleScope.launch(Dispatchers.IO) {
+/*        lifecycleScope.launch(Dispatchers.IO) {
 
             Log.i(TAG, "News image url: ${args.newsImgUrl.toString()}")
 
@@ -87,7 +87,7 @@ class NewsArticleFragment : Fragment() {
                 scale(Scale.FIT)
             }
 
-        }
+        }*/
 
         viewModel.viewMode.observe(viewLifecycleOwner) { selectedViewMode ->
 

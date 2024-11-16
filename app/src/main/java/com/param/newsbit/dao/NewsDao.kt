@@ -14,7 +14,6 @@ interface NewsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(newsList: List<News>)
 
-
     @Query("SELECT * FROM news_table " +
             "WHERE genre = :genre AND " +
             "title LIKE '%' || :searchQuery || '%' AND " +
@@ -25,7 +24,6 @@ interface NewsDao {
         searchQuery:String,
         startDate: String, endDate: String
     ) : PagingSource<Int, News>
-
 
     @Query("SELECT content FROM news_table " +
             "WHERE url = :url")
@@ -60,7 +58,8 @@ interface NewsDao {
     // TODO: do not delete bookmarked news
     // 604800 seconds in a week
     @Query("DELETE FROM news_table " +
-            "WHERE (UNIXEPOCH(:today)-UNIXEPOCH(pubDate) >= 604800) AND isBookmarked = 0")
+            "WHERE (UNIXEPOCH(:today)-UNIXEPOCH(pubDate) >= 604800) AND " +
+            "isBookmarked = 0")
     suspend fun deleteOlderThanWeek(today: String)
 
 }

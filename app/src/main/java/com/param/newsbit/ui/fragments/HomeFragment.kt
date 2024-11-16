@@ -30,7 +30,7 @@ import com.param.newsbit.entity.News
 import com.param.newsbit.model.parser.NetworkStatus
 import com.param.newsbit.model.parser.NewsGenre
 import com.param.newsbit.ui.adapter.AdapterNewsHead
-import com.param.newsbit.ui.validator.CustomDateValidator
+import com.param.newsbit.ui.validator.WeeksInPastDateValidator
 import com.param.newsbit.viewmodel.ViewModel
 import com.param.newsbit.worker.NewsDownloadWorker
 import dagger.hilt.android.AndroidEntryPoint
@@ -72,7 +72,6 @@ class HomeFragment : Fragment() {
 
         adapterNewsHead = AdapterNewsHead(navigateOnClick, bookmarkOnClick)
 
-
         NewsGenre.TITLES.forEach {
             viewModel.downloadNews(it)
         }
@@ -81,7 +80,6 @@ class HomeFragment : Fragment() {
             Log.i(TAG, "Deleting News older than one week.")
             viewModel.deleteOlderThanWeek()
         }
-
 
     }
 
@@ -95,14 +93,14 @@ class HomeFragment : Fragment() {
 
         createGenreChipGroup()
 
-        val weekFromPresentBackwards = CalendarConstraints.Builder()
-            .setValidator(CustomDateValidator())
+        val weeksInPastDateValidator = CalendarConstraints.Builder()
+            .setValidator(WeeksInPastDateValidator(1))
             .build()
 
         rangeDatePicker = MaterialDatePicker.Builder
             .dateRangePicker()
             .setTheme(R.style.News_Bit_Range_Date_Picker)
-            .setCalendarConstraints(weekFromPresentBackwards)
+            .setCalendarConstraints(weeksInPastDateValidator)
             .build()
 
         return binding.root
@@ -163,7 +161,6 @@ class HomeFragment : Fragment() {
             }
 
         }
-
 
         requireActivity().addMenuProvider(
 

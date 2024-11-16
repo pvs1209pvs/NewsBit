@@ -6,12 +6,14 @@ import java.time.LocalDate
 import java.time.ZoneOffset
 
 @Parcelize
-class CustomDateValidator : CalendarConstraints.DateValidator {
+class WeeksInPastDateValidator(
+    private val numberOfWeeks: Long
+) : CalendarConstraints.DateValidator {
 
     override fun isValid(date: Long): Boolean {
 
         val pastWeek = LocalDate.now()
-            .minusWeeks(1)
+            .minusWeeks(numberOfWeeks)
             .atStartOfDay()
             .toInstant(ZoneOffset.UTC)
             .toEpochMilli()

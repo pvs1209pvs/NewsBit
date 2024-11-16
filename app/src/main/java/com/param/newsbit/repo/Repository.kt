@@ -39,32 +39,31 @@ class Repository @Inject constructor(
             20
         )
 
-        Log.i(TAG, "Response code: ${response.code()}")
+        Log.i(TAG, "Response code for $genre: ${response.code()}")
 
         if (!response.isSuccessful) {
             Log.e(
                 TAG,
-                "Error downloading News using retro ${response.code()} = ${response.errorBody()}"
+                "Error downloading News for $genre: ${response.code()} ${response.errorBody()}"
             )
-            throw IllegalStateException("Error downloading News using Retrofit = ${response.code()} ${response.errorBody()}")
+            throw IllegalStateException("Error downloading News using Retrofit: ${response.code()} ${response.errorBody()}")
         }
 
         if (response.body() == null) {
-            Log.e(TAG, "Response body null")
-            throw IllegalStateException("Response body null")
+            Log.e(TAG, "Response body null for $genre")
+            throw IllegalStateException("Response body null for $genre")
         }
 
         val allNews = response.body()!!.rows.map {
 
-
             val content = it.content.joinToString(" ") { paragraph ->
-                // Removes HTML tag.
-                paragraph.replace("<[^>]+>".toRegex(), "")
+                paragraph.replace("<[^>]+>".toRegex(), "") // removes HTML tags
             }
 
             val pubDate = Instant
                 .ofEpochMilli(it.starttime.utc.toLong())
-                .atZone(ZoneId.systemDefault()).toLocalDate()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate()
 
             News(
                 url = it.url,
@@ -77,7 +76,7 @@ class Repository @Inject constructor(
 
         }
 
-        Log.i(TAG, "$genre news downloaded using Retrofit: ${allNews.size}")
+        Log.i(TAG, "News articles downloaded for $genre: ${allNews.size}")
 
         newsDao.insertAll(allNews)
 
@@ -96,15 +95,16 @@ class Repository @Inject constructor(
                 )
             }
         ).liveData
+
     }
 
     suspend fun downloadSummary(newsUrl: String) {
 
-        Log.i(TAG, "Downloading summary $newsUrl")
+        Log.i(TAG, "Downloading summary for: $newsUrl")
 
         val localSummary = newsDao.selectSummary(newsUrl)
 
-        Log.i(TAG, "Local summary length ${localSummary.length}")
+        Log.i(TAG, "Local summary length: ${localSummary.length}")
 
         if (localSummary.isBlank()) {
             val newsContent = newsDao.selectContent(newsUrl)
@@ -112,7 +112,7 @@ class Repository @Inject constructor(
             newsDao.updateSummary(newsUrl, gptSummary)
 
             reduction.add((newsContent.length - gptSummary.length) / (newsContent.length * 1.0))
-            Log.i(TAG, "Reduction  ${reduction.average()}")
+            Log.i(TAG, "Reduction by: ${reduction.average()}")
         }
 
     }
@@ -125,7 +125,7 @@ class Repository @Inject constructor(
         val gptSummary = ChatGPTSummarizer.summarize(newsContent)
         newsDao.updateSummary(newsUrl, gptSummary)
 
-        Log.i(TAG, "ChatGPT summary (len) ${gptSummary.length}")
+        Log.i(TAG, "ChatGPT summary character len: ${gptSummary.length}")
 
     }
 
