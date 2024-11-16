@@ -11,35 +11,25 @@ import com.param.newsbit.entity.News
 @Dao
 interface NewsDao {
 
-    @Query("SELECT * FROM news_table " +
-            "WHERE genre = :genre AND title LIKE '%' || :searchQuery || '%' AND pubDate = :date")
-    fun selectBy(genre:String, date: String, searchQuery:String) : PagingSource<Int, News>
-
-    @Query("SELECT * FROM news_table " +
-            "WHERE title LIKE '%' || :title || '%' ")
-    fun selectByTitle(title:String) : PagingSource<Int, News>
-
-    @Query("SELECT * FROM news_table " +
-            "WHERE title LIKE '%' || :title || '%' AND genre = :genre " +
-            "ORDER BY pubDate DESC")
-    fun selectByTitleGenre(title:String, genre :String) : PagingSource<Int, News>
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(newsList: List<News>)
 
     @Query("SELECT * FROM news_table " +
-            "WHERE genre = :genre AND pubDate >= DATE(:today, '-7 day') " +
-            "ORDER BY pubDate DESC")
-    fun selectByGenre(genre: String, today: String): LiveData<List<News>>
+            "WHERE genre = :genre AND title LIKE '%' || :searchQuery || '%' AND pubDate = :date")
+    fun selectBy(genre:String, date: String, searchQuery:String) : PagingSource<Int, News>
+
 
     @Query("SELECT * FROM news_table " +
-            "WHERE genre = :genre AND pubDate >= DATE(:today, '-7 day') " +
-            "ORDER BY pubDate DESC")
-    fun selectAll(genre: String, today: String): PagingSource<Int, News>
+            "WHERE genre = :genre AND " +
+            "title LIKE '%' || :searchQuery || '%' AND " +
+            "pubDate BETWEEN :startDate AND :endDate")
+    fun selectBy(
+        genre:String,
+        startDate: String, endDate: String,
+        searchQuery:String
+    ) : PagingSource<Int, News>
 
-    @Query("SELECT * FROM news_table " +
-            "WHERE genre = :genre AND pubDate = :date")
-    fun selectByDate(genre: String, date:String) : PagingSource<Int, News>
+
 
     @Query("SELECT content FROM news_table " +
             "WHERE url = :url")

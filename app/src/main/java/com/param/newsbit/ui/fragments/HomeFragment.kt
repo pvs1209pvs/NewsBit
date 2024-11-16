@@ -1,5 +1,6 @@
 package com.param.newsbit.ui.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,6 +10,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.core.util.Pair
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -21,6 +23,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipDrawable
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.param.newsbit.R
 import com.param.newsbit.databinding.FragmentHomeBinding
 import com.param.newsbit.entity.News
@@ -33,6 +36,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.Duration
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.util.Calendar
 
 
 @AndroidEntryPoint
@@ -44,6 +51,7 @@ class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private lateinit var adapterNewsHead: AdapterNewsHead
     private lateinit var datePickerFragment: DatePickerFragment
+    private lateinit var rangeDatePicker: MaterialDatePicker<Pair<Long, Long>>
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -84,9 +92,15 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         binding = FragmentHomeBinding.inflate(inflater, container, false)
+
         createGenreChipGroup()
+
+        rangeDatePicker = MaterialDatePicker.Builder.dateRangePicker().build()
+
         return binding.root
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -99,8 +113,8 @@ class HomeFragment : Fragment() {
             .setConstraints(workManagerConstraints)
             .build()
 
-        WorkManager.getInstance(requireContext()).enqueue(workRequest)
 
+        WorkManager.getInstance(requireContext()).enqueue(workRequest)
 
         binding.allNewsRV.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -186,7 +200,31 @@ class HomeFragment : Fragment() {
                     return when (menuItem.itemId) {
 
                         R.id.date_picker -> {
-                            datePickerFragment.show(childFragmentManager, "date picker")
+
+                            rangeDatePicker.show(childFragmentManager, rangeDatePicker.toString())
+
+                            rangeDatePicker.addOnPositiveButtonClickListener {
+
+                                val start = Instant
+                                    .ofEpochMilli(it.first + 86400000)
+                                    .atZone(ZoneId.systemDefault())
+                                    .toLocalDate()
+
+                                val end = Instant
+                                    .ofEpochMilli(it.second + 86400000)
+                                    .atZone(ZoneId.systemDefault())
+                                    .toLocalDate()
+
+
+                                Log.i(TAG, "onMenuItemSelected: rangeDatePicker: $start $end")
+
+                                viewModel.newsFilter.value =
+                                    viewModel.newsFilter.value?.copy(date = start)
+
+
+                            }
+
+//                            datePickerFragment.show(childFragmentManager, "date picker")
                             true
                         }
 
