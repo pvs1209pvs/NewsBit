@@ -22,6 +22,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipDrawable
+import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.param.newsbit.R
 import com.param.newsbit.databinding.FragmentHomeBinding
@@ -93,7 +94,14 @@ class HomeFragment : Fragment() {
 
         createGenreChipGroup()
 
-        rangeDatePicker = MaterialDatePicker.Builder.dateRangePicker().build()
+        val weekFromPresentBackwards = CalendarConstraints.Builder()
+            .setValidator(CustomDateValidator())
+            .build()
+
+        rangeDatePicker = MaterialDatePicker.Builder
+            .dateRangePicker()
+            .setCalendarConstraints(weekFromPresentBackwards)
+            .build()
 
         return binding.root
 
@@ -103,12 +111,9 @@ class HomeFragment : Fragment() {
 
         super.onViewCreated(view, savedInstanceState)
 
-        val workManagerConstraints = Constraints.Builder().build()
-
         val workRequest = PeriodicWorkRequestBuilder<NewsDownloadWorker>(Duration.ofHours(6))
-            .setConstraints(workManagerConstraints)
+            .setConstraints(Constraints.Builder().build())
             .build()
-
 
         WorkManager.getInstance(requireContext()).enqueue(workRequest)
 
@@ -191,7 +196,7 @@ class HomeFragment : Fragment() {
 
                         R.id.date_picker -> {
 
-                            rangeDatePicker.show(childFragmentManager, rangeDatePicker.toString())
+                            rangeDatePicker.show(childFragmentManager, "rangeDatePicker")
 
                             rangeDatePicker.addOnPositiveButtonClickListener {
 
@@ -204,7 +209,6 @@ class HomeFragment : Fragment() {
                                     .ofEpochMilli(it.second + 86400000)
                                     .atZone(ZoneId.systemDefault())
                                     .toLocalDate()
-
 
                                 Log.i(TAG, "onMenuItemSelected: rangeDatePicker: $start $end")
 

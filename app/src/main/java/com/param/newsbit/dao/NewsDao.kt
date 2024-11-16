@@ -14,10 +14,6 @@ interface NewsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(newsList: List<News>)
 
-    @Query("SELECT * FROM news_table " +
-            "WHERE genre = :genre AND title LIKE '%' || :searchQuery || '%' AND pubDate = :date")
-    fun selectBy(genre:String, date: String, searchQuery:String) : PagingSource<Int, News>
-
 
     @Query("SELECT * FROM news_table " +
             "WHERE genre = :genre AND " +
@@ -28,7 +24,6 @@ interface NewsDao {
         searchQuery:String,
         startDate: String, endDate: String
     ) : PagingSource<Int, News>
-
 
 
     @Query("SELECT content FROM news_table " +
