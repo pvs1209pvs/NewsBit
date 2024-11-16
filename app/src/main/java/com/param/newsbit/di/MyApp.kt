@@ -1,10 +1,7 @@
 package com.param.newsbit.di
 
 import android.app.Application
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
-import android.os.Build
 import android.util.Log
 import androidx.work.Configuration
 import androidx.work.ListenableWorker
@@ -33,15 +30,17 @@ open class MyApp : Application(), Configuration.Provider {
 
 }
 
-class CustomWorkerFactory @Inject constructor(private val repository: Repository) :
-    WorkerFactory() {
+class CustomWorkerFactory @Inject constructor(
+    private val repository: Repository,
+    private val newsNotificationService: NewsNotificationService,
+) : WorkerFactory() {
 
     override fun createWorker(
         appContext: Context,
         workerClassName: String,
         workerParameters: WorkerParameters
     ): ListenableWorker {
-        return NewsDownloadWorker(repository, appContext, workerParameters)
+        return NewsDownloadWorker(repository, newsNotificationService, appContext, workerParameters)
     }
 
 }

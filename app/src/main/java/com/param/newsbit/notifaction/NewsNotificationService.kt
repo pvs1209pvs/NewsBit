@@ -1,6 +1,5 @@
 package com.param.newsbit.notifaction
 
-import android.app.Notification
 import android.app.NotificationManager
 import android.content.Context
 import android.util.Log
@@ -8,6 +7,10 @@ import androidx.core.app.NotificationCompat
 import com.param.newsbit.R
 
 class NewsNotificationService(context: Context) {
+
+    companion object {
+        const val NEWS_DOWNLOAD_CHANNEL = "news_download_channel"
+    }
 
     private val TAG = javaClass.simpleName
 
@@ -20,11 +23,6 @@ class NewsNotificationService(context: Context) {
         .setContentText("Time to read the latest news to stay updated")
         .setChannelId(NEWS_DOWNLOAD_CHANNEL)
         .build()
-
-
-    companion object {
-        const val NEWS_DOWNLOAD_CHANNEL = "news_download_channel"
-    }
 
     fun showNotification() {
         Log.i(TAG, "showNotification")

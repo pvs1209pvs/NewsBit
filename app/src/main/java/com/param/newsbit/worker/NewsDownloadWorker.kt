@@ -7,6 +7,7 @@ import androidx.paging.LOG_TAG
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.param.newsbit.model.parser.NewsGenre
+import com.param.newsbit.notifaction.NewsNotificationService
 import com.param.newsbit.repo.Repository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -14,6 +15,7 @@ import dagger.assisted.AssistedInject
 @HiltWorker
 class NewsDownloadWorker @AssistedInject constructor(
     @Assisted private val repository: Repository,
+    @Assisted private val newsNotificationService: NewsNotificationService,
     @Assisted context: Context,
     @Assisted workerParams: WorkerParameters,
 ) : CoroutineWorker(context, workerParams) {
@@ -22,18 +24,18 @@ class NewsDownloadWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
 
-        Log.i(TAG, "doWork: Downloading all genres")
+        Log.i(TAG, "doWork: stared")
 
-        try {
+        return try {
             NewsGenre.TITLES.forEach { repository.downloadNews(it) }
-            return Result.success()
+            newsNotificationService.showNotification()
+            Log.i(TAG, "doWork: successful")
+            Result.success()
         } catch (e: Exception) {
-            Log.e(TAG, e.message.toString())
+            Log.e(TAG, "doWork: ${e.message}")
+            Result.failure()
         }
 
-        return Result.failure()
-
     }
-
 
 }

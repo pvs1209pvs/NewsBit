@@ -124,23 +124,14 @@ class HomeFragment : Fragment() {
                     android.Manifest.permission.POST_NOTIFICATIONS
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
-                // TODO: Consider calling
-                // ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                // public fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>,
-                //                                        grantResults: IntArray)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-
                 return@with
             }
-            // notificationId is a unique int for each notification that you must define.
-            newsNotificationService.showNotification()
         }
 
 
         val workRequest = PeriodicWorkRequestBuilder<NewsDownloadWorker>(Duration.ofHours(6))
             .setConstraints(Constraints.Builder().build())
+            .setInitialDelay(Duration.ofMinutes(1))
             .build()
 
         WorkManager.getInstance(requireContext()).enqueue(workRequest)
