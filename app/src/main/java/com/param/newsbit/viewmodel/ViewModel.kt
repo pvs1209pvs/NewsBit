@@ -32,7 +32,6 @@ class ViewModel @Inject constructor(
 
     val viewMode = MutableLiveData("Show Summary")
 
-
     private val _downloadNewsError = MutableLiveData(NetworkStatus.IN_PROGRESS)
     val downloadNewsError: LiveData<NetworkStatus> = _downloadNewsError
 
