@@ -50,7 +50,7 @@ class ViewModel @Inject constructor(
         }
 
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            repo.downloadNews(genre)
+            Log.i(TAG, "downloadNews: $genre rows inserted: ${repo.downloadNews(genre)}")
             _downloadNewsError.postValue(NetworkStatus.SUCCESS)
         }
 

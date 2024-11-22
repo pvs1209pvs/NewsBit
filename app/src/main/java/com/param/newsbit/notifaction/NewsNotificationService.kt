@@ -6,7 +6,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.param.newsbit.R
 
-class NewsNotificationService(context: Context) {
+class NewsNotificationService(private val context: Context) {
 
     companion object {
         const val NEWS_DOWNLOAD_CHANNEL = "news_download_channel"
@@ -17,16 +17,20 @@ class NewsNotificationService(context: Context) {
     private val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-    private val notification = NotificationCompat.Builder(context, NEWS_DOWNLOAD_CHANNEL)
-        .setSmallIcon(R.drawable.ic_launcher_foreground)
-        .setContentTitle("Latest news downloaded")
-        .setContentText("Time to read the latest news to stay updated")
-        .setChannelId(NEWS_DOWNLOAD_CHANNEL)
-        .build()
 
-    fun showNotification() {
+    fun showNotification(newCount: Long) {
+
         Log.i(TAG, "showNotification")
+
+        val notification = NotificationCompat.Builder(context, NEWS_DOWNLOAD_CHANNEL)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentTitle("$newCount latest news")
+            .setContentText("Stay updated!")
+            .setChannelId(NEWS_DOWNLOAD_CHANNEL)
+            .build()
+
         notificationManager.notify(1, notification)
+
     }
 
 }

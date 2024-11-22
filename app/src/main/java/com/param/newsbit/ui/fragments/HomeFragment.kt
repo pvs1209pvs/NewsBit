@@ -21,6 +21,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.android.material.chip.Chip
@@ -128,13 +129,17 @@ class HomeFragment : Fragment() {
             }
         }
 
+        val workRequest = PeriodicWorkRequestBuilder<NewsDownloadWorker>(
+            Duration.ofHours(2),
+            Duration.ofMinutes(1)
+        ).setConstraints(Constraints.Builder().build()).build()
 
-        val workRequest = PeriodicWorkRequestBuilder<NewsDownloadWorker>(Duration.ofHours(6))
-            .setConstraints(Constraints.Builder().build())
-            .setInitialDelay(Duration.ofMinutes(1))
-            .build()
 
-        WorkManager.getInstance(requireContext()).enqueue(workRequest)
+        WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
+            "NewsDownloadedWorker",
+            ExistingPeriodicWorkPolicy.KEEP,
+            workRequest
+        )
 
         binding.allNewsRV.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -147,7 +152,6 @@ class HomeFragment : Fragment() {
             Log.i(TAG, "Genre Chip: $selectedGenre")
 
             viewModel.newsFilter.value = viewModel.newsFilter.value?.copy(genre = selectedGenre)
-
 
         }
 

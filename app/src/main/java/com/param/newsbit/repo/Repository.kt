@@ -30,7 +30,7 @@ class Repository @Inject constructor(
      * Downloads a list of news of the given genre.
      * genre = null for top stories
      */
-    suspend fun downloadNews(genre: String) {
+    suspend fun downloadNews(genre: String): Int {
 
         Log.i(TAG, "Downloading: $genre")
 
@@ -42,19 +42,11 @@ class Repository @Inject constructor(
         Log.i(TAG, "Response code for $genre: ${response.code()}")
 
         if (!response.isSuccessful) {
-            Log.e(
-                TAG,
-                "Error downloading News for $genre: ${response.code()} ${response.errorBody()}"
-            )
-            throw IllegalStateException("Error downloading News using Retrofit: ${response.code()} ${response.errorBody()}")
+            Log.e(TAG, "Error downloading: $genre: ${response.code()} ${response.errorBody()}")
+            throw IllegalStateException("Error downloading: $genre: ${response.code()} ${response.errorBody()}")
         }
 
-        if (response.body() == null) {
-            Log.e(TAG, "Response body null for $genre")
-            throw IllegalStateException("Response body null for $genre")
-        }
-
-        val allNews = response.body()!!.rows.map {
+        val downloadedNews = response.body()?.rows?.map {
 
             val content = it.content.joinToString(" ") { paragraph ->
                 paragraph.replace("<[^>]+>".toRegex(), "") // removes HTML tags
@@ -74,11 +66,11 @@ class Repository @Inject constructor(
                 imageUrl = it.preview.url
             )
 
-        }
+        } ?: emptyList()
 
-        Log.i(TAG, "News articles downloaded for $genre: ${allNews.size}")
+        Log.i(TAG, "News articles downloaded for $genre: ${downloadedNews.size}")
 
-        newsDao.insertAll(allNews)
+        return newsDao.insertAll(downloadedNews).size
 
     }
 
@@ -142,5 +134,8 @@ class Repository @Inject constructor(
     suspend fun deleteOlderThanWeek() {
         newsDao.deleteOlderThanWeek(LocalDate.now().toString())
     }
+
+    suspend fun countBy(newsFilter: NewsFilter) =
+        newsDao.countBy(newsFilter.startDate.toString(), newsFilter.endDate.toString())
 
 }

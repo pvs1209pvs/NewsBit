@@ -12,7 +12,12 @@ import com.param.newsbit.entity.News
 interface NewsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(newsList: List<News>)
+    fun insertAll(newsList: List<News>) : List<Long>
+
+    @Query("SELECT COUNT(*) FROM news_table " +
+            "WHERE pubDate BETWEEN :startDate AND :endDate ")
+    suspend fun countBy(startDate: String, endDate: String) : Long
+
 
     @Query("SELECT * FROM news_table " +
             "WHERE genre = :genre AND " +
