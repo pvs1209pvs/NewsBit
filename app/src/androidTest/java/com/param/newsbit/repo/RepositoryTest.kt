@@ -1,19 +1,20 @@
 package com.param.newsbit.repo
 
 import android.content.Context
-import androidx.room.Room.inMemoryDatabaseBuilder
+import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import com.param.newsbit.ChatGPTServiceTest
 import com.param.newsbit.api.TStarAPI
 import com.param.newsbit.dao.NewsDao
 import com.param.newsbit.database.LocalDatabase
+import com.param.newsbit.entity.News
 import com.param.newsbit.entity.NewsJson
 import com.param.newsbit.entity.Preview
 import com.param.newsbit.entity.Row
 import com.param.newsbit.entity.StartTime
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import com.param.newsbit.model.parser.ChatGPTService
 import kotlinx.coroutines.test.runTest
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.After
 import org.junit.Assert
@@ -24,29 +25,27 @@ import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnitRunner
 import retrofit2.Response
+import java.time.LocalDate
 
 
-@ExperimentalCoroutinesApi
 @RunWith(MockitoJUnitRunner::class)
 class RepositoryTest {
 
     private lateinit var repository: Repository
-
     private lateinit var database: LocalDatabase
     private lateinit var dao: NewsDao
 
     @Mock
     private lateinit var newsService: TStarAPI
 
+    private val chatGPTServiceTest: ChatGPTService = ChatGPTServiceTest
+
     @Before
-    fun createTStarAPI() {
-
+    fun setup() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        database = inMemoryDatabaseBuilder(context, LocalDatabase::class.java).build()
+        database = Room.inMemoryDatabaseBuilder(context, LocalDatabase::class.java).build()
         dao = database.newsDao()
-
-        repository = Repository(dao, newsService)
-
+        repository = Repository(dao, newsService, chatGPTServiceTest)
     }
 
     @After
@@ -131,5 +130,45 @@ class RepositoryTest {
 
     }
 
+    @Test
+    fun downloadSummaryFromChatGPTServiceAndInsertInDatabaseIfAbsent() = runTest {
+
+        val news = News(
+            "https://www.thestar.com/0",
+            "Title",
+            "Top Stories",
+            LocalDate.of(2000, 1, 1),
+            "This a very long article about growing economy."
+        )
+
+        dao.insertAll(listOf(news))
+        repository.downloadSummary(news.url)
+
+        val summaryActual = dao.selectSummary(news.url)
+
+        Assert.assertEquals("Growing economy article.", summaryActual)
+
+    }
+
+    @Test
+    fun returnExistingSummaryFromDatabaseWhenPresent() = runTest {
+
+        val news = News(
+            "https://www.thestar.com/0",
+            "Title",
+            "Top Stories",
+            LocalDate.of(2000, 1, 1),
+            content = "This a very long article about growing economy.",
+            summary = "Pre-existing summary."
+        )
+
+        dao.insertAll(listOf(news))
+        repository.downloadSummary(news.url)
+
+        val summaryActual = dao.selectSummary(news.url)
+
+        Assert.assertEquals("Pre-existing summary.", summaryActual)
+
+    }
 
 }

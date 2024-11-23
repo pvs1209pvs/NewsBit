@@ -11,7 +11,7 @@ import com.param.newsbit.api.TStarAPI
 import com.param.newsbit.dao.NewsDao
 import com.param.newsbit.entity.News
 import com.param.newsbit.entity.NewsFilter
-import com.param.newsbit.model.parser.ChatGPTSummarizer
+import com.param.newsbit.model.parser.ChatGPTService
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -20,6 +20,7 @@ import javax.inject.Inject
 class Repository @Inject constructor(
     private val newsDao: NewsDao,
     private val tStarRetrofit: TStarAPI,
+    private val gptService: ChatGPTService
 ) {
 
     private val TAG = javaClass.simpleName
@@ -99,7 +100,7 @@ class Repository @Inject constructor(
 
         if (localSummary.isBlank()) {
             val newsContent = newsDao.selectContent(newsUrl)
-            val gptSummary = ChatGPTSummarizer.summarize(newsContent)
+            val gptSummary = gptService.summarize(newsContent)
             newsDao.updateSummary(newsUrl, gptSummary)
             Log.i(TAG, "ChatGPT summary character len: ${gptSummary.length}")
         }
@@ -111,7 +112,7 @@ class Repository @Inject constructor(
         Log.i(TAG, "Refreshing summary: $newsUrl")
 
         val newsContent = newsDao.selectContent(newsUrl)
-        val gptSummary = ChatGPTSummarizer.summarize(newsContent)
+        val gptSummary = gptService.summarize(newsContent)
         newsDao.updateSummary(newsUrl, gptSummary)
 
         Log.i(TAG, "ChatGPT summary character len: ${gptSummary.length}")

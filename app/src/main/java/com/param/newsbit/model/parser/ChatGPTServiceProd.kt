@@ -11,7 +11,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 
-object ChatGPTSummarizer {
+object ChatGPTServiceProd : ChatGPTService {
 
     private val TAG = javaClass.simpleName
 
@@ -60,12 +60,12 @@ object ChatGPTSummarizer {
      * @throws IllegalStateException Throws error if API call was unsuccessful or the content body
      * was blank.
      */
-    fun summarize(newsContent: String): String {
+    override fun summarize(newsBody: String): String {
 
         val request = Request.Builder()
             .url(API_URL)
             .headers(headers)
-            .post(gptRequestBody(newsContent))
+            .post(gptRequestBody(newsBody))
             .build()
 
         return OkHttpClient().newCall(request).execute().use { response ->

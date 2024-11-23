@@ -19,7 +19,8 @@ android {
         targetSdk 34
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "com.param.newsbit.HiltTestRunner"
+//        testInstrumentationRunner "com.param.newsbit.HiltTestRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField(
                 "String",
@@ -173,7 +174,6 @@ dependencies {
     testImplementation 'com.squareup.okhttp3:mockwebserver:4.9.0'
 
 
-
     // Instrumented Unit Tests
     androidTestImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
     androidTestImplementation "junit:junit:4.13.2"
@@ -193,7 +193,6 @@ dependencies {
     androidTestImplementation 'org.mockito:mockito-android:5.10.0'
     androidTestImplementation "androidx.arch.core:core-testing:2.2.0"
     debugImplementation "androidx.test:core:1.5.0"
-
 
 
 }
