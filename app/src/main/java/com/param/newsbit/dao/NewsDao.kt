@@ -12,12 +12,7 @@ import com.param.newsbit.entity.News
 interface NewsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAll(newsList: List<News>) : List<Long>
-
-    @Query("SELECT COUNT(*) FROM news_table " +
-            "WHERE pubDate BETWEEN :startDate AND :endDate ")
-    suspend fun countBy(startDate: String, endDate: String) : Long
-
+    suspend fun insertAll(newsList: List<News>) : List<Long>
 
     @Query("SELECT * FROM news_table " +
             "WHERE genre = :genre AND " +
@@ -29,6 +24,13 @@ interface NewsDao {
         searchQuery:String,
         startDate: String, endDate: String
     ) : PagingSource<Int, News>
+
+    @Query("SELECT COUNT(*) FROM news_table " +
+            "WHERE pubDate BETWEEN :startDate AND :endDate ")
+    suspend fun countBy(startDate: String, endDate: String) : Long
+
+    @Query("SELECT COUNT(*) FROM news_table")
+    suspend fun countAll() : Long
 
     @Query("SELECT content FROM news_table " +
             "WHERE url = :url")
@@ -60,11 +62,13 @@ interface NewsDao {
             "WHERE url = :url")
     fun selectBookmark(url: String): LiveData<Int>
 
-    // TODO: do not delete bookmarked news
     // 604800 seconds in a week
     @Query("DELETE FROM news_table " +
             "WHERE (UNIXEPOCH(:today)-UNIXEPOCH(pubDate) >= 604800) AND " +
             "isBookmarked = 0")
     suspend fun deleteOlderThanWeek(today: String)
+
+    @Query("DELETE FROM news_table")
+    suspend fun clearTable()
 
 }

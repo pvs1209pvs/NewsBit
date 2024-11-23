@@ -1,83 +1,133 @@
 package com.param.newsbit.repo
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.gson.GsonBuilder
+import android.content.Context
+import androidx.room.Room.inMemoryDatabaseBuilder
+import androidx.test.core.app.ApplicationProvider
 import com.param.newsbit.api.TStarAPI
+import com.param.newsbit.dao.NewsDao
 import com.param.newsbit.database.LocalDatabase
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
+import com.param.newsbit.entity.NewsJson
+import com.param.newsbit.entity.Preview
+import com.param.newsbit.entity.Row
+import com.param.newsbit.entity.StartTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
+import kotlinx.coroutines.test.runTest
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.After
+import org.junit.Assert
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import javax.inject.Inject
-import javax.inject.Named
+import org.mockito.Mock
+import org.mockito.Mockito.`when`
+import org.mockito.junit.MockitoJUnitRunner
+import retrofit2.Response
+
 
 @ExperimentalCoroutinesApi
-@HiltAndroidTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(MockitoJUnitRunner::class)
 class RepositoryTest {
 
-    @get:Rule
-    var instantTaskExecutorRule = InstantTaskExecutorRule()
+    private lateinit var repository: Repository
 
-    @get:Rule
-    var hiltRule = HiltAndroidRule(this)
+    private lateinit var database: LocalDatabase
+    private lateinit var dao: NewsDao
 
-    @Inject
-    @Named("test_db")
-    lateinit var localDb: LocalDatabase
-
-//    @Inject
-    lateinit var repo: Repository
-
-    lateinit var mockWebServer: MockWebServer
-
+    @Mock
+    private lateinit var newsService: TStarAPI
 
     @Before
-    fun setUp() {
-        hiltRule.inject()
+    fun createTStarAPI() {
 
-        mockWebServer = MockWebServer()
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        database = inMemoryDatabaseBuilder(context, LocalDatabase::class.java).build()
+        dao = database.newsDao()
 
-        val api = Retrofit.Builder()
-            .baseUrl(mockWebServer.url("https://www.thestar.com"))
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(TStarAPI::class.java)
-
-        repo = Repository(localDb.newsDao(), api)
+        repository = Repository(dao, newsService)
 
     }
 
     @After
     fun tearDown() {
-        mockWebServer.shutdown()
+        database.close()
     }
 
-
     @Test
-    fun testItem() = runBlocking {
+    fun returnDownloadedNewsWhenSuccessfulAPIResponse() = runTest {
 
-        mockWebServer.enqueue(
-            MockResponse()
-                .setBody(GsonBuilder().create().toJson(Pair(1,2)))
-                .addHeader("Content-Type", "application/json")
+        val limit = 10
+
+        val rows = (1..limit).map {
+            Row(
+                content = listOf("<p>para1</p>", "<p>para2</p>"),
+                title = "Title$it",
+                url = "https://www.thestar.com/$it",
+                preview = Preview("https://bloximages.chicago2.vip.townnews.com/thestar.com/content/tncms/assets/v3/editorial/0/32/03230c2a-a940-11ef-a271-936794d4da05/673ef7c6ef518.image.jpg?resize=640%2C427"),
+                starttime = StartTime("1732328100000")
+            )
+        }
+
+        val response = Response.success(
+            200,
+            NewsJson(rows)
         )
 
+        `when`(newsService.downloadNews(c = null, l = limit)).thenReturn(response)
 
-//        repo.downloadNews("Business")
-        println(mockWebServer.takeRequest().toString())
+        val result = repository.downloadNews("Top Stories", limit)
 
+        Assert.assertEquals(limit, result)
 
+    }
+
+    @Test
+    fun throwExceptionWhenUnsuccessfulAPIResponse() = runTest {
+
+        val errorBody = """{rows : []}""".toResponseBody("application/json".toMediaType())
+
+        val response = Response.error<NewsJson>(400, errorBody)
+
+        `when`(newsService.downloadNews(c = null, l = 20)).thenReturn(response)
+
+        val result = try {
+            repository.downloadNews("Top Stories", 20)
+            null
+        } catch (exception: IllegalStateException) {
+            exception
+        }
+
+        Assert.assertEquals(
+            "Response unsuccessful 400 when downloading Top Stories",
+            result!!.message
+        )
+
+    }
+
+    @Test
+    fun returnEmptyListWhenAPIResponseBodyIsEmpty() = runTest {
+
+        val response = Response.success<NewsJson>(NewsJson(emptyList()))
+
+        `when`(newsService.downloadNews(c = null, l = 20)).thenReturn(response)
+
+        val result = repository.downloadNews("Top Stories", 20)
+
+        Assert.assertEquals(0, result)
+
+    }
+
+    @Test
+    fun returnEmptyListWhenAPIResponseBodyIsNull() = runTest {
+
+        val response = Response.success<NewsJson>(null)
+
+        `when`(newsService.downloadNews(c = null, l = 20)).thenReturn(response)
+
+        val result = repository.downloadNews("Top Stories", 20)
+
+        Assert.assertEquals(0, result)
 
     }
 

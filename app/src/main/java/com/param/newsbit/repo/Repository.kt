@@ -24,26 +24,24 @@ class Repository @Inject constructor(
 
     private val TAG = javaClass.simpleName
 
-    var reduction = mutableListOf<Double>()
-
     /**
      * Downloads a list of news of the given genre.
      * genre = null for top stories
      */
-    suspend fun downloadNews(genre: String): Int {
+    suspend fun downloadNews(genre: String, l: Int): Int {
 
         Log.i(TAG, "Downloading: $genre")
 
         val response = tStarRetrofit.downloadNews(
             if (genre == "Top Stories") null else "$genre*",
-            20
+            l
         )
 
         Log.i(TAG, "Response code for $genre: ${response.code()}")
 
         if (!response.isSuccessful) {
             Log.e(TAG, "Error downloading: $genre: ${response.code()} ${response.errorBody()}")
-            throw IllegalStateException("Error downloading: $genre: ${response.code()} ${response.errorBody()}")
+            throw IllegalStateException("Response unsuccessful ${response.code()} when downloading $genre")
         }
 
         val downloadedNews = response.body()?.rows?.map {
@@ -70,7 +68,8 @@ class Repository @Inject constructor(
 
         Log.i(TAG, "News articles downloaded for $genre: ${downloadedNews.size}")
 
-        return newsDao.insertAll(downloadedNews).size
+        newsDao.insertAll(downloadedNews).size
+        return downloadedNews.size
 
     }
 
@@ -102,16 +101,14 @@ class Repository @Inject constructor(
             val newsContent = newsDao.selectContent(newsUrl)
             val gptSummary = ChatGPTSummarizer.summarize(newsContent)
             newsDao.updateSummary(newsUrl, gptSummary)
-
-            reduction.add((newsContent.length - gptSummary.length) / (newsContent.length * 1.0))
-            Log.i(TAG, "Reduction by: ${reduction.average()}")
+            Log.i(TAG, "ChatGPT summary character len: ${gptSummary.length}")
         }
 
     }
 
     suspend fun refreshSummary(newsUrl: String) {
 
-        Log.i(TAG, "Refreshing summary $newsUrl")
+        Log.i(TAG, "Refreshing summary: $newsUrl")
 
         val newsContent = newsDao.selectContent(newsUrl)
         val gptSummary = ChatGPTSummarizer.summarize(newsContent)

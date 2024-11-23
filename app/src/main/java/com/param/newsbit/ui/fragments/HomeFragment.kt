@@ -79,7 +79,7 @@ class HomeFragment : Fragment() {
         adapterNewsHead = AdapterNewsHead(navigateOnClick, bookmarkOnClick)
 
         NewsGenre.TITLES.forEach {
-            viewModel.downloadNews(it)
+            viewModel.downloadNews(it,20)
         }
 
         lifecycleScope.launch(Dispatchers.IO) {

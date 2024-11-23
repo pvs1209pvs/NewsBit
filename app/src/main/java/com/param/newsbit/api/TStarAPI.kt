@@ -13,5 +13,4 @@ interface TStarAPI {
         @Query("l") l: Int,
     ): Response<NewsJson>
 
-
 }
