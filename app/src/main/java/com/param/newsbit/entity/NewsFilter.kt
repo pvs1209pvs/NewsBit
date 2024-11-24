@@ -7,4 +7,11 @@ data class NewsFilter(
     val searchQuery: String,
     val startDate: LocalDate,
     val endDate: LocalDate
-)
+) {
+
+    companion object {
+
+        fun blank() = NewsFilter("", "", LocalDate.now(), LocalDate.now())
+
+    }
+}

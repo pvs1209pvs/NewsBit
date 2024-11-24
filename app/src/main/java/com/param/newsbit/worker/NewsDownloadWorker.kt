@@ -11,7 +11,6 @@ import com.param.newsbit.notifaction.NewsNotificationService
 import com.param.newsbit.repo.Repository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import java.time.LocalDate
 
 @HiltWorker
 class NewsDownloadWorker @AssistedInject constructor(
@@ -29,11 +28,11 @@ class NewsDownloadWorker @AssistedInject constructor(
 
         return try {
 
-            val defaultFilter = NewsFilter("", "", LocalDate.now(), LocalDate.now())
+            val defaultFilter = NewsFilter.blank()
 
             val before = repository.countBy(defaultFilter)
 
-            NewsGenre.TITLES.forEach { repository.downloadNews(it,20) }
+            NewsGenre.TITLES.forEach { repository.downloadNews(it, 20) }
 
             val after = repository.countBy(defaultFilter)
 
