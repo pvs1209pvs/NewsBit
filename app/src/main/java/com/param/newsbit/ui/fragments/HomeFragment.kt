@@ -79,7 +79,7 @@ class HomeFragment : Fragment() {
         adapterNewsHead = AdapterNewsHead(navigateOnClick, bookmarkOnClick)
 
         NewsGenre.TITLES.forEach {
-            viewModel.downloadNews(it,20)
+            viewModel.downloadNews(it, 50)
         }
 
         lifecycleScope.launch(Dispatchers.IO) {
@@ -131,9 +131,8 @@ class HomeFragment : Fragment() {
 
         val workRequest = PeriodicWorkRequestBuilder<NewsDownloadWorker>(
             Duration.ofHours(2),
-            Duration.ofMinutes(1)
+            Duration.ofMinutes(15)
         ).setConstraints(Constraints.Builder().build()).build()
-
 
         WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
             "NewsDownloadedWorker",

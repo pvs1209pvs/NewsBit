@@ -32,7 +32,7 @@ class NewsDownloadWorker @AssistedInject constructor(
 
             val before = repository.countBy(defaultFilter)
 
-            NewsGenre.TITLES.forEach { repository.downloadNews(it, 20) }
+            NewsGenre.TITLES.forEach { repository.downloadNews(it, 50) }
 
             val after = repository.countBy(defaultFilter)
 
@@ -40,9 +40,9 @@ class NewsDownloadWorker @AssistedInject constructor(
 
             val newCount = after - before
 
-            if (newCount > 0) {
-                newsNotificationService.showNotification(newCount)
-            }
+//            if (newCount > 0) {
+            newsNotificationService.showNotification(newCount)
+//            }
 
             Result.success()
 
