@@ -8,6 +8,7 @@ import com.param.newsbit.entity.News
 import com.param.newsbit.entity.NewsFilter
 import com.param.newsbit.model.parser.NetworkStatus
 import com.param.newsbit.repo.Repository
+import com.param.newsbit.repo.RepositoryInterface
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import java.time.LocalDate
@@ -15,8 +16,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ViewModel @Inject constructor(
-    private val repo: Repository,
-    application: Application
+    private val repo: RepositoryInterface,
+    application: Application,
+    private val ioDispatcher: CoroutineDispatcher
 ) : AndroidViewModel(application) {
 
     private val TAG = javaClass.simpleName
@@ -48,7 +50,7 @@ class ViewModel @Inject constructor(
             _downloadNewsError.postValue(NetworkStatus.ERROR)
         }
 
-        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+        viewModelScope.launch(ioDispatcher + coroutineExceptionHandler) {
             Log.i(TAG, "downloadNews: $genre rows inserted: ${repo.downloadNews(genre, limit)}")
             _downloadNewsError.postValue(NetworkStatus.SUCCESS)
         }
@@ -69,7 +71,7 @@ class ViewModel @Inject constructor(
             _downloadSummaryError.postValue(NetworkStatus.ERROR)
         }
 
-        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+        viewModelScope.launch(ioDispatcher + coroutineExceptionHandler) {
             repo.downloadSummary(newsUrl)
             _downloadSummaryError.postValue(NetworkStatus.SUCCESS)
         }
@@ -81,7 +83,7 @@ class ViewModel @Inject constructor(
             _refreshSummaryError.postValue(NetworkStatus.ERROR)
         }
 
-        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+        viewModelScope.launch(ioDispatcher + coroutineExceptionHandler) {
             repo.refreshSummary(newsUrl)
             _refreshSummaryError.postValue(NetworkStatus.SUCCESS)
         }

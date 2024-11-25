@@ -21,7 +21,7 @@ class Repository @Inject constructor(
     private val newsDao: NewsDao,
     private val tStarRetrofit: TStarAPI,
     private val gptService: ChatGPTService
-) {
+) : RepositoryInterface {
 
     private val TAG = javaClass.simpleName
 
@@ -29,7 +29,7 @@ class Repository @Inject constructor(
      * Downloads a list of news of the given genre.
      * genre = null for top stories
      */
-    suspend fun downloadNews(genre: String, l: Int): Int {
+    override suspend fun downloadNews(genre: String, l: Int): Int {
 
         Log.i(TAG, "Downloading: $genre")
 
@@ -74,7 +74,7 @@ class Repository @Inject constructor(
 
     }
 
-    fun getNews(filter: NewsFilter): LiveData<PagingData<News>> {
+    override fun getNews(filter: NewsFilter): LiveData<PagingData<News>> {
 
         return Pager(
             config = PagingConfig(pageSize = 20, initialLoadSize = 20),
@@ -90,7 +90,7 @@ class Repository @Inject constructor(
 
     }
 
-    suspend fun downloadSummary(newsUrl: String) {
+    override suspend fun downloadSummary(newsUrl: String) {
 
         Log.i(TAG, "Downloading summary for: $newsUrl")
 
@@ -107,7 +107,7 @@ class Repository @Inject constructor(
 
     }
 
-    suspend fun refreshSummary(newsUrl: String) {
+    override suspend fun refreshSummary(newsUrl: String) {
 
         Log.i(TAG, "Refreshing summary: $newsUrl")
 
@@ -119,21 +119,21 @@ class Repository @Inject constructor(
 
     }
 
-    fun getSummary(url: String) = newsDao.selectSummaryLD(url)
+    override fun getSummary(url: String) = newsDao.selectSummaryLD(url)
 
-    suspend fun getNewsBody(url: String) = MutableLiveData(newsDao.selectContent(url))
+    override suspend fun getNewsBody(url: String) = MutableLiveData(newsDao.selectContent(url))
 
-    suspend fun toggleBookmark(url: String, value: Boolean) {
+    override suspend fun toggleBookmark(url: String, value: Boolean) {
         newsDao.updateBookmark(url, value)
     }
 
-    fun getBookmarkedNews() = newsDao.selectBookmarked()
+    override fun getBookmarkedNews() = newsDao.selectBookmarked()
 
-    suspend fun deleteOlderThanWeek() {
+    override suspend fun deleteOlderThanWeek() {
         newsDao.deleteOlderThanWeek(LocalDate.now().toString())
     }
 
-    suspend fun countBy(newsFilter: NewsFilter) =
+    override suspend fun countBy(newsFilter: NewsFilter) =
         newsDao.countBy(newsFilter.startDate.toString(), newsFilter.endDate.toString())
 
 }

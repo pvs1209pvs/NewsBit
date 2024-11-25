@@ -11,30 +11,30 @@ abstract class LocalDatabase : RoomDatabase() {
 
     public abstract fun newsDao(): NewsDao
 
-    companion object {
-
-        @Volatile
-        private var INSTANCE: LocalDatabase? = null
-
-        fun getDatabase(context: Context): LocalDatabase {
-
-            val tempInstance = INSTANCE
-            if (tempInstance != null) {
-                return tempInstance
-            }
-
-            synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    LocalDatabase::class.java,
-                    "local_database"
-                ).fallbackToDestructiveMigration().build()
-                INSTANCE = instance
-                return instance
-            }
-
-        }
-
-    }
+//    companion object {
+//
+//        @Volatile
+//        private var INSTANCE: LocalDatabase? = null
+//
+//        fun getDatabase(context: Context): LocalDatabase {
+//
+//            val tempInstance = INSTANCE
+//            if (tempInstance != null) {
+//                return tempInstance
+//            }
+//
+//            synchronized(this) {
+//                val instance = Room.databaseBuilder(
+//                    context.applicationContext,
+//                    LocalDatabase::class.java,
+//                    "local_database"
+//                ).fallbackToDestructiveMigration().build()
+//                INSTANCE = instance
+//                return instance
+//            }
+//
+//        }
+//
+//    }
 
 }

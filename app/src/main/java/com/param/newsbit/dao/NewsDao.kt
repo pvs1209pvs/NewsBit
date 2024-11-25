@@ -55,7 +55,8 @@ interface NewsDao {
     suspend fun updateBookmark(url: String, value: Boolean)
 
     @Query("SELECT * FROM news_table " +
-            "WHERE isBookmarked = 1")
+            "WHERE isBookmarked = 1 " +
+            "ORDER BY pubDate DESC")
     fun selectBookmarked(): LiveData<List<News>>
 
     @Query("SELECT isBookmarked FROM news_table " +
