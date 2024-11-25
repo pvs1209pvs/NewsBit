@@ -1,9 +1,6 @@
 package com.param.newsbit.repo
 
-import android.content.Context
-import androidx.room.Room
-import androidx.test.core.app.ApplicationProvider
-import com.param.newsbit.ChatGPTServiceTest
+import com.param.newsbit.model.parser.ChatGPTServiceTest
 import com.param.newsbit.api.TStarAPI
 import com.param.newsbit.dao.NewsDao
 import com.param.newsbit.database.LocalDatabase
@@ -12,40 +9,48 @@ import com.param.newsbit.entity.NewsJson
 import com.param.newsbit.entity.Preview
 import com.param.newsbit.entity.Row
 import com.param.newsbit.entity.StartTime
-import com.param.newsbit.model.parser.ChatGPTService
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.test.runTest
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
-import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.MockitoAnnotations
 import retrofit2.Response
 import java.time.LocalDate
+import javax.inject.Inject
+import javax.inject.Named
 
-
-@RunWith(MockitoJUnitRunner::class)
+@HiltAndroidTest
 class RepositoryTest {
 
-    private lateinit var repository: Repository
-    private lateinit var database: LocalDatabase
-    private lateinit var dao: NewsDao
+    @get:Rule
+    var hiltRule = HiltAndroidRule(this)
+
+    @Inject
+    @Named("test_db")
+    lateinit var database: LocalDatabase
+
+    @Inject
+    @Named("test_news_dao")
+    lateinit var dao: NewsDao
 
     @Mock
     private lateinit var newsService: TStarAPI
 
-    private val chatGPTServiceTest: ChatGPTService = ChatGPTServiceTest
+    private lateinit var repository: Repository
 
     @Before
     fun setup() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        database = Room.inMemoryDatabaseBuilder(context, LocalDatabase::class.java).build()
-        dao = database.newsDao()
-        repository = Repository(dao, newsService, chatGPTServiceTest)
+        MockitoAnnotations.openMocks(this)
+        hiltRule.inject()
+        repository = Repository(dao, newsService, ChatGPTServiceTest)
     }
 
     @After

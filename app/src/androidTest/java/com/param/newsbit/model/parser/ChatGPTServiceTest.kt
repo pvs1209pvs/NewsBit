@@ -1,6 +1,4 @@
-package com.param.newsbit
-
-import com.param.newsbit.model.parser.ChatGPTService
+package com.param.newsbit.model.parser
 
 object ChatGPTServiceTest : ChatGPTService {
 

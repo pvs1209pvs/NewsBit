@@ -1,8 +1,6 @@
-package com.param.newsbit
+package com.param.newsbit.dao
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.paging.PagingSource
-import com.param.newsbit.dao.NewsDao
 import com.param.newsbit.database.LocalDatabase
 import com.param.newsbit.entity.News
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -23,9 +21,6 @@ class NewsDaoTest2 {
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
-
-    @get:Rule
-    var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Inject
     @Named("test_db")
