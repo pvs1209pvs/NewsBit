@@ -22,7 +22,7 @@ class NewsNotificationService(private val context: Context) {
     private val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-    fun showNotification(newCount: Long) {
+    fun showNotification(newCount: String) {
 
         Log.i(TAG, "showNotification")
 
@@ -35,7 +35,7 @@ class NewsNotificationService(private val context: Context) {
         )
 
         val notification = NotificationCompat.Builder(context, NEWS_DOWNLOAD_CHANNEL)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.mipmap.ic_launcher_foreground)
             .setContentTitle("$newCount latest news")
             .setContentText("Stay updated!")
             .setChannelId(NEWS_DOWNLOAD_CHANNEL)

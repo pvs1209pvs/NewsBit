@@ -76,11 +76,13 @@ android {
         unitTests.returnDefaultValues = true
     }
 
+    kapt {
+        correctErrorTypes true
+    }
+
+
 }
 
-kapt {
-    correctErrorTypes true
-}
 
 dependencies {
 
@@ -193,7 +195,5 @@ dependencies {
     androidTestImplementation "com.google.dagger:hilt-android-testing:2.50"
     kaptAndroidTest "com.google.dagger:hilt-android-testing:2.50"
     debugImplementation "androidx.test:core:1.5.0"
-
-
 
 }

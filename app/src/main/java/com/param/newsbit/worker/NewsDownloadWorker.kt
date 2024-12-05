@@ -1,5 +1,7 @@
 package com.param.newsbit.worker
 
+import android.app.ActivityManager
+import android.app.ActivityManager.RunningAppProcessInfo
 import android.content.Context
 import android.util.Log
 import androidx.hilt.work.HiltWorker
@@ -11,6 +13,7 @@ import com.param.newsbit.notifaction.NewsNotificationService
 import com.param.newsbit.repo.Repository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+
 
 @HiltWorker
 class NewsDownloadWorker @AssistedInject constructor(
@@ -28,21 +31,17 @@ class NewsDownloadWorker @AssistedInject constructor(
 
         return try {
 
-            val defaultFilter = NewsFilter.blank()
+            val empty = NewsFilter.empty()
 
-            val before = repository.countBy(defaultFilter)
+            val before = repository.countBy(empty)
 
             NewsGenre.TITLES.forEach { repository.downloadNews(it, 50) }
 
-            val after = repository.countBy(defaultFilter)
+            val after = repository.countBy(empty)
 
             Log.i(TAG, "doWork: before:$before after:$after")
 
-            val newCount = after - before
-
-//            if (newCount > 0) {
-            newsNotificationService.showNotification(newCount)
-//            }
+            newsNotificationService.showNotification("before: $before after: $after")
 
             Result.success()
 
@@ -50,6 +49,18 @@ class NewsDownloadWorker @AssistedInject constructor(
             Log.e(TAG, "doWork: ${e.message}")
             Result.failure()
         }
+
+    }
+
+    fun isAppForground(context: Context): Boolean {
+
+        val mActivityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        for (info in mActivityManager.runningAppProcesses) {
+            if (info.uid == context.applicationInfo.uid && info.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+                return true
+            }
+        }
+        return false
 
     }
 

@@ -135,7 +135,7 @@ class HomeFragment : Fragment() {
         ).setConstraints(Constraints.Builder().build()).build()
 
         WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
-            "NewsDownloadedWorker",
+            NewsDownloadWorker::class.java.simpleName,
             ExistingPeriodicWorkPolicy.KEEP,
             workRequest
         )

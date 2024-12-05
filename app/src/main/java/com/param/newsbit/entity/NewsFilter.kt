@@ -11,7 +11,7 @@ data class NewsFilter(
 
     companion object {
 
-        fun blank() = NewsFilter("", "", LocalDate.now(), LocalDate.now())
+        fun empty() = NewsFilter("", "", LocalDate.now(), LocalDate.now())
 
     }
 }
