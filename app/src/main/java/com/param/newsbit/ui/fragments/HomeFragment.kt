@@ -44,6 +44,7 @@ import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
@@ -55,7 +56,9 @@ class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private lateinit var adapterNewsHead: AdapterNewsHead
     private lateinit var rangeDatePicker: MaterialDatePicker<Pair<Long, Long>>
-    private lateinit var newsNotificationService: NewsNotificationService
+
+    @Inject
+    lateinit var newsNotificationService: NewsNotificationService
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -116,8 +119,6 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         super.onViewCreated(view, savedInstanceState)
-
-        newsNotificationService = NewsNotificationService(requireActivity())
 
         with(NotificationManagerCompat.from(requireContext())) {
             if (ActivityCompat.checkSelfPermission(

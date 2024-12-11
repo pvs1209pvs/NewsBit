@@ -26,22 +26,23 @@ class NewsNotificationService(private val context: Context) {
 
         Log.i(TAG, "showNotification")
 
-        val intent = Intent(context, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             context,
             1,
-            intent,
+            Intent(context, MainActivity::class.java),
             PendingIntent.FLAG_IMMUTABLE,
         )
 
         val notification = NotificationCompat.Builder(context, NEWS_DOWNLOAD_CHANNEL)
+            .setChannelId(NEWS_DOWNLOAD_CHANNEL)
             .setSmallIcon(R.mipmap.ic_launcher_foreground)
+            .setAutoCancel(true)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setContentTitle("$newCount latest news")
             .setContentText("Stay updated!")
-            .setChannelId(NEWS_DOWNLOAD_CHANNEL)
-            .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .build()
+
 
         notificationManager.notify(1, notification)
 

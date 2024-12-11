@@ -29,25 +29,27 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providesIODispatcher() =  Dispatchers.IO
+    fun providesIODispatcher() = Dispatchers.IO
 
     @Provides
     @Singleton
     fun provideLocalDatabase(@ApplicationContext context: Context): LocalDatabase {
 
-        return Room.databaseBuilder(
-            context.applicationContext,
-            LocalDatabase::class.java,
-            "local_database"
-        ).fallbackToDestructiveMigration().build()
+        return Room
+            .databaseBuilder(
+                context.applicationContext,
+                LocalDatabase::class.java,
+                "local_database"
+            )
+            .fallbackToDestructiveMigration()
+            .build()
 
     }
 
     @Provides
     @Singleton
-    fun provideNewsDao(localDatabase: LocalDatabase): NewsDao {
-        return localDatabase.newsDao()
-    }
+    fun provideNewsDao(localDatabase: LocalDatabase) = localDatabase.newsDao()
+
 
     @Provides
     @Singleton
@@ -79,9 +81,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providesNewsNotificationService(@ApplicationContext context: Context): NewsNotificationService {
-        return NewsNotificationService(context)
-    }
+    fun providesNewsNotificationService(@ApplicationContext context: Context) =
+        NewsNotificationService(context)
 
 }
 
