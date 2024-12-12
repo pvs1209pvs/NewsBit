@@ -41,12 +41,9 @@ class NewsDownloadWorker @AssistedInject constructor(
 
             Log.i(TAG, "doWork: before:$before after:$after")
 
-            val newCount = after-before
-
-            if (newCount > 0) {
-                newsNotificationService.showNotification(newCount.toString())
+            if (after > before) {
+                newsNotificationService.show()
             }
-
 
             Result.success()
 
