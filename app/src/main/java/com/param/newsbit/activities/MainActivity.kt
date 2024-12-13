@@ -43,10 +43,9 @@ class MainActivity : AppCompatActivity() {
         createNotificationChannel()
 
         setContentView(binding.root)
-        setSupportActionBar(binding.toolbar)
-
+//        setSupportActionBar(binding.toolbar)
         appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
+//        setupActionBarWithNavController(navController, appBarConfiguration)
 
         binding.bottomNavigationView.apply {
 
