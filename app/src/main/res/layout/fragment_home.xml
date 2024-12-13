@@ -21,13 +21,13 @@
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorPrimary"
-            app:titleCollapseMode="fade"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:titleCollapseMode="fade">
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/main.toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
+                android:layout_height="wrap_content"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
                 <HorizontalScrollView
