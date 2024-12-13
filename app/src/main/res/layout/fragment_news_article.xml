@@ -21,66 +21,32 @@
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:toolbarId="@+id/toolbar">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/topView"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="top|center">
+                android:layout_height="wrap_content"
+                android:fitsSystemWindows="true"
+                android:orientation="vertical"
+                app:layout_collapseMode="parallax">
 
-                <FrameLayout
-                    android:id="@+id/mainlayout"
+                <ImageView
+                    android:id="@+id/newsArticleImage"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintBottom_toTopOf="@id/contentToggleChipGroup"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <ImageView
-                        android:id="@+id/newsArticleImage"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:contentDescription="News article thumbnail."
-                        android:maxHeight="200dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintHorizontal_bias="0.5"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/newsArticleDate" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom"
-                        android:background="#80000000"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/newsArticleTitle"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:paddingBottom="16dp"
-                            android:text="Title"
-                            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-                            android:textColor="@color/white" />
-
-                    </LinearLayout>
-
-                </FrameLayout>
-
+                    android:layout_marginTop="8dp"
+                    android:contentDescription="News article thumbnail."
+                    android:maxHeight="200dp"
+                    android:minHeight="200dp" />
 
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/contentToggleChipGroup"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginVertical="8dp"
                     android:foregroundGravity="center"
                     android:orientation="horizontal"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/mainlayout"
                     app:selectionRequired="true"
                     app:singleSelection="true">
 
@@ -103,12 +69,19 @@
 
                 </com.google.android.material.chip.ChipGroup>
 
+            </LinearLayout>
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_collapseMode="pin"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight.ActionBar" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
+
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/fullNestedScrollView"
@@ -147,17 +120,6 @@
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-
-    <!--<TextView-->
-    <!--android:id="@+id/newsArticleDate"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="0dp"-->
-    <!--android:text="5/9/2023"-->
-    <!--android:textAppearance="@style/TextAppearance.Material3.LabelSmall"-->
-    <!--app:layout_constraintEnd_toEndOf="parent"-->
-    <!--app:layout_constraintHorizontal_bias="1.0"-->
-    <!--app:layout_constraintStart_toStartOf="parent"-->
-    <!--app:layout_constraintTop_toBottomOf="@+id/newsArticleTitle" />-->
 
     <!--<ProgressBar-->
     <!--android:id="@+id/progressBar"-->
