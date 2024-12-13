@@ -3,10 +3,13 @@ package com.param.newsbit.ui.fragments
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
-import android.view.*
-import androidx.constraintlayout.widget.ConstraintSet.Motion
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.core.view.MenuProvider
-import androidx.core.view.children
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -16,7 +19,6 @@ import androidx.navigation.fragment.navArgs
 import coil.load
 import coil.size.Scale
 import coil.transform.RoundedCornersTransformation
-import com.google.android.material.chip.Chip
 import com.param.newsbit.R
 import com.param.newsbit.databinding.FragmentNewsArticleBinding
 import com.param.newsbit.model.parser.NetworkStatus
@@ -50,6 +52,16 @@ class NewsArticleFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
+        binding.swapFab.setOnClickListener {
+
+            viewModel.viewMode.value = if (viewModel.viewMode.value == "Show Summary") {
+                "Show Full"
+            } else {
+                "Show Summary"
+            }
+
+        }
+
 
         binding.apply {
             tv.text = args.newsTitle
@@ -59,7 +71,6 @@ class NewsArticleFragment : Fragment() {
             newsSummary.movementMethod = ScrollingMovementMethod()
             newsFull.movementMethod = ScrollingMovementMethod()
         }
-
 
 
 //        binding.swipeRefresh.setOnRefreshListener {
@@ -82,7 +93,7 @@ class NewsArticleFragment : Fragment() {
             }
         }
 
-        
+
         lifecycleScope.launch(Dispatchers.IO) {
 
             Log.i(TAG, "News image url: ${args.newsImgUrl.toString()}")
@@ -154,19 +165,19 @@ class NewsArticleFragment : Fragment() {
 
         }
 
-        binding.contentToggleChipGroup.setOnCheckedStateChangeListener { _, _ ->
-
-            val selectedViewMode = binding.contentToggleChipGroup.children
-                .toList()
-                .map { it as Chip }
-                .filter { it.isChecked }
-                .map { it.text }
-                .first()
-                .toString()
-
-            Log.i(TAG, "Summary or Full ChipGroup selection: $selectedViewMode")
-            viewModel.viewMode.value = selectedViewMode
-        }
+//        binding.contentToggleChipGroup.setOnCheckedStateChangeListener { _, _ ->
+//
+//            val selectedViewMode = binding.contentToggleChipGroup.children
+//                .toList()
+//                .map { it as Chip }
+//                .filter { it.isChecked }
+//                .map { it.text }
+//                .first()
+//                .toString()
+//
+//            Log.i(TAG, "Summary or Full ChipGroup selection: $selectedViewMode")
+//            viewModel.viewMode.value = selectedViewMode
+//        }
 
         requireActivity().addMenuProvider(
             object : MenuProvider {
