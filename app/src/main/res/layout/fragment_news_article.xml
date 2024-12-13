@@ -30,40 +30,47 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="top|center">
 
-                <TextView
-                    android:id="@+id/newsArticleTitle"
+                <FrameLayout
+                    android:id="@+id/mainlayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="16dp"
-                    android:text="Title"
-                    android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toTopOf="@id/contentToggleChipGroup"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent">
 
-                <TextView
-                    android:id="@+id/newsArticleDate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:text="5/9/2023"
-                    android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="1.0"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/newsArticleTitle" />
+                    <ImageView
+                        android:id="@+id/newsArticleImage"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="News article thumbnail."
+                        android:maxHeight="200dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/newsArticleDate" />
 
-                <ImageView
-                    android:id="@+id/newsArticleImage"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:contentDescription="News article thumbnail."
-                    android:maxHeight="200dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/newsArticleDate" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
+                        android:background="#80000000"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/newsArticleTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingBottom="16dp"
+                            android:text="Title"
+                            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                            android:textColor="@color/white" />
+
+                    </LinearLayout>
+
+                </FrameLayout>
+
 
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/contentToggleChipGroup"
@@ -73,7 +80,7 @@
                     android:orientation="horizontal"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/newsArticleImage"
+                    app:layout_constraintTop_toBottomOf="@+id/mainlayout"
                     app:selectionRequired="true"
                     app:singleSelection="true">
 
@@ -140,6 +147,17 @@
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
+
+    <!--<TextView-->
+    <!--android:id="@+id/newsArticleDate"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="0dp"-->
+    <!--android:text="5/9/2023"-->
+    <!--android:textAppearance="@style/TextAppearance.Material3.LabelSmall"-->
+    <!--app:layout_constraintEnd_toEndOf="parent"-->
+    <!--app:layout_constraintHorizontal_bias="1.0"-->
+    <!--app:layout_constraintStart_toStartOf="parent"-->
+    <!--app:layout_constraintTop_toBottomOf="@+id/newsArticleTitle" />-->
 
     <!--<ProgressBar-->
     <!--android:id="@+id/progressBar"-->

@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.*
-import androidx.constraintlayout.widget.ConstraintSet.Motion
 import androidx.core.view.MenuProvider
 import androidx.core.view.children
 import androidx.core.view.get
@@ -51,7 +50,7 @@ class NewsArticleFragment : Fragment() {
 
         binding.apply {
             newsArticleTitle.text = args.newsTitle
-            newsArticleDate.text = args.newsPubDate
+            //newsArticleDate.text = args.newsPubDate
             newsSummary.movementMethod = ScrollingMovementMethod()
             newsFull.movementMethod = ScrollingMovementMethod()
         }
