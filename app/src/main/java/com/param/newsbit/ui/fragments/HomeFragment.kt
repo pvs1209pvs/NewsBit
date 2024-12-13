@@ -1,6 +1,7 @@
 package com.param.newsbit.ui.fragments
 
 import android.content.pm.PackageManager
+import android.graphics.Color.TRANSPARENT
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -20,6 +21,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.ui.graphics.Color
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
@@ -122,9 +124,60 @@ class HomeFragment : Fragment() {
 
         super.onViewCreated(view, savedInstanceState)
 
-        binding.homeToolbar.inflateMenu(R.menu.menu_home)
+        binding.dp.setBackgroundColor(TRANSPARENT)
+
+        binding.sv.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+
+            override fun onQueryTextSubmit(query: String?) = false
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                viewModel.newsFilter.value =
+                    viewModel.newsFilter.value?.copy(searchQuery = newText ?: "")
+                return true
+            }
+
+        })
+
+        binding.sv.setOnCloseListener {
+            binding.textView.visibility = View.VISIBLE
+            false
+        }
+
+        binding.sv.setOnSearchClickListener {
+            binding.textView.visibility = View.GONE
+
+        }
 
 
+        binding.dp.setOnClickListener {
+
+            rangeDatePicker.show(childFragmentManager, "rangeDatePicker")
+
+            rangeDatePicker.addOnPositiveButtonClickListener {
+
+                val start = Instant
+                    .ofEpochMilli(it.first + 86400000)
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate()
+
+                val end = Instant
+                    .ofEpochMilli(it.second + 86400000)
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate()
+
+                Log.i(TAG, "onMenuItemSelected: rangeDatePicker: $start $end")
+
+                viewModel.newsFilter.value =
+                    viewModel.newsFilter.value?.copy(startDate = start)
+
+                viewModel.newsFilter.value =
+                    viewModel.newsFilter.value?.copy(endDate = end)
+
+            }
+
+            true
+
+        }
 
         with(NotificationManagerCompat.from(requireContext())) {
             if (ActivityCompat.checkSelfPermission(
@@ -193,138 +246,77 @@ class HomeFragment : Fragment() {
         }
 
 
-        binding.homeToolbar.setOnMenuItemClickListener { menuItem ->
+        /*
+                binding.homeToolbar.addMenuProvider(
 
-            when (menuItem.itemId) {
+                    object : MenuProvider {
 
-                R.id.search_item -> {
-
-                    val searchItem =
-                        binding.homeToolbar.menu.findItem(R.id.search_item).actionView as SearchView
-
-                    searchItem.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-
-                        override fun onQueryTextSubmit(query: String?) = false
-
-                        override fun onQueryTextChange(newText: String?): Boolean {
-                            viewModel.newsFilter.value =
-                                viewModel.newsFilter.value?.copy(searchQuery = newText ?: "")
-                            return true
+                        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                            menuInflater.inflate(R.menu.menu_home, menu)
                         }
 
-                    })
+                        override fun onPrepareMenu(menu: Menu) {
 
-                    true
+                            val searchItem = menu.findItem(R.id.search_item).actionView as SearchView
 
-                }
+                            searchItem.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
-                R.id.date_picker -> {
+                                override fun onQueryTextSubmit(query: String?) = false
 
-                    rangeDatePicker.show(childFragmentManager, "rangeDatePicker")
+                                override fun onQueryTextChange(newText: String?): Boolean {
+                                    viewModel.newsFilter.value =
+                                        viewModel.newsFilter.value?.copy(searchQuery = newText ?: "")
+                                    return true
+                                }
 
-                    rangeDatePicker.addOnPositiveButtonClickListener {
+                            })
 
-                        val start = Instant
-                            .ofEpochMilli(it.first + 86400000)
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDate()
-
-                        val end = Instant
-                            .ofEpochMilli(it.second + 86400000)
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDate()
-
-                        Log.i(TAG, "onMenuItemSelected: rangeDatePicker: $start $end")
-
-                        viewModel.newsFilter.value =
-                            viewModel.newsFilter.value?.copy(startDate = start)
-
-                        viewModel.newsFilter.value =
-                            viewModel.newsFilter.value?.copy(endDate = end)
-
-                    }
-
-                    true
-
-                }
-
-                else -> false
-
-            }
-
-        }
-
-/*
-        binding.homeToolbar.addMenuProvider(
-
-            object : MenuProvider {
-
-                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                    menuInflater.inflate(R.menu.menu_home, menu)
-                }
-
-                override fun onPrepareMenu(menu: Menu) {
-
-                    val searchItem = menu.findItem(R.id.search_item).actionView as SearchView
-
-                    searchItem.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-
-                        override fun onQueryTextSubmit(query: String?) = false
-
-                        override fun onQueryTextChange(newText: String?): Boolean {
-                            viewModel.newsFilter.value =
-                                viewModel.newsFilter.value?.copy(searchQuery = newText ?: "")
-                            return true
                         }
 
-                    })
+                        override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
 
-                }
+                            return when (menuItem.itemId) {
 
-                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                                R.id.date_picker -> {
 
-                    return when (menuItem.itemId) {
+                                    rangeDatePicker.show(childFragmentManager, "rangeDatePicker")
 
-                        R.id.date_picker -> {
+                                    rangeDatePicker.addOnPositiveButtonClickListener {
 
-                            rangeDatePicker.show(childFragmentManager, "rangeDatePicker")
+                                        val start = Instant
+                                            .ofEpochMilli(it.first + 86400000)
+                                            .atZone(ZoneId.systemDefault())
+                                            .toLocalDate()
 
-                            rangeDatePicker.addOnPositiveButtonClickListener {
+                                        val end = Instant
+                                            .ofEpochMilli(it.second + 86400000)
+                                            .atZone(ZoneId.systemDefault())
+                                            .toLocalDate()
 
-                                val start = Instant
-                                    .ofEpochMilli(it.first + 86400000)
-                                    .atZone(ZoneId.systemDefault())
-                                    .toLocalDate()
+                                        Log.i(TAG, "onMenuItemSelected: rangeDatePicker: $start $end")
 
-                                val end = Instant
-                                    .ofEpochMilli(it.second + 86400000)
-                                    .atZone(ZoneId.systemDefault())
-                                    .toLocalDate()
+                                        viewModel.newsFilter.value =
+                                            viewModel.newsFilter.value?.copy(startDate = start)
 
-                                Log.i(TAG, "onMenuItemSelected: rangeDatePicker: $start $end")
+                                        viewModel.newsFilter.value =
+                                            viewModel.newsFilter.value?.copy(endDate = end)
 
-                                viewModel.newsFilter.value =
-                                    viewModel.newsFilter.value?.copy(startDate = start)
+                                    }
 
-                                viewModel.newsFilter.value =
-                                    viewModel.newsFilter.value?.copy(endDate = end)
+                                    true
+
+                                }
+
+                                else -> false
 
                             }
 
-                            true
-
                         }
 
-                        else -> false
+                    }, viewLifecycleOwner, Lifecycle.State.RESUMED
 
-                    }
-
-                }
-
-            }, viewLifecycleOwner, Lifecycle.State.RESUMED
-
-        )
-*/
+                )
+        */
 
     }
 

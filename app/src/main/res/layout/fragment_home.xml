@@ -17,6 +17,7 @@
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/homeCollapsing"
+            app:title="@string/app_name"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
@@ -34,20 +35,60 @@
                 app:contentInsetStart="0dp"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
-                <HorizontalScrollView
-                    android:id="@+id/horizontalScrollView"
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_margin="8dp"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/chipGroup"
+                    <TextView
+                        android:id="@+id/textView"
+                        android:gravity="center"
+                        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:text="@string/app_name"
+                        app:layout_constraintBottom_toTopOf="@+id/horizontalScrollView"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <androidx.appcompat.widget.SearchView
+                        android:id="@+id/sv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:padding="4dp"
-                        app:selectionRequired="true"
-                        app:singleSelection="true" />
+                        app:layout_constraintBottom_toBottomOf="@+id/dp"
+                        app:layout_constraintEnd_toStartOf="@+id/dp"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-                </HorizontalScrollView>
+                    <ImageButton
+                        android:id="@+id/dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:src="@drawable/baseline_calendar_today_24"
+                        app:layout_constraintBottom_toTopOf="@+id/horizontalScrollView"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+
+                    <HorizontalScrollView
+                        android:id="@+id/horizontalScrollView"
+                        android:layout_height="match_parent"
+                        android:layout_width="wrap_content"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintStart_toStartOf="parent">
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/chipGroup"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:selectionRequired="true"
+                            app:singleSelection="true" />
+
+                    </HorizontalScrollView>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
 
             </androidx.appcompat.widget.Toolbar>
@@ -75,4 +116,18 @@
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+
+<!--<HorizontalScrollView-->
+<!--android:id="@+id/horizontalScrollView"-->
+<!--android:layout_width="match_parent"-->
+<!--android:layout_height="wrap_content">-->
+
+<!--<com.google.android.material.chip.ChipGroup-->
+<!--    android:id="@+id/chipGroup"-->
+<!--    android:layout_width="wrap_content"-->
+<!--    android:layout_height="wrap_content"-->
+<!--    android:padding="4dp"-->
+<!--    app:selectionRequired="true"-->
+<!--    app:singleSelection="true" />-->
 
