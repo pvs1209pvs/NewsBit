@@ -100,6 +100,7 @@ class HomeFragment : Fragment() {
 
         binding = FragmentHomeBinding.inflate(inflater, container, false)
 
+
         createGenreChipGroup()
 
         val weeksInPastDateValidator = CalendarConstraints.Builder()
@@ -116,9 +117,14 @@ class HomeFragment : Fragment() {
 
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         super.onViewCreated(view, savedInstanceState)
+
+        binding.homeToolbar.inflateMenu(R.menu.menu_home)
+
+
 
         with(NotificationManagerCompat.from(requireContext())) {
             if (ActivityCompat.checkSelfPermission(
@@ -186,7 +192,70 @@ class HomeFragment : Fragment() {
 
         }
 
-        requireActivity().addMenuProvider(
+
+        binding.homeToolbar.setOnMenuItemClickListener { menuItem ->
+
+            when (menuItem.itemId) {
+
+                R.id.search_item -> {
+
+                    val searchItem =
+                        binding.homeToolbar.menu.findItem(R.id.search_item).actionView as SearchView
+
+                    searchItem.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+
+                        override fun onQueryTextSubmit(query: String?) = false
+
+                        override fun onQueryTextChange(newText: String?): Boolean {
+                            viewModel.newsFilter.value =
+                                viewModel.newsFilter.value?.copy(searchQuery = newText ?: "")
+                            return true
+                        }
+
+                    })
+
+                    true
+
+                }
+
+                R.id.date_picker -> {
+
+                    rangeDatePicker.show(childFragmentManager, "rangeDatePicker")
+
+                    rangeDatePicker.addOnPositiveButtonClickListener {
+
+                        val start = Instant
+                            .ofEpochMilli(it.first + 86400000)
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate()
+
+                        val end = Instant
+                            .ofEpochMilli(it.second + 86400000)
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate()
+
+                        Log.i(TAG, "onMenuItemSelected: rangeDatePicker: $start $end")
+
+                        viewModel.newsFilter.value =
+                            viewModel.newsFilter.value?.copy(startDate = start)
+
+                        viewModel.newsFilter.value =
+                            viewModel.newsFilter.value?.copy(endDate = end)
+
+                    }
+
+                    true
+
+                }
+
+                else -> false
+
+            }
+
+        }
+
+/*
+        binding.homeToolbar.addMenuProvider(
 
             object : MenuProvider {
 
@@ -255,6 +324,7 @@ class HomeFragment : Fragment() {
             }, viewLifecycleOwner, Lifecycle.State.RESUMED
 
         )
+*/
 
     }
 
