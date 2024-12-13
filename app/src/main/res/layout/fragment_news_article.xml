@@ -21,7 +21,7 @@
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|enterAlways|snap"
+            app:layout_scrollFlags="scroll|enterAlways"
             app:toolbarId="@+id/toolbar">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -144,25 +144,21 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-
-    <TextView
-        android:id="@+id/newsFull"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:scrollbars="vertical"
-        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-        app:layout_anchor="@id/app_bar"
-        app:layout_anchorGravity="bottom" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/newsFull"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+            app:layout_anchor="@id/app_bar"
+            app:layout_anchorGravity="bottom" />
+
+    </androidx.core.widget.NestedScrollView>
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-<!--<androidx.core.widget.NestedScrollView-->
-<!--android:layout_height="wrap_content"-->
-<!--android:layout_width="match_parent"-->
-<!--app:layout_anchor="@id/app_bar"-->
-<!--app:layout_anchorGravity="bottom">-->
-
-<!--    android:layout_gravity="bottom"-->
-<!--    app:layout_anchor="@id/app_bar"-->
-<!--    app:layout_anchorGravity="bottom"-->
