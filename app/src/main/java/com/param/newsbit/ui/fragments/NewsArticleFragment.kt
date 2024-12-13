@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.*
+import androidx.constraintlayout.widget.ConstraintSet.Motion
 import androidx.core.view.MenuProvider
 import androidx.core.view.children
 import androidx.core.view.get
@@ -55,10 +56,12 @@ class NewsArticleFragment : Fragment() {
             newsFull.movementMethod = ScrollingMovementMethod()
         }
 
-        binding.swipeRefresh.setOnRefreshListener {
-            viewModel.refreshSummary(args.newsUrl)
-            binding.swipeRefresh.isRefreshing = true
-        }
+
+
+//        binding.swipeRefresh.setOnRefreshListener {
+//            viewModel.refreshSummary(args.newsUrl)
+//            binding.swipeRefresh.isRefreshing = true
+//        }
 
         viewModel.downloadSummary(args.newsUrl)
 
@@ -94,7 +97,7 @@ class NewsArticleFragment : Fragment() {
 
                 "Show Summary" -> {
                     binding.newsFull.visibility = View.GONE
-                    binding.swipeRefresh.visibility = View.VISIBLE
+//                    binding.swipeRefresh.visibility = View.VISIBLE
 
                     viewModel.downloadSummaryError.observe(viewLifecycleOwner) { networkStatus ->
 
@@ -103,21 +106,21 @@ class NewsArticleFragment : Fragment() {
                         when (networkStatus) {
 
                             NetworkStatus.IN_PROGRESS -> {
-                                binding.progressBar.visibility = View.VISIBLE
+//                                binding.progressBar.visibility = View.VISIBLE
                                 binding.newsSummary.visibility = View.GONE
-                                binding.errorSummary.visibility = View.GONE
+//                                binding.errorSummary.visibility = View.GONE
                             }
 
                             NetworkStatus.SUCCESS -> {
-                                binding.progressBar.visibility = View.GONE
+//                                binding.progressBar.visibility = View.GONE
                                 binding.newsSummary.visibility = View.VISIBLE
-                                binding.errorSummary.visibility = View.GONE
+//                                binding.errorSummary.visibility = View.GONE
                             }
 
                             NetworkStatus.ERROR -> {
-                                binding.progressBar.visibility = View.GONE
+//                                binding.progressBar.visibility = View.GONE
                                 binding.newsSummary.visibility = View.GONE
-                                binding.errorSummary.visibility = View.VISIBLE
+//                                binding.errorSummary.visibility = View.VISIBLE
                             }
 
                             else -> {}
@@ -128,7 +131,7 @@ class NewsArticleFragment : Fragment() {
 
                     viewModel.refreshSummaryError.observe(viewLifecycleOwner) { networkStat ->
                         Log.i(TAG, "Refresh summary Network Status: $networkStat")
-                        binding.swipeRefresh.isRefreshing = networkStat == NetworkStatus.IN_PROGRESS
+//                        binding.swipeRefresh.isRefreshing = networkStat == NetworkStatus.IN_PROGRESS
                     }
 
                 }
@@ -137,10 +140,10 @@ class NewsArticleFragment : Fragment() {
                     binding.newsFull.visibility = View.VISIBLE
 
                     // Prevents summary related UI from overlapping full news.
-                    binding.progressBar.visibility = View.GONE
+//                    binding.progressBar.visibility = View.GONE
                     binding.newsSummary.visibility = View.GONE
-                    binding.errorSummary.visibility = View.GONE
-                    binding.swipeRefresh.visibility = View.GONE
+//                    binding.errorSummary.visibility = View.GONE
+//                    binding.swipeRefresh.visibility = View.GONE
                 }
 
             }
