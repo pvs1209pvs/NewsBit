@@ -52,7 +52,8 @@ class NewsArticleFragment : Fragment() {
 
 
         binding.apply {
-            toolbar.title = args.newsTitle
+            tv.text = args.newsTitle
+//            toolbar.title = args.newsTitle
 //            newsArticleTitle.text = args.newsTitle
 //            newsArticleDate.text = args.newsPubDate
             newsSummary.movementMethod = ScrollingMovementMethod()

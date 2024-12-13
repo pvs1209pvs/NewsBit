@@ -22,6 +22,7 @@
             android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
+
             app:toolbarId="@+id/toolbar">
 
             <LinearLayout
@@ -35,10 +36,8 @@
                     android:id="@+id/newsArticleImage"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
                     android:contentDescription="News article thumbnail."
-                    android:maxHeight="200dp"
-                    android:minHeight="200dp" />
+                    android:maxHeight="200dp" />
 
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/contentToggleChipGroup"
@@ -75,8 +74,19 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
+                android:layout_gravity="bottom"
                 app:layout_collapseMode="pin"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight.ActionBar" />
+                >
+
+                <TextView
+                    android:id="@+id/tv"
+                    style="@android:style/TextAppearance.Holo.Widget.ActionBar.Title.Inverse"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="2" />
+
+
+            </androidx.appcompat.widget.Toolbar>
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
