@@ -10,6 +10,7 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
+import java.time.Duration
 
 object ChatGPTServiceProd : ChatGPTService {
 
@@ -68,7 +69,11 @@ object ChatGPTServiceProd : ChatGPTService {
             .post(gptRequestBody(newsBody))
             .build()
 
-        return OkHttpClient().newCall(request).execute().use { response ->
+        val httpClient = OkHttpClient.Builder()
+            .callTimeout(Duration.ofMinutes(1))
+            .build()
+
+        return httpClient.newCall(request).execute().use { response ->
 
             Log.i(TAG, "Response code = ${response.code}")
 

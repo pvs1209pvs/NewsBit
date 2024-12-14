@@ -3,11 +3,9 @@ package com.param.newsbit.viewmodel
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.*
-import androidx.paging.PagingData
-import com.param.newsbit.entity.News
 import com.param.newsbit.entity.NewsFilter
-import com.param.newsbit.model.parser.NetworkStatus
-import com.param.newsbit.repo.Repository
+import com.param.newsbit.entity.NetworkStatus
+import com.param.newsbit.entity.NewsViewMode
 import com.param.newsbit.repo.RepositoryInterface
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -32,16 +30,20 @@ class ViewModel @Inject constructor(
         )
     )
 
-    val viewMode = MutableLiveData("Show Summary")
+    val viewMode = MutableLiveData(NewsViewMode.SUMMARY)
 
     private val _downloadNewsError = MutableLiveData(NetworkStatus.IN_PROGRESS)
     val downloadNewsError: LiveData<NetworkStatus> = _downloadNewsError
 
-    private val _downloadSummaryError = MutableLiveData(NetworkStatus.IN_PROGRESS)
-    val downloadSummaryError: LiveData<NetworkStatus> = _downloadSummaryError
+    private val _downloadSummaryStatus = MutableLiveData(NetworkStatus.IN_PROGRESS)
+    val downloadSummaryStatus: LiveData<NetworkStatus> = _downloadSummaryStatus
 
     private val _refreshSummaryError = MutableLiveData(NetworkStatus.NOT_STARTED)
     val refreshSummaryError: LiveData<NetworkStatus> = _refreshSummaryError
+
+
+    val summaryStatus = MutableLiveData(Pair(NewsViewMode.SUMMARY, NetworkStatus.NOT_STARTED))
+
 
     fun downloadNews(genre: String, limit: Int) {
 
@@ -62,18 +64,22 @@ class ViewModel @Inject constructor(
         repo.getNews(it)
     }
 
-    suspend fun selectNewsBody(url: String) : LiveData<String> = repo.getNewsBody(url)
+    suspend fun selectNewsBody(url: String): LiveData<String> = repo.getNewsBody(url)
 
     fun downloadSummary(newsUrl: String) {
 
+        summaryStatus.value = summaryStatus.value?.copy(second = NetworkStatus.NOT_STARTED)
+
         val coroutineExceptionHandler = CoroutineExceptionHandler { _, _ ->
-            Log.e(TAG, "Error downloading summary for $newsUrl")
-            _downloadSummaryError.postValue(NetworkStatus.ERROR)
+            Log.e(TAG, "downloadSummary: Error found for $newsUrl")
+            summaryStatus.postValue(summaryStatus.value?.copy(second = NetworkStatus.ERROR))
+            Log.e(TAG, "downloadSummary: Setting status to error for $newsUrl")
         }
 
         viewModelScope.launch(ioDispatcher + coroutineExceptionHandler) {
             repo.downloadSummary(newsUrl)
-            _downloadSummaryError.postValue(NetworkStatus.SUCCESS)
+            summaryStatus.postValue(summaryStatus.value?.copy(second = NetworkStatus.SUCCESS))
+            Log.i(TAG, "downloadSummary: Download sucessful")
         }
     }
 
@@ -104,6 +110,42 @@ class ViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             repo.deleteOlderThanWeek()
         }
+    }
+
+    fun downloadSummaryIfAbsent(url: String) {
+
+        _downloadSummaryStatus.postValue(NetworkStatus.IN_PROGRESS)
+
+        val coroutineExceptionHandler = CoroutineExceptionHandler { _, _ ->
+            Log.e(TAG, "Error downloading summary for $url")
+            _downloadSummaryStatus.postValue(NetworkStatus.ERROR)
+        }
+
+        viewModelScope.launch(ioDispatcher + coroutineExceptionHandler) {
+            repo.downloadSummary(url)
+            _downloadSummaryStatus.postValue(NetworkStatus.SUCCESS)
+
+        }
+
+    }
+
+    fun getNewsBody(newsUrl: String) = repo.getNewsBody(newsUrl)
+
+    fun getViewModeWithNetworkStatus(): LiveData<Pair<NewsViewMode, NetworkStatus>> =
+        viewMode.switchMap { mode ->
+            MutableLiveData(mode to _downloadSummaryStatus.value!!)
+        }
+
+    fun getByViewMode(url: String) = viewMode.switchMap {
+
+        Log.i(TAG, "getByViewMode: $it for $url")
+
+        when (it) {
+            NewsViewMode.SUMMARY -> repo.getSummary(url)
+            NewsViewMode.FULL -> repo.getNewsBody(url)
+            else -> throw IllegalStateException("Must be  ${NewsViewMode.entries}")
+        }
+
     }
 
 }

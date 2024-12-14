@@ -36,6 +36,11 @@ interface NewsDao {
             "WHERE url = :url")
     suspend fun selectContent(url: String): String
 
+
+    @Query("SELECT content FROM news_table " +
+            "WHERE url = :url")
+    fun selectBody(url: String): LiveData<String>
+
     @Query("SELECT summary FROM news_table " +
             "WHERE url = :url")
     suspend fun selectSummary(url: String): String

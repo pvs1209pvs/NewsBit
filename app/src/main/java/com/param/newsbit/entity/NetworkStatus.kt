@@ -1,4 +1,4 @@
-package com.param.newsbit.model.parser
+package com.param.newsbit.entity
 
 enum class NetworkStatus {
     SUCCESS,

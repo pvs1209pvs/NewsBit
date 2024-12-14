@@ -15,16 +15,18 @@ interface RepositoryInterface {
 
     suspend fun refreshSummary(newsUrl: String)
 
-    fun getSummary(url: String) : LiveData<String>
+    fun getSummary(url: String): LiveData<String>
 
-    suspend fun getNewsBody(url: String) : LiveData<String>
+    suspend fun  getSummaryValue(url: String) : String
+
+    fun getNewsBody(url: String): LiveData<String>
 
     suspend fun toggleBookmark(url: String, value: Boolean)
 
-    fun getBookmarkedNews() : LiveData<List<News>>
+    fun getBookmarkedNews(): LiveData<List<News>>
 
     suspend fun deleteOlderThanWeek()
 
-    suspend fun countBy(newsFilter: NewsFilter) : Long
+    suspend fun countBy(newsFilter: NewsFilter): Long
 
 }

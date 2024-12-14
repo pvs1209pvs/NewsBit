@@ -27,7 +27,7 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.param.newsbit.R
 import com.param.newsbit.databinding.FragmentHomeBinding
 import com.param.newsbit.entity.News
-import com.param.newsbit.model.parser.NetworkStatus
+import com.param.newsbit.entity.NetworkStatus
 import com.param.newsbit.model.parser.NewsGenre
 import com.param.newsbit.notifaction.NewsNotificationService
 import com.param.newsbit.ui.adapter.AdapterNewsHead

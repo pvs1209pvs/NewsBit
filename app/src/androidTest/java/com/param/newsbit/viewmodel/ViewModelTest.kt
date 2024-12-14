@@ -3,10 +3,8 @@ package com.param.newsbit.viewmodel
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
 import com.param.newsbit.getOrAwaitValueTest
-import com.param.newsbit.model.parser.NetworkStatus
+import com.param.newsbit.entity.NetworkStatus
 import com.param.newsbit.repo.RepositoryInterface
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -16,10 +14,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
-import org.mockito.Mockito.doNothing
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
-import org.mockito.stubbing.Answer
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ViewModelTest {
@@ -104,7 +100,7 @@ class ViewModelTest {
 
         Assert.assertEquals(
             NetworkStatus.ERROR,
-            viewModel.downloadSummaryError.getOrAwaitValueTest()
+            viewModel.downloadSummaryStatus.getOrAwaitValueTest()
         )
 
     }
@@ -126,7 +122,7 @@ class ViewModelTest {
 
         Assert.assertEquals(
             NetworkStatus.SUCCESS,
-            viewModel.downloadSummaryError.getOrAwaitValueTest()
+            viewModel.downloadSummaryStatus.getOrAwaitValueTest()
         )
 
     }

@@ -21,11 +21,13 @@ import coil.size.Scale
 import coil.transform.RoundedCornersTransformation
 import com.param.newsbit.R
 import com.param.newsbit.databinding.FragmentNewsArticleBinding
-import com.param.newsbit.model.parser.NetworkStatus
+import com.param.newsbit.entity.NetworkStatus
+import com.param.newsbit.entity.NewsViewMode
 import com.param.newsbit.viewmodel.ViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.math.log
 
 
 @AndroidEntryPoint
@@ -51,49 +53,146 @@ class NewsArticleFragment : Fragment() {
 
         super.onViewCreated(view, savedInstanceState)
 
+        binding.apply {
+            tv.text = args.newsTitle
+            body.movementMethod = ScrollingMovementMethod()
+        }
 
         binding.swapFab.setOnClickListener {
 
-            viewModel.viewMode.value = if (viewModel.viewMode.value == "Show Summary") {
-                "Show Full"
-            } else {
-                "Show Summary"
-            }
+            val updated =
+                if (viewModel.summaryStatus.value?.first == NewsViewMode.SUMMARY) NewsViewMode.FULL else NewsViewMode.SUMMARY
+
+            viewModel.summaryStatus.value = viewModel.summaryStatus.value?.copy(first = updated)
 
         }
-
-
-        binding.apply {
-            tv.text = args.newsTitle
-//            toolbar.title = args.newsTitle
-//            newsArticleTitle.text = args.newsTitle
-//            newsArticleDate.text = args.newsPubDate
-            newsSummary.movementMethod = ScrollingMovementMethod()
-            newsFull.movementMethod = ScrollingMovementMethod()
-        }
-
-
-//        binding.swipeRefresh.setOnRefreshListener {
-//            viewModel.refreshSummary(args.newsUrl)
-//            binding.swipeRefresh.isRefreshing = true
-//        }
 
         viewModel.downloadSummary(args.newsUrl)
 
-        viewModel.selectSummary(args.newsUrl).observe(viewLifecycleOwner) { summary ->
-            if (!summary.isNullOrBlank()) {
-                binding.newsSummary.text = summary
-            }
+        viewModel.selectSummary(args.newsUrl).observe(viewLifecycleOwner) {
+            binding.summary.text = it
         }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.selectNewsBody(args.newsUrl).observe(viewLifecycleOwner) { body ->
-                binding.newsFull.text = body
-                Log.i(TAG, "News body char length: ${body.length}")
-            }
+        viewModel.getNewsBody(args.newsUrl).observe(viewLifecycleOwner) {
+            binding.body.text = it
         }
 
 
+        viewModel.summaryStatus.observe(viewLifecycleOwner) {
+
+
+            val viewMode = it.first
+            val status = it.second
+
+            Log.i(TAG, "onViewCreated: ViewMode-Status $viewMode $status")
+
+            when (viewMode) {
+
+                NewsViewMode.SUMMARY -> {
+
+                    binding.summary.visibility = View.VISIBLE
+                    binding.body.visibility = View.GONE
+
+                    when (status) {
+
+                        NetworkStatus.NOT_STARTED -> {
+                            binding.summaryProgressBar.visibility = View.VISIBLE
+                            binding.errorMsg.visibility = View.GONE
+                        }
+
+                        NetworkStatus.IN_PROGRESS -> {
+                            binding.summaryProgressBar.visibility = View.VISIBLE
+                            binding.errorMsg.visibility = View.GONE
+
+                        }
+
+                        NetworkStatus.SUCCESS -> {
+                            binding.summaryProgressBar.visibility = View.GONE
+                            binding.errorMsg.visibility = View.GONE
+
+                        }
+
+                        NetworkStatus.ERROR -> {
+                            binding.summaryProgressBar.visibility = View.GONE
+                            binding.errorMsg.visibility = View.VISIBLE
+                        }
+
+                    }
+
+                }
+
+                NewsViewMode.FULL -> {
+                    binding.summary.visibility = View.GONE
+                    binding.body.visibility = View.VISIBLE
+                    binding.summaryProgressBar.visibility = View.GONE
+                    binding.errorMsg.visibility = View.GONE
+                }
+
+            }
+
+        }
+
+        /*        viewModel.viewMode.observe(viewLifecycleOwner) {
+
+                    Log.i(TAG, "onViewCreated: ViewMode: $it")
+
+                    when (it) {
+
+                        NewsViewMode.SUMMARY -> {
+                            binding.summary.visibility = View.VISIBLE
+                            binding.body.visibility = View.GONE
+                            binding.summaryProgressBar.visibility = View.VISIBLE
+                            binding.errorMsg.visibility = View.VISIBLE
+                        }
+
+                        NewsViewMode.FULL -> {
+                            binding.summary.visibility = View.GONE
+                            binding.body.visibility = View.VISIBLE
+                            binding.summaryProgressBar.visibility = View.GONE
+                            binding.errorMsg.visibility = View.GONE
+                        }
+
+                        else -> {}
+
+                    }
+
+                }
+
+                viewModel.downloadSummaryStatus.observe(viewLifecycleOwner) {
+
+                    when (it) {
+
+                        NetworkStatus.NOT_STARTED -> {
+                            binding.summaryProgressBar.visibility = View.GONE
+                            binding.errorMsg.visibility = View.GONE
+                        }
+
+                        NetworkStatus.IN_PROGRESS -> {
+                            binding.summaryProgressBar.visibility = View.VISIBLE
+                            binding.errorMsg.visibility = View.GONE
+
+                        }
+
+                        NetworkStatus.SUCCESS -> {
+                            binding.summaryProgressBar.visibility = View.GONE
+                            binding.errorMsg.visibility = View.GONE
+
+                        }
+
+                        NetworkStatus.ERROR -> {
+                            binding.summaryProgressBar.visibility = View.GONE
+                            binding.errorMsg.visibility = View.VISIBLE
+                            binding.body.visibility = View.GONE
+
+                        }
+
+                        else -> {}
+
+                    }
+
+                }
+
+            */
 
         lifecycleScope.launch(Dispatchers.IO) {
 
@@ -107,79 +206,6 @@ class NewsArticleFragment : Fragment() {
             }
 
         }
-
-        viewModel.viewMode.observe(viewLifecycleOwner) { selectedViewMode ->
-
-            when (selectedViewMode) {
-
-                "Show Summary" -> {
-                    binding.newsFull.visibility = View.GONE
-//                    binding.swipeRefresh.visibility = View.VISIBLE
-
-                    viewModel.downloadSummaryError.observe(viewLifecycleOwner) { networkStatus ->
-
-                        Log.i(TAG, "Downloading summary Network Status: $networkStatus")
-
-                        when (networkStatus) {
-
-                            NetworkStatus.IN_PROGRESS -> {
-//                                binding.progressBar.visibility = View.VISIBLE
-                                binding.newsSummary.visibility = View.GONE
-//                                binding.errorSummary.visibility = View.GONE
-                            }
-
-                            NetworkStatus.SUCCESS -> {
-//                                binding.progressBar.visibility = View.GONE
-                                binding.newsSummary.visibility = View.VISIBLE
-//                                binding.errorSummary.visibility = View.GONE
-                            }
-
-                            NetworkStatus.ERROR -> {
-//                                binding.progressBar.visibility = View.GONE
-                                binding.newsSummary.visibility = View.GONE
-//                                binding.errorSummary.visibility = View.VISIBLE
-                            }
-
-                            else -> {}
-
-                        }
-
-                    }
-
-                    viewModel.refreshSummaryError.observe(viewLifecycleOwner) { networkStat ->
-                        Log.i(TAG, "Refresh summary Network Status: $networkStat")
-//                        binding.swipeRefresh.isRefreshing = networkStat == NetworkStatus.IN_PROGRESS
-                    }
-
-                }
-
-                "Show Full" -> {
-                    binding.newsFull.visibility = View.VISIBLE
-
-                    // Prevents summary related UI from overlapping full news.
-//                    binding.progressBar.visibility = View.GONE
-                    binding.newsSummary.visibility = View.GONE
-//                    binding.errorSummary.visibility = View.GONE
-//                    binding.swipeRefresh.visibility = View.GONE
-                }
-
-            }
-
-        }
-
-//        binding.contentToggleChipGroup.setOnCheckedStateChangeListener { _, _ ->
-//
-//            val selectedViewMode = binding.contentToggleChipGroup.children
-//                .toList()
-//                .map { it as Chip }
-//                .filter { it.isChecked }
-//                .map { it.text }
-//                .first()
-//                .toString()
-//
-//            Log.i(TAG, "Summary or Full ChipGroup selection: $selectedViewMode")
-//            viewModel.viewMode.value = selectedViewMode
-//        }
 
         requireActivity().addMenuProvider(
             object : MenuProvider {

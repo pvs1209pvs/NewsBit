@@ -99,6 +99,7 @@ class Repository @Inject constructor(
         Log.i(TAG, "Local summary length: ${localSummary.length}")
 
         if (localSummary.isBlank()) {
+            Log.i(TAG, "downloadSummary: Downloading summary")
             val newsContent = newsDao.selectContent(newsUrl)
             val gptSummary = gptService.summarize(newsContent)
             newsDao.updateSummary(newsUrl, gptSummary)
@@ -121,7 +122,9 @@ class Repository @Inject constructor(
 
     override fun getSummary(url: String) = newsDao.selectSummaryLD(url)
 
-    override suspend fun getNewsBody(url: String) = MutableLiveData(newsDao.selectContent(url))
+    override suspend fun getSummaryValue(url: String) = newsDao.selectSummary(url)
+
+    override fun getNewsBody(url: String) = newsDao.selectBody(url)
 
     override suspend fun toggleBookmark(url: String, value: Boolean) {
         newsDao.updateBookmark(url, value)
