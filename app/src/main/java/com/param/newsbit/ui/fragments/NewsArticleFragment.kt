@@ -94,6 +94,7 @@ class NewsArticleFragment : Fragment() {
         }
 
 
+
         lifecycleScope.launch(Dispatchers.IO) {
 
             Log.i(TAG, "News image url: ${args.newsImgUrl.toString()}")
@@ -102,6 +103,7 @@ class NewsArticleFragment : Fragment() {
                 transformations(RoundedCornersTransformation(8f))
                 crossfade(500)
                 scale(Scale.FIT)
+                error(R.drawable._04_error)q
             }
 
         }

@@ -5,23 +5,17 @@ import android.graphics.Color.TRANSPARENT
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.util.Pair
-import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.ui.graphics.Color
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
@@ -124,30 +118,33 @@ class HomeFragment : Fragment() {
 
         super.onViewCreated(view, savedInstanceState)
 
-        binding.dp.setBackgroundColor(TRANSPARENT)
+        binding.newsSearchView.apply {
 
-        binding.sv.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
-            override fun onQueryTextSubmit(query: String?) = false
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
-            override fun onQueryTextChange(newText: String?): Boolean {
-                viewModel.newsFilter.value =
-                    viewModel.newsFilter.value?.copy(searchQuery = newText ?: "")
-                return true
+                override fun onQueryTextSubmit(query: String?) = false
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    viewModel.newsFilter.value =
+                        viewModel.newsFilter.value?.copy(searchQuery = newText ?: "")
+                    return true
+                }
+
+            })
+
+            setOnCloseListener {
+                binding.textView.visibility = View.VISIBLE
+                false
             }
 
-        })
-
-        binding.sv.setOnCloseListener {
-            binding.textView.visibility = View.VISIBLE
-            false
-        }
-
-        binding.sv.setOnSearchClickListener {
-            binding.textView.visibility = View.GONE
+            setOnSearchClickListener {
+                binding.textView.visibility = View.GONE
+            }
 
         }
 
+        binding.dp.setBackgroundColor(TRANSPARENT)
 
         binding.dp.setOnClickListener {
 
@@ -244,79 +241,6 @@ class HomeFragment : Fragment() {
             }
 
         }
-
-
-        /*
-                binding.homeToolbar.addMenuProvider(
-
-                    object : MenuProvider {
-
-                        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                            menuInflater.inflate(R.menu.menu_home, menu)
-                        }
-
-                        override fun onPrepareMenu(menu: Menu) {
-
-                            val searchItem = menu.findItem(R.id.search_item).actionView as SearchView
-
-                            searchItem.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-
-                                override fun onQueryTextSubmit(query: String?) = false
-
-                                override fun onQueryTextChange(newText: String?): Boolean {
-                                    viewModel.newsFilter.value =
-                                        viewModel.newsFilter.value?.copy(searchQuery = newText ?: "")
-                                    return true
-                                }
-
-                            })
-
-                        }
-
-                        override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-
-                            return when (menuItem.itemId) {
-
-                                R.id.date_picker -> {
-
-                                    rangeDatePicker.show(childFragmentManager, "rangeDatePicker")
-
-                                    rangeDatePicker.addOnPositiveButtonClickListener {
-
-                                        val start = Instant
-                                            .ofEpochMilli(it.first + 86400000)
-                                            .atZone(ZoneId.systemDefault())
-                                            .toLocalDate()
-
-                                        val end = Instant
-                                            .ofEpochMilli(it.second + 86400000)
-                                            .atZone(ZoneId.systemDefault())
-                                            .toLocalDate()
-
-                                        Log.i(TAG, "onMenuItemSelected: rangeDatePicker: $start $end")
-
-                                        viewModel.newsFilter.value =
-                                            viewModel.newsFilter.value?.copy(startDate = start)
-
-                                        viewModel.newsFilter.value =
-                                            viewModel.newsFilter.value?.copy(endDate = end)
-
-                                    }
-
-                                    true
-
-                                }
-
-                                else -> false
-
-                            }
-
-                        }
-
-                    }, viewLifecycleOwner, Lifecycle.State.RESUMED
-
-                )
-        */
 
     }
 

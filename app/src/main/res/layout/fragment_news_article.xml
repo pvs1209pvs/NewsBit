@@ -22,7 +22,7 @@
             android:layout_height="match_parent"
             android:fitsSystemWindows="false"
             app:contentScrim="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|enterAlwaysCollapsed"
             app:toolbarId="@+id/toolbar">
 
             <ImageView
@@ -30,6 +30,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="top|center"
+                android:adjustViewBounds="true"
                 android:contentDescription="News article thumbnail."
                 android:scaleType="centerCrop"
                 app:layout_collapseMode="parallax" />
@@ -54,6 +55,7 @@
                     android:paddingVertical="16dp"
                     android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                     android:textColor="@color/white" />
+
             </androidx.appcompat.widget.Toolbar>
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
@@ -101,7 +103,7 @@
         android:id="@+id/swapFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="fdfadsf"
+        android:contentDescription="Switch between summary and full"
         android:src="@drawable/baseline_change_circle_24"
         app:layout_anchor="@id/app_bar"
         app:layout_anchorGravity="bottom|right|end" />
