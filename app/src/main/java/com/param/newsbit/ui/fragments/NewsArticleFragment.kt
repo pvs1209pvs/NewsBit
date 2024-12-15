@@ -9,8 +9,10 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.MenuProvider
 import androidx.core.view.get
+import androidx.core.view.marginTop
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -65,6 +67,16 @@ class NewsArticleFragment : Fragment() {
 
             viewModel.summaryStatus.value = viewModel.summaryStatus.value?.copy(first = updated)
 
+        }
+
+        binding.newsBookmarkFab.setOnClickListener {
+                viewModel.toggleBookmark(args.newsUrl)
+        }
+
+        viewModel.getBookmarkLD(args.newsUrl).observe(viewLifecycleOwner) {
+            val draw = if (it == 1) R.drawable.ic_round_bookmark_24
+            else R.drawable.ic_round_bookmark_border_24
+            binding.newsBookmarkFab.setImageDrawable(resources.getDrawable(draw))
         }
 
         viewModel.downloadSummary(args.newsUrl)
@@ -207,37 +219,6 @@ class NewsArticleFragment : Fragment() {
 
         }
 
-        requireActivity().addMenuProvider(
-            object : MenuProvider {
-
-                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                    menuInflater.inflate(R.menu.menu_news_article, menu)
-                    setIconMenuBookmark(menu[0], args.newsIsBookmarked)
-                }
-
-                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-
-                    return when (menuItem.itemId) {
-
-                        R.id.bookmarkToggle -> {
-
-                            setIconMenuBookmark(menuItem, !args.newsIsBookmarked)
-
-                            viewModel.toggleBookmark(
-                                args.newsUrl,
-                                !args.newsIsBookmarked
-                            )
-
-                            true
-                        }
-
-                        else -> false
-                    }
-
-                }
-
-            }, viewLifecycleOwner, Lifecycle.State.RESUMED
-        )
 
     }
 

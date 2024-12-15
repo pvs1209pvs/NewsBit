@@ -139,4 +139,8 @@ class Repository @Inject constructor(
     override suspend fun countBy(newsFilter: NewsFilter) =
         newsDao.countBy(newsFilter.startDate.toString(), newsFilter.endDate.toString())
 
+    override fun selectBookmark(url: String) = newsDao.selectBookmark(url)
+
+    override fun selectBookmarkLD(url: String) = newsDao.selectBookmarkLD(url)
+
 }

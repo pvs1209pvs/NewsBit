@@ -36,9 +36,9 @@
                 app:layout_collapseMode="parallax" />
 
             <LinearLayout
-                app:layout_collapseMode="parallax"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                app:layout_collapseMode="parallax">
 
             </LinearLayout>
 
@@ -59,7 +59,7 @@
                     android:layout_height="match_parent"
                     android:background="#80000000"
                     android:paddingHorizontal="8dp"
-                    android:paddingVertical="16dp"
+                    android:paddingVertical="28dp"
                     android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                     android:textColor="@color/white" />
 
@@ -80,7 +80,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="8dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="28dp"
             android:layout_marginBottom="?attr/actionBarSize"
             android:scrollbars="vertical"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
@@ -100,7 +100,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="8dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="28dp"
             android:layout_marginBottom="?attr/actionBarSize"
             android:scrollbars="vertical"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
@@ -109,13 +109,12 @@
 
     </androidx.core.widget.NestedScrollView>
 
-
     <TextView
         android:id="@+id/errorMsg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
         android:layout_gravity="bottom"
+        android:layout_marginTop="64dp"
         android:gravity="center"
         android:text="Opps! Something went wrong"
         android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
@@ -123,15 +122,23 @@
         app:layout_anchor="@id/tv"
         app:layout_anchorGravity="bottom" />
 
-
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/swapFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="Switch between summary and full"
         android:src="@drawable/baseline_change_circle_24"
         app:layout_anchor="@id/app_bar"
-        app:layout_anchorGravity="bottom|right|end" />
+        android:layout_marginEnd="16dp"
+        app:layout_anchorGravity="bottom|end" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/newsBookmarkFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_round_bookmark_border_24"
+        app:layout_anchor="@id/swapFab"
+        android:layout_marginEnd="80dp"
+        app:layout_anchorGravity="start|center" />
 
     <ProgressBar
         android:id="@+id/summaryProgressBar"
@@ -140,7 +147,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:visibility="gone" />
-
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

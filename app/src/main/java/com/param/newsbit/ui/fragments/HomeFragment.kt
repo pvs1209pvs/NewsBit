@@ -72,7 +72,7 @@ class HomeFragment : Fragment() {
         }
 
         val bookmarkOnClick: (News) -> Unit = {
-            viewModel.toggleBookmark(it.url, !it.isBookmarked)
+            viewModel.toggleBookmark(it.url)
         }
 
         adapterNewsHead = AdapterNewsHead(navigateOnClick, bookmarkOnClick)

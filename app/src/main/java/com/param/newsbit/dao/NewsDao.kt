@@ -66,7 +66,11 @@ interface NewsDao {
 
     @Query("SELECT isBookmarked FROM news_table " +
             "WHERE url = :url")
-    fun selectBookmark(url: String): LiveData<Int>
+    fun selectBookmark(url: String): Int
+
+    @Query("SELECT isBookmarked FROM news_table " +
+            "WHERE url = :url")
+    fun selectBookmarkLD(url: String): LiveData<Int>
 
     // 604800 seconds in a week
     @Query("DELETE FROM news_table " +

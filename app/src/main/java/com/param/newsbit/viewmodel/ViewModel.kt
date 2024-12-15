@@ -98,9 +98,10 @@ class ViewModel @Inject constructor(
 
     fun selectSummary(url: String) = repo.getSummary(url)
 
-    fun toggleBookmark(url: String, value: Boolean) {
+    fun toggleBookmark(url: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            repo.toggleBookmark(url, value)
+            val bookmark = repo.selectBookmark(url) == 1
+            repo.toggleBookmark(url, !bookmark)
         }
     }
 
@@ -112,40 +113,9 @@ class ViewModel @Inject constructor(
         }
     }
 
-    fun downloadSummaryIfAbsent(url: String) {
-
-        _downloadSummaryStatus.postValue(NetworkStatus.IN_PROGRESS)
-
-        val coroutineExceptionHandler = CoroutineExceptionHandler { _, _ ->
-            Log.e(TAG, "Error downloading summary for $url")
-            _downloadSummaryStatus.postValue(NetworkStatus.ERROR)
-        }
-
-        viewModelScope.launch(ioDispatcher + coroutineExceptionHandler) {
-            repo.downloadSummary(url)
-            _downloadSummaryStatus.postValue(NetworkStatus.SUCCESS)
-
-        }
-
-    }
-
     fun getNewsBody(newsUrl: String) = repo.getNewsBody(newsUrl)
 
-    fun getViewModeWithNetworkStatus(): LiveData<Pair<NewsViewMode, NetworkStatus>> =
-        viewMode.switchMap { mode ->
-            MutableLiveData(mode to _downloadSummaryStatus.value!!)
-        }
-
-    fun getByViewMode(url: String) = viewMode.switchMap {
-
-        Log.i(TAG, "getByViewMode: $it for $url")
-
-        when (it) {
-            NewsViewMode.SUMMARY -> repo.getSummary(url)
-            NewsViewMode.FULL -> repo.getNewsBody(url)
-            else -> throw IllegalStateException("Must be  ${NewsViewMode.entries}")
-        }
-
-    }
+    fun getBookmark(url: String) = repo.selectBookmark(url)
+    fun getBookmarkLD(url: String) = repo.selectBookmarkLD(url)
 
 }

@@ -29,4 +29,6 @@ interface RepositoryInterface {
 
     suspend fun countBy(newsFilter: NewsFilter): Long
 
+    fun selectBookmark(url: String) : Int
+    fun selectBookmarkLD(url: String) : LiveData<Int>
 }
