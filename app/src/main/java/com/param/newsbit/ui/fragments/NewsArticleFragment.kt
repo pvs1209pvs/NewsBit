@@ -119,6 +119,7 @@ class NewsArticleFragment : Fragment() {
                     binding.summary.visibility = View.VISIBLE
                     binding.body.visibility = View.GONE
                     binding.swipeRefreshSummary.isEnabled = true
+                    binding.swapFab.setImageDrawable(resources.getDrawable(R.drawable.baseline_unfold_more_24))
 
                     when (refresh) {
 
@@ -176,6 +177,7 @@ class NewsArticleFragment : Fragment() {
                     binding.errorMsg.visibility = View.GONE
                     binding.swipeRefreshSummary.isRefreshing = false
                     binding.swipeRefreshSummary.isEnabled = false
+                    binding.swapFab.setImageDrawable(resources.getDrawable(R.drawable.baseline_unfold_less_24))
 
                 }
 
