@@ -56,12 +56,12 @@
                         android:id="@+id/news_search_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        app:layout_constraintBottom_toBottomOf="@+id/dp"
-                        app:layout_constraintEnd_toStartOf="@+id/dp"
+                        app:layout_constraintBottom_toBottomOf="@+id/date_picker_view"
+                        app:layout_constraintEnd_toStartOf="@+id/date_picker_view"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <ImageButton
-                        android:id="@+id/dp"
+                        android:id="@+id/date_picker_view"
                         android:layout_width="wrap_content"
                         android:layout_height="0dp"
                         android:src="@drawable/baseline_calendar_today_24"
@@ -99,14 +99,13 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/rvRefresher"
+        android:id="@+id/news_refresher"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/allNewsRV"
+            android:id="@+id/news_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="?attr/actionBarSize"

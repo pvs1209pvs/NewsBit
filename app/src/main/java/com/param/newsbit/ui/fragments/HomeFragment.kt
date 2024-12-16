@@ -15,8 +15,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.paging.PagingSource
-import androidx.paging.map
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -96,7 +94,6 @@ class HomeFragment : Fragment() {
 
         createGenreChipGroup()
 
-
         val weeksInPastDateValidator = CalendarConstraints.Builder()
             .setValidator(WeeksInPastDateValidator(1))
             .build()
@@ -166,9 +163,9 @@ class HomeFragment : Fragment() {
 
         }
 
-        binding.dp.setBackgroundColor(TRANSPARENT)
+        binding.datePickerView.setBackgroundColor(TRANSPARENT)
 
-        binding.dp.setOnClickListener {
+        binding.datePickerView.setOnClickListener {
 
             rangeDatePicker.show(childFragmentManager, "rangeDatePicker")
 
@@ -198,12 +195,12 @@ class HomeFragment : Fragment() {
 
         }
 
-        binding.allNewsRV.apply {
+        binding.newsRecyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = adapterNewsHead
         }
 
-        binding.rvRefresher.apply {
+        binding.newsRefresher.apply {
             isRefreshing = true
 
             setOnRefreshListener {
@@ -235,22 +232,22 @@ class HomeFragment : Fragment() {
             when (networkStatus) {
 
                 NetworkStatus.IN_PROGRESS -> {
-                    binding.allNewsRV.visibility = View.GONE
+                    binding.newsRecyclerView.visibility = View.GONE
                     binding.homeProgressBar.visibility = View.VISIBLE
-                    binding.rvRefresher.isRefreshing = true
+                    binding.newsRefresher.isRefreshing = true
                 }
 
                 NetworkStatus.SUCCESS -> {
-                    binding.allNewsRV.visibility = View.VISIBLE
+                    binding.newsRecyclerView.visibility = View.VISIBLE
                     binding.homeProgressBar.visibility = View.GONE
-                    binding.rvRefresher.isRefreshing = false
+                    binding.newsRefresher.isRefreshing = false
 
                 }
 
                 NetworkStatus.ERROR -> {
-                    binding.allNewsRV.visibility = View.GONE
+                    binding.newsRecyclerView.visibility = View.GONE
                     binding.homeProgressBar.visibility = View.GONE
-                    binding.rvRefresher.isRefreshing = false
+                    binding.newsRefresher.isRefreshing = false
 
                 }
 
