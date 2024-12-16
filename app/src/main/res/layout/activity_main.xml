@@ -13,14 +13,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:defaultNavHost="true"
+        android:layout_marginBottom="?attr/actionBarSize"
         app:navGraph="@navigation/nav_graph" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_anchor="@id/navHostFrag"
-        app:layout_anchorGravity="bottom"
+        android:layout_gravity="bottom"
         app:menu="@menu/menu_bottom" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

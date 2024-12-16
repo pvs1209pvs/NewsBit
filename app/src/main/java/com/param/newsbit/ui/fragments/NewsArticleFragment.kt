@@ -118,8 +118,8 @@ class NewsArticleFragment : Fragment() {
 
                 NewsViewMode.SUMMARY -> {
 
-                    binding.summary.visibility = View.VISIBLE
                     binding.body.visibility = View.GONE
+                    binding.swipeRefreshSummary.visibility = View.VISIBLE
                     binding.swipeRefreshSummary.isEnabled = true
                     binding.swapFab.setImageDrawable(resources.getDrawable(R.drawable.baseline_unfold_more_24))
 
@@ -140,7 +140,11 @@ class NewsArticleFragment : Fragment() {
                             binding.swipeRefreshSummary.isRefreshing = false
 
                             Snackbar
-                                .make(binding.root, "Failed to refresh summary", Snackbar.LENGTH_LONG)
+                                .make(
+                                    binding.root,
+                                    "Failed to refresh summary",
+                                    Snackbar.LENGTH_LONG
+                                )
                                 .setAnchorView(requireActivity().findViewById(R.id.bottomNavigationView))
                                 .setAnimationMode(ANIMATION_MODE_SLIDE)
                                 .show()
@@ -178,7 +182,7 @@ class NewsArticleFragment : Fragment() {
                 }
 
                 NewsViewMode.FULL -> {
-                    binding.summary.visibility = View.GONE
+                    binding.swipeRefreshSummary.visibility = View.GONE
                     binding.body.visibility = View.VISIBLE
                     binding.summaryProgressBar.visibility = View.GONE
                     binding.errorMsg.visibility = View.GONE
