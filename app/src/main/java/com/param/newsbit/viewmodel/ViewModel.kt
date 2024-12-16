@@ -21,6 +21,8 @@ class ViewModel @Inject constructor(
 
     private val TAG = javaClass.simpleName
 
+    val selectedChip = MutableLiveData("Top Stories")
+
     val newsFilter = MutableLiveData(
         NewsFilter(
             "Top Stories",

@@ -143,7 +143,6 @@ class HomeFragment : Fragment() {
 
         binding.newsSearchView.apply {
 
-
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
                 override fun onQueryTextSubmit(query: String?) = false
@@ -204,9 +203,21 @@ class HomeFragment : Fragment() {
             adapter = adapterNewsHead
         }
 
+        binding.rvRefresher.apply {
+            isRefreshing = true
+
+            setOnRefreshListener {
+                viewModel.downloadNews(
+                    genre = selectedGenre(binding.chipGroup.checkedChipIds),
+                    limit = 50
+                )
+            }
+        }
+
         binding.chipGroup.setOnCheckedStateChangeListener { _, selectedChips ->
 
             val selectedGenre = selectedGenre(selectedChips)
+
             Log.i(TAG, "Genre Chip: $selectedGenre")
 
             viewModel.newsFilter.value = viewModel.newsFilter.value?.copy(genre = selectedGenre)
@@ -223,28 +234,54 @@ class HomeFragment : Fragment() {
 
             when (networkStatus) {
 
-                NetworkStatus.SUCCESS -> {
-                    binding.allNewsRV.visibility = View.VISIBLE
-                    binding.homeProgressBar.visibility = View.GONE
-                }
-
                 NetworkStatus.IN_PROGRESS -> {
                     binding.allNewsRV.visibility = View.GONE
                     binding.homeProgressBar.visibility = View.VISIBLE
+                    binding.rvRefresher.isRefreshing = true
+                }
+
+                NetworkStatus.SUCCESS -> {
+                    binding.allNewsRV.visibility = View.VISIBLE
+                    binding.homeProgressBar.visibility = View.GONE
+                    binding.rvRefresher.isRefreshing = false
+
                 }
 
                 NetworkStatus.ERROR -> {
                     binding.allNewsRV.visibility = View.GONE
                     binding.homeProgressBar.visibility = View.GONE
+                    binding.rvRefresher.isRefreshing = false
+
                 }
 
                 else -> {}
+
 
             }
 
         }
 
 
+    }
+
+    private fun createGenreChipGroup2(): List<Chip> {
+
+        return NewsGenre.TITLES.mapIndexed { index, genre ->
+            Chip(requireContext()).apply {
+                setChipDrawable(
+                    ChipDrawable.createFromAttributes(
+                        requireContext(),
+                        null,
+                        0,
+                        com.google.android.material.R.style.Widget_MaterialComponents_Chip_Choice
+                    )
+                )
+                text = genre
+                isCheckable = true
+                id = index
+            }
+
+        }
 
     }
 
