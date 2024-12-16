@@ -5,18 +5,12 @@ import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.MenuProvider
-import androidx.core.view.get
-import androidx.core.view.marginTop
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
@@ -31,7 +25,6 @@ import com.param.newsbit.viewmodel.ViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlin.math.log
 
 
 @AndroidEntryPoint
@@ -68,6 +61,13 @@ class NewsArticleFragment : Fragment() {
             }
 
 
+        }
+
+        binding.swipeRefreshSummary.apply {
+            setOnRefreshListener {
+                viewModel.refreshSummary(args.newsUrl)
+                isRefreshing = true
+            }
         }
 
 
@@ -107,9 +107,10 @@ class NewsArticleFragment : Fragment() {
         viewModel.summaryStatus.observe(viewLifecycleOwner) {
 
             val viewMode = it.first
-            val status = it.second
+            val summary = it.second
+            val refresh = it.third
 
-            Log.i(TAG, "onViewCreated: ViewMode-Status $viewMode $status")
+            Log.i(TAG, "onViewCreated: ViewMode-Status $viewMode $summary")
 
             when (viewMode) {
 
@@ -117,8 +118,30 @@ class NewsArticleFragment : Fragment() {
 
                     binding.summary.visibility = View.VISIBLE
                     binding.body.visibility = View.GONE
+                    binding.swipeRefreshSummary.isEnabled = true
 
-                    when (status) {
+                    when (refresh) {
+
+                        NetworkStatus.NOT_STARTED -> {}
+
+                        NetworkStatus.IN_PROGRESS -> {
+                            binding.swipeRefreshSummary.isRefreshing = true
+
+                        }
+
+                        NetworkStatus.SUCCESS -> {
+                            binding.swipeRefreshSummary.isRefreshing = false
+                        }
+
+                        NetworkStatus.ERROR -> {
+                            binding.swipeRefreshSummary.isRefreshing = false
+                            Toast.makeText(context, "Failed to refresh summary", Toast.LENGTH_SHORT)
+                                .show()
+                        }
+
+                    }
+
+                    when (summary) {
 
                         NetworkStatus.NOT_STARTED -> {
                             binding.summaryProgressBar.visibility = View.VISIBLE
@@ -151,6 +174,9 @@ class NewsArticleFragment : Fragment() {
                     binding.body.visibility = View.VISIBLE
                     binding.summaryProgressBar.visibility = View.GONE
                     binding.errorMsg.visibility = View.GONE
+                    binding.swipeRefreshSummary.isRefreshing = false
+                    binding.swipeRefreshSummary.isEnabled = false
+
                 }
 
             }

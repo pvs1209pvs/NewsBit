@@ -30,10 +30,9 @@ class ViewModel @Inject constructor(
         )
     )
 
-    val viewMode = MutableLiveData(NewsViewMode.SUMMARY)
-
     private val _downloadNewsError = MutableLiveData(NetworkStatus.IN_PROGRESS)
     val downloadNewsError: LiveData<NetworkStatus> = _downloadNewsError
+
 
     private val _downloadSummaryStatus = MutableLiveData(NetworkStatus.IN_PROGRESS)
     val downloadSummaryStatus: LiveData<NetworkStatus> = _downloadSummaryStatus
@@ -42,7 +41,13 @@ class ViewModel @Inject constructor(
     val refreshSummaryError: LiveData<NetworkStatus> = _refreshSummaryError
 
 
-    val summaryStatus = MutableLiveData(Pair(NewsViewMode.SUMMARY, NetworkStatus.NOT_STARTED))
+    val summaryStatus = MutableLiveData(
+        Triple(
+            NewsViewMode.SUMMARY, // Show Summary or Full
+            NetworkStatus.NOT_STARTED, // Download summary status
+            NetworkStatus.NOT_STARTED // Refresh summary status
+        )
+    )
 
 
     fun downloadNews(genre: String, limit: Int) {
@@ -68,7 +73,7 @@ class ViewModel @Inject constructor(
 
     fun downloadSummary(newsUrl: String) {
 
-        summaryStatus.value = summaryStatus.value?.copy(second = NetworkStatus.NOT_STARTED)
+        summaryStatus.value = summaryStatus.value?.copy(second = NetworkStatus.IN_PROGRESS)
 
         val coroutineExceptionHandler = CoroutineExceptionHandler { _, _ ->
             Log.e(TAG, "downloadSummary: Error found for $newsUrl")
@@ -85,13 +90,17 @@ class ViewModel @Inject constructor(
 
     fun refreshSummary(newsUrl: String) {
 
+        summaryStatus.value = summaryStatus.value?.copy(third = NetworkStatus.IN_PROGRESS)
+
+
         val coroutineExceptionHandler = CoroutineExceptionHandler { _, _ ->
-            _refreshSummaryError.postValue(NetworkStatus.ERROR)
+            summaryStatus.postValue(summaryStatus.value?.copy(third = NetworkStatus.ERROR))
+
         }
 
         viewModelScope.launch(ioDispatcher + coroutineExceptionHandler) {
             repo.refreshSummary(newsUrl)
-            _refreshSummaryError.postValue(NetworkStatus.SUCCESS)
+            summaryStatus.postValue(summaryStatus.value?.copy(third = NetworkStatus.SUCCESS))
         }
 
     }
