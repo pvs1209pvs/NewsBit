@@ -14,10 +14,8 @@ import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.ui.graphics.Color
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
@@ -139,7 +137,14 @@ class HomeFragment : Fragment() {
         )
 
         NewsGenre.TITLES.forEach {
-            viewModel.downloadNews(it, 50)
+            viewModel.downloadNews(
+                genre = it,
+                limit = 50,
+                onStart = { viewModel.newsStatus.value = NetworkStatus.IN_PROGRESS },
+                onSuccess = { viewModel.newsStatus.postValue(NetworkStatus.SUCCESS) },
+                onError = { viewModel.newsStatus.postValue(NetworkStatus.ERROR) },
+
+                )
         }
 
         binding.newsSearchView.apply {
@@ -205,14 +210,19 @@ class HomeFragment : Fragment() {
         }
 
         binding.newsRefresher.apply {
+
             isRefreshing = true
 
             setOnRefreshListener {
                 viewModel.downloadNews(
                     genre = selectedGenre(binding.chipGroup.checkedChipIds),
-                    limit = 50
+                    limit = 50,
+                    onStart = { viewModel.newsRefreshStatus.value = NetworkStatus.IN_PROGRESS },
+                    onSuccess = { viewModel.newsRefreshStatus.postValue(NetworkStatus.SUCCESS) },
+                    onError = { viewModel.newsRefreshStatus.postValue(NetworkStatus.ERROR) }
                 )
             }
+
         }
 
         binding.chipGroup.setOnCheckedStateChangeListener { _, selectedChips ->
@@ -229,46 +239,74 @@ class HomeFragment : Fragment() {
             adapterNewsHead.submitData(viewLifecycleOwner.lifecycle, it)
         }
 
-        viewModel.downloadNewsError.observe(viewLifecycleOwner) { networkStatus ->
+        viewModel.newsRefreshStatus.observe(viewLifecycleOwner) {
 
-            Log.i(TAG, "Downloading News Network Status: $networkStatus")
+            Log.i(TAG, "Refreshing News Status: $it")
 
-            when (networkStatus) {
+            when (it) {
+
+                NetworkStatus.IN_PROGRESS -> {
+                    binding.newsRefresher.isRefreshing = true
+                }
+
+                NetworkStatus.SUCCESS -> {
+                    binding.newsRefresher.isRefreshing = false
+                }
+
+                NetworkStatus.ERROR -> {
+                    binding.newsRefresher.isRefreshing = false
+
+                    Snackbar
+                        .make(binding.root, "Failed to download news", Snackbar.LENGTH_LONG)
+                        .setAnchorView(requireActivity().findViewById(R.id.bottomNavigationView))
+                        .setAnimationMode(ANIMATION_MODE_SLIDE)
+                        .show()
+
+                }
+
+                NetworkStatus.NOT_STARTED -> {
+                    binding.newsRefresher.isRefreshing = false
+                }
+
+                else -> {}
+
+            }
+
+        }
+
+        viewModel.newsStatus.observe(viewLifecycleOwner) {
+
+            Log.i(TAG, "Downloading News Status: $it")
+
+            when (it) {
 
                 NetworkStatus.IN_PROGRESS -> {
                     binding.newsRecyclerView.visibility = View.GONE
                     binding.homeProgressBar.visibility = View.VISIBLE
-                    binding.newsRefresher.isRefreshing = true
                 }
 
                 NetworkStatus.SUCCESS -> {
                     binding.newsRecyclerView.visibility = View.VISIBLE
                     binding.homeProgressBar.visibility = View.GONE
-                    binding.newsRefresher.isRefreshing = false
-
-                    Snackbar
-                        .make(binding.root, "News updated", Snackbar.LENGTH_LONG)
-                        .setAnchorView(requireActivity().findViewById(R.id.bottomNavigationView))
-                        .setAnimationMode(ANIMATION_MODE_SLIDE)
-                        .show()
-
                 }
 
                 NetworkStatus.ERROR -> {
                     binding.newsRecyclerView.visibility = View.GONE
                     binding.homeProgressBar.visibility = View.GONE
-                    binding.newsRefresher.isRefreshing = false
 
                     Snackbar
-                        .make(binding.root, "Failed to refresh news", Snackbar.LENGTH_LONG)
+                        .make(binding.root, "Failed to download news", Snackbar.LENGTH_LONG)
                         .setAnchorView(requireActivity().findViewById(R.id.bottomNavigationView))
                         .setAnimationMode(ANIMATION_MODE_SLIDE)
                         .show()
 
                 }
 
-                else -> {}
+                NetworkStatus.NOT_STARTED -> {
+                    binding.homeProgressBar.visibility = View.GONE
+                }
 
+                else -> {}
 
             }
 

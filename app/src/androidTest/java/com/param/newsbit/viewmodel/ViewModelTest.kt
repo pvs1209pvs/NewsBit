@@ -55,7 +55,7 @@ class ViewModelTest {
 
         Assert.assertEquals(
             NetworkStatus.ERROR,
-            viewModel.downloadNewsError.getOrAwaitValueTest()
+            viewModel.newsStatus.getOrAwaitValueTest()
         )
 
     }
@@ -77,7 +77,7 @@ class ViewModelTest {
 
         Assert.assertEquals(
             NetworkStatus.SUCCESS,
-            viewModel.downloadNewsError.getOrAwaitValueTest()
+            viewModel.newsStatus.getOrAwaitValueTest()
         )
 
     }
