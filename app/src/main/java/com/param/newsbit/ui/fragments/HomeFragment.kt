@@ -15,6 +15,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.paging.PagingSource
+import androidx.paging.map
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -77,10 +79,6 @@ class HomeFragment : Fragment() {
 
         adapterNewsHead = AdapterNewsHead(navigateOnClick, bookmarkOnClick)
 
-        NewsGenre.TITLES.forEach {
-            viewModel.downloadNews(it, 50)
-        }
-
         lifecycleScope.launch(Dispatchers.IO) {
             Log.i(TAG, "Deleting News older than one week.")
             viewModel.deleteOlderThanWeek()
@@ -96,8 +94,8 @@ class HomeFragment : Fragment() {
 
         binding = FragmentHomeBinding.inflate(inflater, container, false)
 
-
         createGenreChipGroup()
+
 
         val weeksInPastDateValidator = CalendarConstraints.Builder()
             .setValidator(WeeksInPastDateValidator(1))
@@ -117,6 +115,31 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         super.onViewCreated(view, savedInstanceState)
+
+        with(NotificationManagerCompat.from(requireContext())) {
+            if (ActivityCompat.checkSelfPermission(
+                    requireActivity(),
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                return@with
+            }
+        }
+
+        val workRequest = PeriodicWorkRequestBuilder<NewsDownloadWorker>(
+            Duration.ofHours(2),
+            Duration.ofMinutes(15)
+        ).setConstraints(Constraints.Builder().build()).build()
+
+        WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
+            NewsDownloadWorker::class.java.simpleName,
+            ExistingPeriodicWorkPolicy.KEEP,
+            workRequest
+        )
+
+        NewsGenre.TITLES.forEach {
+            viewModel.downloadNews(it, 50)
+        }
 
         binding.newsSearchView.apply {
 
@@ -176,27 +199,6 @@ class HomeFragment : Fragment() {
 
         }
 
-        with(NotificationManagerCompat.from(requireContext())) {
-            if (ActivityCompat.checkSelfPermission(
-                    requireActivity(),
-                    android.Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                return@with
-            }
-        }
-
-        val workRequest = PeriodicWorkRequestBuilder<NewsDownloadWorker>(
-            Duration.ofHours(2),
-            Duration.ofMinutes(15)
-        ).setConstraints(Constraints.Builder().build()).build()
-
-        WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
-            NewsDownloadWorker::class.java.simpleName,
-            ExistingPeriodicWorkPolicy.KEEP,
-            workRequest
-        )
-
         binding.allNewsRV.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = adapterNewsHead
@@ -241,6 +243,8 @@ class HomeFragment : Fragment() {
             }
 
         }
+
+
 
     }
 

@@ -2,16 +2,23 @@ package com.param.newsbit.repo
 
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.map
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.liveData
+import androidx.paging.log
+import androidx.paging.map
 import com.param.newsbit.api.TStarAPI
 import com.param.newsbit.dao.NewsDao
 import com.param.newsbit.entity.News
 import com.param.newsbit.entity.NewsFilter
 import com.param.newsbit.model.parser.ChatGPTService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -87,6 +94,7 @@ class Repository @Inject constructor(
                 )
             }
         ).liveData
+
 
     }
 
