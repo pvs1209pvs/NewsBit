@@ -43,21 +43,17 @@
             </LinearLayout>
 
             <androidx.appcompat.widget.Toolbar
+                app:buttonGravity="center_vertical"
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|center"
-                app:contentInsetEnd="0dp"
-                app:contentInsetLeft="0dp"
-                app:contentInsetRight="0dp"
-                app:contentInsetStart="0dp"
                 app:layout_collapseMode="pin">
 
                 <TextView
                     android:id="@+id/tv"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="#80000000"
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="28dp"
                     android:textAppearance="@style/TextAppearance.Material3.TitleLarge"

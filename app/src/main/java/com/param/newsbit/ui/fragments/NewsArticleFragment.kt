@@ -1,5 +1,6 @@
 package com.param.newsbit.ui.fragments
 
+import android.graphics.Color
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
@@ -17,6 +18,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import coil.load
 import coil.size.Scale
@@ -55,10 +57,23 @@ class NewsArticleFragment : Fragment() {
 
         super.onViewCreated(view, savedInstanceState)
 
-        binding.apply {
-            tv.text = args.newsTitle
-            body.movementMethod = ScrollingMovementMethod()
+        binding.toolbar.apply {
+
+            setBackgroundColor(Color.valueOf(0f, 0f, 0f, 0.5f).toArgb())
+
+            setNavigationIcon(R.drawable.baseline_arrow_back_24)
+
+            setNavigationOnClickListener {
+                findNavController().popBackStack()
+            }
+
+
         }
+
+
+        binding.tv.text = args.newsTitle
+
+        binding.body.movementMethod = ScrollingMovementMethod()
 
         binding.swapFab.setOnClickListener {
 
@@ -70,7 +85,7 @@ class NewsArticleFragment : Fragment() {
         }
 
         binding.newsBookmarkFab.setOnClickListener {
-                viewModel.toggleBookmark(args.newsUrl)
+            viewModel.toggleBookmark(args.newsUrl)
         }
 
         viewModel.getBookmarkLD(args.newsUrl).observe(viewLifecycleOwner) {
@@ -89,9 +104,7 @@ class NewsArticleFragment : Fragment() {
             binding.body.text = it
         }
 
-
         viewModel.summaryStatus.observe(viewLifecycleOwner) {
-
 
             val viewMode = it.first
             val status = it.second
@@ -144,68 +157,6 @@ class NewsArticleFragment : Fragment() {
 
         }
 
-        /*        viewModel.viewMode.observe(viewLifecycleOwner) {
-
-                    Log.i(TAG, "onViewCreated: ViewMode: $it")
-
-                    when (it) {
-
-                        NewsViewMode.SUMMARY -> {
-                            binding.summary.visibility = View.VISIBLE
-                            binding.body.visibility = View.GONE
-                            binding.summaryProgressBar.visibility = View.VISIBLE
-                            binding.errorMsg.visibility = View.VISIBLE
-                        }
-
-                        NewsViewMode.FULL -> {
-                            binding.summary.visibility = View.GONE
-                            binding.body.visibility = View.VISIBLE
-                            binding.summaryProgressBar.visibility = View.GONE
-                            binding.errorMsg.visibility = View.GONE
-                        }
-
-                        else -> {}
-
-                    }
-
-                }
-
-                viewModel.downloadSummaryStatus.observe(viewLifecycleOwner) {
-
-                    when (it) {
-
-                        NetworkStatus.NOT_STARTED -> {
-                            binding.summaryProgressBar.visibility = View.GONE
-                            binding.errorMsg.visibility = View.GONE
-                        }
-
-                        NetworkStatus.IN_PROGRESS -> {
-                            binding.summaryProgressBar.visibility = View.VISIBLE
-                            binding.errorMsg.visibility = View.GONE
-
-                        }
-
-                        NetworkStatus.SUCCESS -> {
-                            binding.summaryProgressBar.visibility = View.GONE
-                            binding.errorMsg.visibility = View.GONE
-
-                        }
-
-                        NetworkStatus.ERROR -> {
-                            binding.summaryProgressBar.visibility = View.GONE
-                            binding.errorMsg.visibility = View.VISIBLE
-                            binding.body.visibility = View.GONE
-
-                        }
-
-                        else -> {}
-
-                    }
-
-                }
-
-            */
-
         lifecycleScope.launch(Dispatchers.IO) {
 
             Log.i(TAG, "News image url: ${args.newsImgUrl.toString()}")
@@ -218,7 +169,6 @@ class NewsArticleFragment : Fragment() {
             }
 
         }
-
 
     }
 
