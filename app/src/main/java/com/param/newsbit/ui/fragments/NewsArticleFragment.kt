@@ -17,6 +17,8 @@ import androidx.navigation.fragment.navArgs
 import coil.load
 import coil.size.Scale
 import coil.transform.RoundedCornersTransformation
+import com.google.android.material.snackbar.BaseTransientBottomBar.ANIMATION_MODE_SLIDE
+import com.google.android.material.snackbar.Snackbar
 import com.param.newsbit.R
 import com.param.newsbit.databinding.FragmentNewsArticleBinding
 import com.param.newsbit.entity.NetworkStatus
@@ -136,8 +138,13 @@ class NewsArticleFragment : Fragment() {
 
                         NetworkStatus.ERROR -> {
                             binding.swipeRefreshSummary.isRefreshing = false
-                            Toast.makeText(context, "Failed to refresh summary", Toast.LENGTH_SHORT)
+
+                            Snackbar
+                                .make(binding.root, "Failed to refresh summary", Snackbar.LENGTH_LONG)
+                                .setAnchorView(requireActivity().findViewById(R.id.bottomNavigationView))
+                                .setAnimationMode(ANIMATION_MODE_SLIDE)
                                 .show()
+
                         }
 
                     }

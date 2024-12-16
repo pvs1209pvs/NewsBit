@@ -14,8 +14,10 @@ import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.ui.graphics.Color
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
@@ -24,6 +26,8 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipDrawable
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.snackbar.BaseTransientBottomBar.ANIMATION_MODE_SLIDE
+import com.google.android.material.snackbar.Snackbar
 import com.param.newsbit.R
 import com.param.newsbit.databinding.FragmentHomeBinding
 import com.param.newsbit.entity.News
@@ -242,12 +246,24 @@ class HomeFragment : Fragment() {
                     binding.homeProgressBar.visibility = View.GONE
                     binding.newsRefresher.isRefreshing = false
 
+                    Snackbar
+                        .make(binding.root, "News updated", Snackbar.LENGTH_LONG)
+                        .setAnchorView(requireActivity().findViewById(R.id.bottomNavigationView))
+                        .setAnimationMode(ANIMATION_MODE_SLIDE)
+                        .show()
+
                 }
 
                 NetworkStatus.ERROR -> {
                     binding.newsRecyclerView.visibility = View.GONE
                     binding.homeProgressBar.visibility = View.GONE
                     binding.newsRefresher.isRefreshing = false
+
+                    Snackbar
+                        .make(binding.root, "Failed to refresh news", Snackbar.LENGTH_LONG)
+                        .setAnchorView(requireActivity().findViewById(R.id.bottomNavigationView))
+                        .setAnimationMode(ANIMATION_MODE_SLIDE)
+                        .show()
 
                 }
 
