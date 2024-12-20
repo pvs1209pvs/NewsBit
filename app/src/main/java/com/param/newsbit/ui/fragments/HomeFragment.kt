@@ -109,9 +109,6 @@ class HomeFragment : Fragment() {
 
         binding = FragmentHomeBinding.inflate(inflater, container, false)
 
-        binding.homeCollapsing.isTitleEnabled = false
-        binding.homeCollapsing.title = "fuck"
-
         createGenreChipGroup()
 
         val weeksInPastDateValidator = CalendarConstraints.Builder()
@@ -345,27 +342,6 @@ class HomeFragment : Fragment() {
 
         }
 
-
-    }
-
-    private fun createGenreChipGroup2(): List<Chip> {
-
-        return NewsGenre.TITLES.mapIndexed { index, genre ->
-            Chip(requireContext()).apply {
-                setChipDrawable(
-                    ChipDrawable.createFromAttributes(
-                        requireContext(),
-                        null,
-                        0,
-                        com.google.android.material.R.style.Widget_MaterialComponents_Chip_Choice
-                    )
-                )
-                text = genre
-                isCheckable = true
-                id = index
-            }
-
-        }
 
     }
 
