@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
+import androidx.navigation.NavDirections
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -43,33 +44,27 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        when (resources.configuration.orientation) {
+        val hostFragment = when (resources.configuration.orientation) {
+            Configuration.ORIENTATION_LANDSCAPE -> R.id.listFrag
+            Configuration.ORIENTATION_PORTRAIT -> R.id.navHostFrag
+            else -> throw IllegalStateException("Invalid state, should be portrait of landscape.")
+        }
 
-            Configuration.ORIENTATION_LANDSCAPE -> {
+        val navHost = supportFragmentManager.findFragmentById(hostFragment) as NavHostFragment
+        navController = navHost.navController
 
-            }
+        appBarConfiguration = AppBarConfiguration(navController.graph)
 
-            Configuration.ORIENTATION_PORTRAIT -> {
-                val navHostFragment =
-                    supportFragmentManager.findFragmentById(R.id.navHostFrag) as NavHostFragment
-                navController = navHostFragment.navController
-                appBarConfiguration = AppBarConfiguration(navController.graph)
+        binding.bottomNavigationView.apply {
 
-                binding.bottomNavigationView.apply {
+            setupWithNavController(navController)
 
-                    setupWithNavController(navController)
-
-                    setOnItemSelectedListener {
-                        if (navController.currentDestination?.id != it.itemId) {
-                            navController.navigate(it.itemId, null, null)
-                        }
-                        true
-                    }
-
+            setOnItemSelectedListener {
+                if (navController.currentDestination?.id != it.itemId) {
+                    navController.navigate(it.itemId, null, null)
                 }
+                true
             }
-
-            else -> {}
 
         }
 
@@ -84,7 +79,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onSupportNavigateUp() =
-        findNavController(R.id.navHostFrag).navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+        navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+//        findNavController(R.id.navHostFrag).navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
 
 
     private fun createNotificationChannel() {

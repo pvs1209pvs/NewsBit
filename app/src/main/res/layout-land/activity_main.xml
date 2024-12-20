@@ -16,20 +16,22 @@
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/listFrag"
-            android:name="com.param.newsbit.ui.fragments.HomeFragment"
+            android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="67" />
+            android:layout_marginBottom="?attr/actionBarSize"
+            android:layout_weight="50"
+            app:defaultNavHost="true"
+            app:navGraph="@navigation/nav_graph_land" />
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/detailsFrag"
             android:name="com.param.newsbit.ui.fragments.NewsArticleFragment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="33" />
+            android:layout_weight="50" />
 
     </LinearLayout>
-
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"

@@ -75,7 +75,6 @@ class HomeFragment : Fragment() {
                 "imgUrl" to it.imageUrl
             )
 
-
             if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 requireActivity()
                     .supportFragmentManager

@@ -54,15 +54,9 @@ class NewsArticleFragment : Fragment() {
 
         super.onViewCreated(view, savedInstanceState)
 
-        if(arguments?.getString("url")==null){
-
-        }
-
         val argsUrl = arguments?.getString("url") ?: return
         val argsTitle = arguments?.getString("title") ?: return
         val argsImageUrl = arguments?.getString("imgUrl")
-
-
 
         binding.toolbar.apply {
 
@@ -74,7 +68,6 @@ class NewsArticleFragment : Fragment() {
                 findNavController().popBackStack()
             }
 
-
         }
 
         binding.swipeRefreshSummary.apply {
@@ -83,7 +76,6 @@ class NewsArticleFragment : Fragment() {
                 isRefreshing = true
             }
         }
-
 
         binding.tv.text = argsTitle
         binding.body.movementMethod = ScrollingMovementMethod()
