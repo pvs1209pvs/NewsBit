@@ -71,7 +71,6 @@
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-
     <ProgressBar
         android:id="@+id/homeProgressBar"
         style="?android:attr/progressBarStyle"

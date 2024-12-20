@@ -8,9 +8,12 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
+import android.view.ViewGroup.LayoutParams
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.layout.Layout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
@@ -67,6 +70,11 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
+
+        val bottomNavHeight = binding.bottomNavigationView.height
+        val dp = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, bottomNavHeight * 1f, resources.displayMetrics)
+        Log.i(TAG, "onCreate: dp $bottomNavHeight")
+
 
 
 //        setSupportActionBar(binding.toolbar)

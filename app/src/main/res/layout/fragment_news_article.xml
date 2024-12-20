@@ -90,7 +90,6 @@
         android:layout_height="wrap_content"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-
         <androidx.core.widget.NestedScrollView
             android:id="@+id/nestedSummary"
             android:layout_width="match_parent"

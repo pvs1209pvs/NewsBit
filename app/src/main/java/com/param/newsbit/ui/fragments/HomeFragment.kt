@@ -2,9 +2,9 @@ package com.param.newsbit.ui.fragments
 
 import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.graphics.Color.TRANSPARENT
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,9 +19,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.work.Constraints
+import android.view.ViewGroup.LayoutParams
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipDrawable
 import com.google.android.material.datepicker.CalendarConstraints
@@ -63,7 +65,6 @@ class HomeFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
-
 
         val navigateOnClick: (News) -> Unit = {
 
@@ -162,6 +163,15 @@ class HomeFragment : Fragment() {
         }
 
         setupMenu()
+
+        val bottomNavView =
+            requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+
+        val bottomNavHeight = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            bottomNavView.height * 1f,
+            resources.displayMetrics
+        )
 
         binding.newsRecyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
