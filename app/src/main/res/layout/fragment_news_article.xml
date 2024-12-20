@@ -112,7 +112,6 @@
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-
     <TextView
         android:id="@+id/errorMsg"
         android:layout_width="match_parent"

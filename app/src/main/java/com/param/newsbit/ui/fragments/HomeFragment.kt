@@ -126,7 +126,7 @@ class HomeFragment : Fragment() {
         }
 
         val workRequest = PeriodicWorkRequestBuilder<NewsDownloadWorker>(
-            Duration.ofHours(2),
+            Duration.ofHours(12),
             Duration.ofMinutes(15)
         ).setConstraints(Constraints.Builder().build()).build()
 
