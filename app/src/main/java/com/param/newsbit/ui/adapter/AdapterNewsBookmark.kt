@@ -1,6 +1,7 @@
 package com.param.newsbit.ui.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -15,7 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class AdapterNewsBookmark(
-    private val bookmarkedNewsOnClick: (news:News) -> Unit
+    private val bookmarkedNewsOnClick: (news: News) -> Unit
 ) : RecyclerView.Adapter<AdapterNewsBookmark.ViewHolderNewsBookmark>() {
 
     inner class ViewHolderNewsBookmark(val binding: ItemNewsBookmarkBinding) :
@@ -47,15 +48,20 @@ class AdapterNewsBookmark(
 
         val news = list[position]
 
-        CoroutineScope(Dispatchers.Default).launch {
+        if (news.imageUrl == null) {
+            holder.binding.newsBookmarkImage.visibility = View.GONE
+        } else {
 
-            holder.binding.newsBookmarkImage.load(news.imageUrl) {
-                scale(Scale.FILL)
-                transformations(RoundedCornersTransformation(8f))
-                crossfade(100)
+            CoroutineScope(Dispatchers.IO).launch {
+                holder.binding.newsBookmarkImage.load(news.imageUrl) {
+                    scale(Scale.FILL)
+                    transformations(RoundedCornersTransformation(8f))
+                    crossfade(100)
+                }
             }
 
         }
+
 
         holder.binding.apply {
             newsBookmarkTitle.text = news.title

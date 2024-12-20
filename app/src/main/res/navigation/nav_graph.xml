@@ -56,6 +56,8 @@
         <action
             android:id="@+id/action_bookmarkFragment_to_newsArticleFragment"
             app:destination="@id/newsArticleFragment" />
+
+
     </fragment>
 
 </navigation>

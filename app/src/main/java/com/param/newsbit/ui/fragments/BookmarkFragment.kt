@@ -1,14 +1,17 @@
 package com.param.newsbit.ui.fragments
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.param.newsbit.R
 import com.param.newsbit.databinding.FragmentBookmarkBinding
 import com.param.newsbit.entity.News
 import com.param.newsbit.viewmodel.ViewModel
@@ -35,18 +38,39 @@ class BookmarkFragment : Fragment() {
 
         super.onCreate(savedInstanceState)
 
+
+
+
         val bookmarkedNewsOnClick: (news: News) -> Unit = {
 
-            val action = BookmarkFragmentDirections.actionBookmarkFragmentToNewsArticleFragment(
-                it.url,
-                it.title,
-                it.pubDate.toString(),
-                it.isBookmarked,
-                it.imageUrl
-
+            val bundle = bundleOf(
+                "url" to it.url,
+                "title" to it.title,
+                "date" to it.pubDate.toString(),
+                "isBook" to it.isBookmarked,
+                "imgUrl" to it.imageUrl
             )
 
-            findNavController().navigate(action)
+            when(resources.configuration.orientation){
+
+                Configuration.ORIENTATION_LANDSCAPE -> {
+                    requireActivity()
+                        .supportFragmentManager
+                        .beginTransaction()
+                        .replace(R.id.detailsFrag, NewsArticleFragment::class.java, bundle)
+                        .commit()
+                }
+
+                Configuration.ORIENTATION_PORTRAIT -> {
+                    findNavController().navigate(
+                        R.id.action_bookmarkFragment_to_newsArticleFragment,
+                        bundle
+                    )
+                }
+
+                else -> throw IllegalStateException("Bloody heLLLL.")
+
+            }
 
         }
 
