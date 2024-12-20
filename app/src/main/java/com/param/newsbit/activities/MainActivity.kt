@@ -4,8 +4,8 @@ import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.content.DialogInterface
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
@@ -13,11 +13,11 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.param.newsbit.R
 import com.param.newsbit.databinding.ActivityMainBinding
@@ -31,37 +31,55 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
 
-    private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+    private lateinit var binding: ActivityMainBinding
 
-    private val navController by lazy { (supportFragmentManager.findFragmentById(R.id.navHostFrag) as NavHostFragment).navController }
+    private lateinit var navController: NavController
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
 
-        createNotificationChannel()
-
+        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-//        setSupportActionBar(binding.toolbar)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
-//        setupActionBarWithNavController(navController, appBarConfiguration)
 
-        binding.bottomNavigationView.apply {
+        when (resources.configuration.orientation) {
 
-            setupWithNavController(navController)
+            Configuration.ORIENTATION_LANDSCAPE -> {
 
-            setOnItemSelectedListener {
-                if (navController.currentDestination?.id != it.itemId) {
-                    navController.navigate(it.itemId, null, null)
-                }
-                true
             }
+
+            Configuration.ORIENTATION_PORTRAIT -> {
+                val navHostFragment =
+                    supportFragmentManager.findFragmentById(R.id.navHostFrag) as NavHostFragment
+                navController = navHostFragment.navController
+                appBarConfiguration = AppBarConfiguration(navController.graph)
+
+                binding.bottomNavigationView.apply {
+
+                    setupWithNavController(navController)
+
+                    setOnItemSelectedListener {
+                        if (navController.currentDestination?.id != it.itemId) {
+                            navController.navigate(it.itemId, null, null)
+                        }
+                        true
+                    }
+
+                }
+            }
+
+            else -> {}
 
         }
 
-        requestPermissions()
 
+//        setSupportActionBar(binding.toolbar)
+//        setupActionBarWithNavController(navController, appBarConfiguration)
+
+
+        createNotificationChannel()
+        requestPermissions()
 
     }
 
@@ -96,15 +114,18 @@ class MainActivity : AppCompatActivity() {
 
         val notificationPermissionResultLauncher = registerForActivityResult(
             contract = ActivityResultContracts.RequestPermission(),
-            callback = {isGranted ->
+            callback = { isGranted ->
 
-                Log.i(TAG, "requestPermissions: ${Manifest.permission.POST_NOTIFICATIONS} $isGranted")
+                Log.i(
+                    TAG,
+                    "requestPermissions: ${Manifest.permission.POST_NOTIFICATIONS} $isGranted"
+                )
 
-                if(!isGranted){
+                if (!isGranted) {
                     AlertDialog.Builder(this)
                         .setTitle("Notification Permission Denied")
                         .setMessage("You won't be notified when the new articles are available.")
-                        .setPositiveButton("OK") { p0, p1 ->  }
+                        .setPositiveButton("OK") { p0, p1 -> }
                         .show()
                 }
 
@@ -124,7 +145,7 @@ class MainActivity : AppCompatActivity() {
                 AlertDialog.Builder(this)
                     .setTitle("Request Notification permission")
                     .setMessage("Enable Notification permission to be notified about new articles available.")
-                    .setPositiveButton("OK") { p0, p1 ->  }
+                    .setPositiveButton("OK") { p0, p1 -> }
                     .show()
 
             }

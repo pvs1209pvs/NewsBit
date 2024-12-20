@@ -1,6 +1,7 @@
 package com.param.newsbit.ui.fragments
 
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Color.TRANSPARENT
 import android.os.Bundle
 import android.util.Log
@@ -10,6 +11,7 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.os.bundleOf
 import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -62,15 +64,28 @@ class HomeFragment : Fragment() {
 
         super.onCreate(savedInstanceState)
 
+
         val navigateOnClick: (News) -> Unit = {
-            val action = HomeFragmentDirections.actionHomeToNewsArticle(
-                it.url,
-                it.title,
-                it.pubDate.toString(),
-                it.isBookmarked,
-                it.imageUrl
+
+            val bundle = bundleOf(
+                "url" to it.url,
+                "title" to it.title,
+                "date" to it.pubDate.toString(),
+                "isBook" to it.isBookmarked,
+                "imgUrl" to it.imageUrl
             )
-            findNavController().navigate(action)
+
+
+            if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                requireActivity()
+                    .supportFragmentManager
+                    .beginTransaction()
+                    .replace(R.id.detailsFrag, NewsArticleFragment::class.java, bundle)
+                    .commit()
+
+            } else {
+                findNavController().navigate(R.id.actionHomeToNewsArticle, bundle)
+            }
         }
 
         val bookmarkOnClick: (News) -> Unit = {
@@ -146,6 +161,8 @@ class HomeFragment : Fragment() {
 
                 )
         }
+
+
 
         binding.newsSearchView.apply {
 

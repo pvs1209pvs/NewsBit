@@ -27,6 +27,7 @@ import com.param.newsbit.viewmodel.ViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.math.log
 
 
 @AndroidEntryPoint
@@ -35,7 +36,8 @@ class NewsArticleFragment : Fragment() {
     private val TAG = javaClass.simpleName
 
     private lateinit var binding: FragmentNewsArticleBinding
-    private val args by navArgs<NewsArticleFragmentArgs>()
+
+    //    private val args by navArgs<NewsArticleFragmentArgs>()
     private val viewModel by viewModels<ViewModel>()
 
 
@@ -52,6 +54,16 @@ class NewsArticleFragment : Fragment() {
 
         super.onViewCreated(view, savedInstanceState)
 
+        if(arguments?.getString("url")==null){
+
+        }
+
+        val argsUrl = arguments?.getString("url") ?: return
+        val argsTitle = arguments?.getString("title") ?: return
+        val argsImageUrl = arguments?.getString("imgUrl")
+
+
+
         binding.toolbar.apply {
 
             setBackgroundColor(Color.valueOf(0f, 0f, 0f, 0.5f).toArgb())
@@ -67,14 +79,13 @@ class NewsArticleFragment : Fragment() {
 
         binding.swipeRefreshSummary.apply {
             setOnRefreshListener {
-                viewModel.refreshSummary(args.newsUrl)
+                viewModel.refreshSummary(argsUrl)
                 isRefreshing = true
             }
         }
 
 
-        binding.tv.text = args.newsTitle
-
+        binding.tv.text = argsTitle
         binding.body.movementMethod = ScrollingMovementMethod()
 
         binding.swapFab.setOnClickListener {
@@ -87,22 +98,22 @@ class NewsArticleFragment : Fragment() {
         }
 
         binding.newsBookmarkFab.setOnClickListener {
-            viewModel.toggleBookmark(args.newsUrl)
+            viewModel.toggleBookmark(argsUrl)
         }
 
-        viewModel.getBookmarkLD(args.newsUrl).observe(viewLifecycleOwner) {
+        viewModel.getBookmarkLD(argsUrl).observe(viewLifecycleOwner) {
             val draw = if (it == 1) R.drawable.ic_round_bookmark_24
             else R.drawable.ic_round_bookmark_border_24
             binding.newsBookmarkFab.setImageDrawable(resources.getDrawable(draw))
         }
 
-        viewModel.downloadSummary(args.newsUrl)
+        viewModel.downloadSummary(argsUrl)
 
-        viewModel.selectSummary(args.newsUrl).observe(viewLifecycleOwner) {
+        viewModel.selectSummary(argsUrl).observe(viewLifecycleOwner) {
             binding.summary.text = it
         }
 
-        viewModel.getNewsBody(args.newsUrl).observe(viewLifecycleOwner) {
+        viewModel.getNewsBody(argsUrl).observe(viewLifecycleOwner) {
             binding.body.text = it
         }
 
@@ -198,9 +209,9 @@ class NewsArticleFragment : Fragment() {
 
         lifecycleScope.launch(Dispatchers.IO) {
 
-            Log.i(TAG, "News image url: ${args.newsImgUrl.toString()}")
+            Log.i(TAG, "News image url: $argsImageUrl")
 
-            binding.newsArticleImage.load(args.newsImgUrl) {
+            binding.newsArticleImage.load(argsImageUrl) {
                 transformations(RoundedCornersTransformation(8f))
                 crossfade(500)
                 scale(Scale.FIT)
