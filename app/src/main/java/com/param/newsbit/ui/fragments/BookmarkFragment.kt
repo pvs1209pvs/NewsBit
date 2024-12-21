@@ -10,7 +10,11 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.BaseTransientBottomBar.ANIMATION_MODE_SLIDE
+import com.google.android.material.snackbar.Snackbar
 import com.param.newsbit.R
 import com.param.newsbit.databinding.FragmentBookmarkBinding
 import com.param.newsbit.entity.News
@@ -25,6 +29,8 @@ class BookmarkFragment : Fragment() {
     private lateinit var adapterNewsBookmark: AdapterNewsBookmark
     private val viewModel: ViewModel by viewModels()
 
+    private lateinit var snackbar: Snackbar
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,9 +44,6 @@ class BookmarkFragment : Fragment() {
 
         super.onCreate(savedInstanceState)
 
-
-
-
         val bookmarkedNewsOnClick: (news: News) -> Unit = {
 
             val bundle = bundleOf(
@@ -51,7 +54,7 @@ class BookmarkFragment : Fragment() {
                 "imgUrl" to it.imageUrl
             )
 
-            when(resources.configuration.orientation){
+            when (resources.configuration.orientation) {
 
                 Configuration.ORIENTATION_LANDSCAPE -> {
                     requireActivity()
@@ -83,11 +86,39 @@ class BookmarkFragment : Fragment() {
 
         Log.d("Fragment Bookmark", "onViewCreated")
 
-
         binding.bookmarksNews.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = adapterNewsBookmark
         }
+
+        snackbar = Snackbar
+            .make(binding.root, "News removed from bookmark", Snackbar.LENGTH_SHORT)
+            .setAnchorView(requireActivity().findViewById(R.id.bottomNavigationView))
+            .setAnimationMode(ANIMATION_MODE_SLIDE)
+
+
+        val itemSwipeCallback = object : ItemTouchHelper.SimpleCallback(
+            0,
+            ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+        ) {
+
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ) = false
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+
+                val url = adapterNewsBookmark.getItem(viewHolder.absoluteAdapterPosition).url
+                viewModel.toggleBookmark(url)
+
+                snackbar.setAction("Undo") { viewModel.toggleBookmark(url) }.show()
+
+            }
+
+        }
+        ItemTouchHelper(itemSwipeCallback).attachToRecyclerView(binding.bookmarksNews)
 
         viewModel.selectNewsBookmark().observe(viewLifecycleOwner) {
             Log.d("bookmark frag", "${it.size} bookmarked items")
@@ -97,5 +128,9 @@ class BookmarkFragment : Fragment() {
 
     }
 
+    override fun onStop() {
+        super.onStop()
+        snackbar.dismiss()
+    }
 
 }

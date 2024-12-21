@@ -157,9 +157,8 @@ class HomeFragment : Fragment() {
                 limit = 50,
                 onStart = { viewModel.newsStatus.value = NetworkStatus.IN_PROGRESS },
                 onSuccess = { viewModel.newsStatus.postValue(NetworkStatus.SUCCESS) },
-                onError = { viewModel.newsStatus.postValue(NetworkStatus.ERROR) },
-
-                )
+                onError = { viewModel.newsStatus.postValue(NetworkStatus.ERROR) }
+            )
         }
 
         setupMenu()

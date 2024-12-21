@@ -35,6 +35,8 @@ class AdapterNewsBookmark(
 
     }
 
+    fun getItem(position: Int) = list[position]
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         ViewHolderNewsBookmark(
             ItemNewsBookmarkBinding.inflate(

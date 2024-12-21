@@ -77,6 +77,7 @@ class NewsArticleFragment : Fragment() {
             }
         }
 
+
         binding.tv.text = argsTitle
         binding.body.movementMethod = ScrollingMovementMethod()
 
